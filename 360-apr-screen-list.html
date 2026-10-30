@@ -5704,6 +5704,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <b>render_screen_list</b> com <i>projectId, search?, page, pageSize</i> (screens.ts:126).</li>
+          <li>Leitura via <b>read()</b> chama <b>listScreens</b> sem transação (screens.ts:126).</li>
+          <li>O serviço pagina (padrão 20, máx 100) e filtra por <i>key/título</i> (screens.ts:18-52).</li>
+          <li>Retorna resumos compactos por variante: <i>revs</i> e contagens de nós (screens.ts:18).</li>
+          <li>Cada item traz os <i>revs</i> para o CAS da próxima escrita (screens.ts:126).</li>
+          <li>Busca casa <i>key</i> e <i>title</i>; ordenação é por chave (screens.ts:18).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>render_screen_get</b> abre um item listado aqui (screens.ts:130).</li>
+          <li><b>render_map_get</b> mostra onde esses itens estão no mapa (screens.ts:219).</li>
+          <li><b>render_screen_create</b> cria o item que aqui aparece (screens.ts:136).</li>
+          <li><b>pageShape</b> padroniza <i>page/pageSize/search</i> em todas as listas (common.ts:20).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Página fora do total volta vazia, não erro; ajuste <i>page/pageSize</i> (screens.ts:18).</li>
+          <li><i>pageSize</i> máximo 100; acima disso o zod recusa (common.ts:20).</li>
+          <li>Resumo não traz árvore; para árvore use <i>get</i> com <i>projection full</i> (screens.ts:130).</li>
+          <li>Projeto sem tela retorna lista vazia, não 404 (screens.ts:18).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5722,6 +5763,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>page/pageSize</b> — paginação; padrão 1/20 (common.ts:20).</li>
+          <li><b>search</b> — filtro por chave e título (screens.ts:18).</li>
+          <li><b>Resumo compacto</b> — <i>revs</i> e contagens sem árvore (screens.ts:18).</li>
+          <li><b>read()</b> — leitura sem transação (common.ts:107).</li>
         </ul>
       </div>
 

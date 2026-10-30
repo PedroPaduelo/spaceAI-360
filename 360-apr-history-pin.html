@@ -5733,6 +5733,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <b>render_history_pin</b> com <i>projectId, baseKey, revisionId, pinned?</i> (padrão <i>true</i>) (screens.ts:195).</li>
+          <li>O <i>handler</i> roda em <b>transaction()</b> e delega a <b>historyPin</b> (screens.ts:195).</li>
+          <li>O serviço carrega o <i>design</i> e fixa/desfixa via <i>setRevisionPinned</i> (history.ts:63-67).</li>
+          <li>Fixada sobrevive à retenção <i>RENDER_REVISION_KEEP</i> e não conta nela (screens.ts:195).</li>
+          <li>Desfixar volta a ser podável a partir da próxima escrita da variante (screens.ts:195).</li>
+          <li>Idempotente: repetir o mesmo <i>pinned</i> não muda nada (common.ts:91).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>render_history_list</b> mostra o <i>pino</i> de cada revisão (screens.ts:184).</li>
+          <li><b>render_history_restore</b> restaura mesmo revisão fixada (screens.ts:203).</li>
+          <li><b>render_history_get</b> confirma o estado do pino (screens.ts:189).</li>
+          <li>Prisma: <i>RenderRevision.pinned default false</i> (schema.prisma:1492-1500).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><i>pinned true</i> em revisão já fixada não é erro; só reconfirma (common.ts:91).</li>
+          <li>Fixar não impede escrita nova; só impede a poda daquela revisão (screens.ts:195).</li>
+          <li>Desfixar não apaga na hora; a poda ocorre na próxima escrita (screens.ts:195).</li>
+          <li>Retenção conta só não fixadas; abuse do pino e o histórico cresce (screens.ts:195).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5751,6 +5792,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Pin (pinned)</b> — fixar revisão contra a poda (history.ts:63).</li>
+          <li><b>RENDER_REVISION_KEEP</b> — quantas não fixadas ficam por variante (screens.ts:195).</li>
+          <li><b>Idempotente (mark)</b> — repetir o mesmo valor não muda nada (common.ts:91).</li>
+          <li><b>setRevisionPinned</b> — grava o pino no banco (history.ts:63).</li>
+          <li><b>RenderRevision</b> — tabela com <i>pinned</i> (schema.prisma:1492).</li>
         </ul>
       </div>
 

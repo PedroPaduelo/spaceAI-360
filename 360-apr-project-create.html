@@ -5696,6 +5696,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <b>project_create</b> com <i>name</i> (1-200) e <i>description</i> até 20000 (core.ts:11).</li>
+          <li>O <i>handler</i> valida via <b>renderTool</b> com zod estrito; falha de parse vira <i>toolError</i> sem gravar (common.ts:107).</li>
+          <li>A org é resolvida do <i>actor</i> via <b>organizationForNewProject</b>, nunca do corpo (core.ts:13).</li>
+          <li>O serviço grava com <b>projectService.create</b> exigindo <i>organizationId</i> e <i>description ?? ''</i> (project.service.ts:154-157).</li>
+          <li>Retorna <i>{projectId, name, description}</i> no envelope <i>{ok, data, meta}</i> (core.ts:13).</li>
+          <li>Prisma cria a linha <b>Project</b> com <i>id uuid</i> e <i>deletedAt</i> nulo (schema.prisma:219-237).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>project_update</b> renomeia ou troca a descrição do mesmo <i>projectId</i> (core.ts:16).</li>
+          <li><b>project_delete</b> leva à lixeira com <i>deletedAt</i> e purga em 30 dias (core.ts:24; project.service.ts:184-185).</li>
+          <li><b>render_help</b> tópico <i>overview</i> explica que telas e mapa exigem <i>projectId</i> explícito (help.ts:118).</li>
+          <li>Telas do projeto nascem depois via <b>render_screen_create</b> com esse <i>projectId</i> (screens.ts:136).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><i>name</i> vazio ou &gt;200 e <i>description</i> &gt;20000 recusam no zod antes de qualquer I/O (core.ts:11).</li>
+          <li>Sem <i>organizationId</i> da sessão a criação não ocorre; usuário sem org recebe 403 (project.service.ts:154).</li>
+          <li>Não é transacional multi-tabela: é um <i>create</i> único; lixeira só existe para update/delete (project.service.ts:184-193).</li>
+          <li>Chamada global fora da org cai em 403 na borda antes do handler (common.ts:129-132 citado no diagrama).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5714,6 +5755,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>organizationId</b> — dono do projeto vindo da sessão; nunca do corpo (project.service.ts:154).</li>
+          <li><b>Actor</b> — quem chama, gravado via <i>currentToolCall</i> para auditoria (core.ts:13).</li>
+          <li><b>Envelope</b> — padrão <i>{ok, data, meta}</i> com <i>title/version 1.0.0</i> (common.ts:107).</li>
+          <li><b>Strict (zod .strict())</b> — campo desconhecido recusa a chamada (common.ts:107).</li>
+          <li><b>Lixeira (deletedAt)</b> — projeto apagado some na hora e purga depois (project.service.ts:184-185).</li>
         </ul>
       </div>
 

@@ -5706,6 +5706,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <b>project_delete</b> com <i>projectId uuid</i> do projeto (core.ts:24).</li>
+          <li>O <i>handler</i> valida via <b>renderTool</b> com zod estrito antes de I/O (common.ts:107).</li>
+          <li>O serviço executa <b>projectService.delete</b> marcando <i>deletedAt</i> e <i>deletedBatchId</i> (project.service.ts:184-188).</li>
+          <li>A resposta é <i>{projectId, deleted:true}</i>; o projeto some na hora mas purga depois (core.ts:24).</li>
+          <li>A purga apaga em cascata telas, revisões, mapa e catálogos do projeto e libera <i>RenderPort</i> (core.ts:24).</li>
+          <li>Prisma mantém a linha com <i>deletedAt</i> até <i>purgeAfter</i> de 30 dias (project.service.ts:115; schema.prisma:230-237).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>project_create</b> cria o <i>projectId</i> que aqui é apagado (core.ts:11).</li>
+          <li><b>project_update</b> altera o mesmo projeto sem apagar (core.ts:16).</li>
+          <li><b>render_help</b> tópico <i>overview</i> lista as regras de conflito e lixeira (help.ts:118).</li>
+          <li>Restauração via <i>POST /api/projects/:id/restore</i> em até 30 dias (core.ts:24).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Apagar projeto inexistente ou já purgado dá 404; não há <i>dryRun</i> aqui (project.service.ts:195-199).</li>
+          <li>Não há desfazer após a purga: bundle exportado antes é a única volta (core.ts:24).</li>
+          <li>Enquanto houver <i>RenderPort</i> de sistema global, a exclusão do sistema global trava (help.ts:39-50).</li>
+          <li>Escopo exigido: só admin da org apaga; chave de projeto é recusada (core.ts:13 citado).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5724,6 +5765,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Lixeira</b> — <i>deletedAt</i> + <i>deletedBatchId</i>; leitura só vê <i>deletedAt null</i> (project.service.ts:90).</li>
+          <li><b>Purge</b> — job que apaga o que passou de 30 dias (project.service.ts:79-84).</li>
+          <li><b>purgeAfter</b> — <i>deletedAt + 30 dias</i>, quando a exclusão fica definitiva (project.service.ts:115).</li>
+          <li><b>RenderPort</b> — auditoria de cópia de biblioteca/sistema liberada na purga (core.ts:24).</li>
+          <li><b>Restore</b> — volta da lixeira em 30 dias; 409 se não está na lixeira (project.service.ts:195-199).</li>
         </ul>
       </div>
 

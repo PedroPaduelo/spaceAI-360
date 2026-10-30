@@ -5665,6 +5665,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <b>render_usage</b> com <i>scope, projectId?</i> e <i>target</i> (componente/estilo/token) (catalog.ts:246).</li>
+          <li>Leitura via <b>transaction()</b> chama <b>usageTx</b> sem gravar (catalog.ts:246-250).</li>
+          <li>O serviço varre telas com <b>computeUsage</b>: telas, temas, templates e estilos (usage.ts:75).</li>
+          <li>Escopo <i>global</i> cobre projetos herdeiros; só catálogo materializado tem uso (catalog.ts:101-118).</li>
+          <li>Retorna consumidores para decidir antes de <i>remove/rename</i> (catalog.ts:246).</li>
+          <li>Design system não tem uso: só <i>{scope, projectId}</i> materializado rastreia (catalog.ts:101-118).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>render_validate</b> checa refs quebradas que o uso só lista (catalog.ts:252).</li>
+          <li><b>render_component_apply</b> com <i>rename/remove</i> exige migrar os usos listados (catalog.ts:218).</li>
+          <li><b>render_library_get</b> lê a biblioteca onde o alvo mora (catalog.ts:193).</li>
+          <li><b>render_help</b> tópico <i>catalog</i> manda checar uso antes de remover (help.ts:19-21).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Alvo de design system falha: uso só existe no materializado (catalog.ts:101-118).</li>
+          <li>Rastreio é estático, sem índice; pode não ver uso dinâmico fora da árvore (usage.ts:75).</li>
+          <li>Remover sem migrar trava com <i>CONSUMERS_EXIST</i>; migre os listados primeiro (help.ts:39-41).</li>
+          <li>Leitura não conta versão: use <i>render_component_get</i> para o <i>expectedVersion</i> (catalog.ts:214).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5683,6 +5724,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Usage (uso)</b> — onde o item é consumido: telas, templates, estilos (checks.ts:45).</li>
+          <li><b>Target</b> — entrada a rastrear: componente, estilo ou token (catalog.ts:246).</li>
+          <li><b>Global herdeiro</b> — projeto sem cópia lê o global; uso global cobre herdeiros (catalog.ts:101).</li>
+          <li><b>CONSUMERS_EXIST</b> — há quem use; migre antes de remover (help.ts:39-41).</li>
+          <li><b>scanScreen</b> — varredura da tela para achar refs (render-catalog-consumers.ts:80).</li>
         </ul>
       </div>
 

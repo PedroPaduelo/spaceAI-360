@@ -5765,6 +5765,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <b>render_screen_get</b> com <i>projectId, baseKey, projection, depth, nodeKey?, theme?</i> (screens.ts:130).</li>
+          <li>Leitura via <b>read()</b> chama <b>getScreenDetail</b> sem transação (screens.ts:130).</li>
+          <li>O serviço aceita <i>summary/outline/full</i>; <i>outline/full</i> trazem árvores com <i>depth</i> (screens.ts:53-95).</li>
+          <li><i>nodeKey</i> recorta só a subárvore; <i>theme</i> filtra a variante (screens.ts:130).</li>
+          <li>Retorna <i>revs, counts</i> e, no <i>full</i>, árvores validadas (screens.ts:53-95).</li>
+          <li>Tela ausente dá 404; variante ausente não é nula (help.ts:39-41).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>render_screen_list</b> lista com o mesmo resumo compacto (screens.ts:126).</li>
+          <li><b>render_node_get</b> é o recorte por <i>key</i> com tema obrigatório (screens.ts:170).</li>
+          <li><b>render_screen_update</b> usa os <i>revs</i> lidos aqui como CAS (screens.ts:156).</li>
+          <li><b>render_preview</b> resume URLs e posição da mesma tela (screens.ts:231).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><i>full</i> de árvore grande custa contexto; prefira <i>summary</i> e aprofunde com <i>nodeKey</i> (screens.ts:130).</li>
+          <li><i>depth</i> além de 48 é cortado; peça em fatias (screens.ts:130).</li>
+          <li>Leitura não garante escrita: o <i>rev</i> pode mudar antes do <i>apply</i> (help.ts:29-37).</li>
+          <li>Sem <i>theme</i> vêm as duas variantes; com ele, só uma (screens.ts:130).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5783,6 +5824,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Projection</b> — <i>summary</i> conta; <i>outline/full</i> trazem árvore (screens.ts:53).</li>
+          <li><b>nodeKey</b> — recorte da subárvore na leitura (screens.ts:130).</li>
+          <li><b>Depth</b> — limite de níveis no recorte (screens.ts:130).</li>
+          <li><b>read()</b> — só-leitura sem transação (screens.ts:130).</li>
         </ul>
       </div>
 

@@ -5710,6 +5710,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Validar entrada:</b> <i>taskId</i>, <i>title</i> (1–500) e <i>order</i> opcional (1–100.000) pelo <i>CreateTodoSchema</i>; sem <i>isCompleted</i> no MCP (tasks.ts:706-710; schemas/tasks.ts:285-289).</li>
+          <li><b>2. Passar pelo portão anti-BOLA:</b> <i>scopedArgsOf</i> marca o <i>taskId</i> como <i>task</i> e <i>withTaskAccess</i> confere antes do handler (tasks.ts:750-768).</li>
+          <li><b>3. Travar a task:</b> <i>lockTaskRow</i> com <i>FOR UPDATE</i>; 404 se a task não existe (task.service.ts:716; task.service.ts:388-392).</li>
+          <li><b>4. Definir a posição:</b> sem <i>order</i>, <i>max + 1</i> (primeiro vira 1); com <i>order</i>, usa o informado (task.service.ts:718-722).</li>
+          <li><b>5. Gravar e devolver:</b> <i>todo.create({ taskId, title, isCompleted: false, order })</i> retorna o <i>TodoRow</i> (task.service.ts:723-725; task.service.ts:63-71).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b><i>todo_update</i> marca o feito:</b> muda <i>title/isCompleted/order</i> do todo criado aqui (tasks.ts:714-729).</li>
+          <li><b><i>todo_delete</i> desfaz:</b> apaga fisicamente a linha sem evento de histórico (tasks.ts:730-742).</li>
+          <li><b><i>task_get</i> mostra o checklist:</b> <i>todos[]</i> em ordem com o progresso <i>todosCount/todosCompleted</i> (task.service.ts:699-705).</li>
+          <li><b><i>reorderTodos</i> reordena em lote:</b> exige exatamente os todos da task e grava 1..N em transação (task.service.ts:734-760).</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Sem idempotência:</b> repetir a chamada cria outro todo; <i>HINTS.create</i> não dedupica (tasks.ts:711).</li>
+          <li><b>Posição concorrente é segura:</b> a trava da task impede dois <i>max + 1</i> iguais em paralelo (task.service.ts:707-711).</li>
+          <li><b><i>order</i> não reordena os demais:</b> informar posição não desloca os existentes; use o reorder para renumerar (task.service.ts:718-722).</li>
+          <li><b>Chave fora do projeto recebe 404:</b> igual ao de task inexistente, nunca 403, para não sondar ids (task-access.service.ts:81-83).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5728,6 +5768,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>todoOrderField</b> — posição 1..100.000; zero e negativos recusados (schemas/tasks.ts:277-282).</li>
+          <li><b>lockTaskRow</b> — trava <i>FOR UPDATE</i> para conta de posição sem corrida (task.service.ts:388-392).</li>
+          <li><b>TodoRow</b> — <i>id, taskId, title, isCompleted, order</i> com CASCADE da task (schema.prisma:1042-1055).</li>
+          <li><b>withTaskAccess</b> — portão anti-BOLA antes de todo handler de task/todo (tasks.ts:759-768).</li>
         </ul>
       </div>
 

@@ -5716,6 +5716,40 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Validar entrada:</b> slug (1-64, minúsculas/dígitos/hífens simples), name (1-200) e description (1-1024) pelo CreateSkillSchema e skill-spec (schemas/skills.ts:31-45; lib/skill-spec.ts:74-87); handler recebe slug, name, description, content, author, version e tags (tools/core/skills.ts:119-127).</li>
+          <li><b>2. Checar unicidade:</b> getBySlug antes de gravar devolve SKILL_SLUG_TAKEN se existir (tools/core/skills.ts:130-131); source padrão é local e tags chegam em CSV e viram array (tools/core/skills.ts:132; schemas/skills.ts:39).</li>
+          <li><b>3. Gravar em transação:</b> create insere a skill e a versão 1 origin create com contentHash do pacote na mesma transação (services/skill.service.ts:281-296); retorna toSkillDetail com corpo e files[] sem conteúdo (tools/core/skills.ts:133; utils/serializers/skill.ts:66-83).</li>
+        </ol>
+      </div>
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>skill_import:</b> use quando a fonte é GitHub, URL ou texto colado; esta tool só cria do corpo inline (tools/core/skills.ts:118).</li>
+          <li><b>skill_get + skill_file_get:</b> conferem o corpo e os anexos da skill criada (tools/core/skills.ts:44-75).</li>
+          <li><b>skill_duplicate:</b> caminho para customizar built-in read-only que esta tool não altera (tools/core/skills.ts:94-112).</li>
+          <li><b>project_skill_add + skill_version_list:</b> ativam a skill no projeto e mostram a v1 recém-gravada (tools/core/skills.ts:298-323,240-258).</li>
+        </ul>
+      </div>
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Slug único global:</b> corrida entre checagem e insert cai no único do banco P2002 virando 409 slugConflict (services/skill.service.ts:298-301).</li>
+          <li><b>Teto de 1 MiB:</b> content acima de SKILL_CONTENT_MAX_LENGTH é recusado antes do parse (lib/skill-spec.ts:45; schemas/skills.ts:170-172).</li>
+          <li><b>Não idempotente:</b> repetir com slug livre cria outra skill; repetir com mesmo slug falha com SKILL_SLUG_TAKEN (tools/core/skills.ts:130-132).</li>
+        </ul>
+      </div>
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5734,6 +5768,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Slug</b> — nome Agent Skills da skill (1-64, minúsculas/dígitos/hífens simples); único no catálogo (lib/skill-spec.ts:23-25).</li>
+          <li><b>SKILL.md / frontmatter</b> — corpo em markdown mais cabeçalho YAML (name, description, license, compatibility, metadata, allowed-tools) (lib/skill-spec.ts:65-72).</li>
+          <li><b>contentHash</b> — SHA-256 do pacote canônico; ETag do export e base do versionamento (services/skill.service.ts:291-292).</li>
+          <li><b>Source gravável</b> — local, community ou imported; builtin só o seed atribui e é só leitura (schemas/skills.ts:26-29).</li>
         </ul>
       </div>
 

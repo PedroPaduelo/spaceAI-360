@@ -5744,6 +5744,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <b>render_history_get</b> com <i>projectId, baseKey, revisionId, includeSnapshot?</i> (screens.ts:189).</li>
+          <li>Leitura via <b>read()</b> chama <b>historyGet</b> sem transação (screens.ts:189).</li>
+          <li>O serviço carrega marcador, tamanhos e, com <i>includeSnapshot true</i>, a árvore anterior (history.ts:44).</li>
+          <li>Snapshot grande custa contexto; padrão vem sem ele (history.ts:44).</li>
+          <li>Revisão sem snapshot é normal em retenção parcial; erro só se id desconhecido (history.ts:44).</li>
+          <li>Prisma: linha <b>RenderRevision</b> com <i>pinned</i> e marcador (schema.prisma:1492-1500).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>render_history_list</b> lista o <i>revisionId</i> lido aqui (screens.ts:184).</li>
+          <li><b>render_history_diff</b> compara duas revisões abertas aqui (screens.ts:213).</li>
+          <li><b>render_history_restore</b> restaura a revisão lida aqui (screens.ts:203).</li>
+          <li><b>render_history_pin</b> fixa a revisão lida aqui (screens.ts:195).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><i>includeSnapshot true</i> em revisão grande pesa o contexto; use só se preciso (history.ts:44).</li>
+          <li>Marcador com <i>treeUnchanged</i> reaproveita a árvore atual; snapshot pode não existir (history.ts:52-76).</li>
+          <li>Revisão antiga pode não ter estilos gravados; <i>stylesCompared false</i> avisa (screens.ts:213).</li>
+          <li>Id fora da tela dá 404; confira <i>baseKey+revisionId</i> (history.ts:44).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5762,6 +5803,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Marker</b> — metadados da revisão (autor, diff, tamanhos) (history.ts:44).</li>
+          <li><b>includeSnapshot</b> — traz a árvore anterior (grande) (history.ts:44).</li>
+          <li><b>treeUnchanged</b> — revisão sem árvore própria; vale a atual (history.ts:52).</li>
+          <li><b>RenderRevision</b> — tabela do histórico com <i>pinned</i> (schema.prisma:1492).</li>
         </ul>
       </div>
 

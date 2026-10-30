@@ -5716,6 +5716,39 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Receber janela:</b> id mais offset e limit da janela do SKILL.md com defaults 0 e 16 KiB (tools/core/skills.ts:82-86; schemas/skills.ts:83-87,94-103).</li>
+          <li><b>2. Descrever export:</b> getByIdOrSlug sem linha vira SKILL_NOT_FOUND (tools/core/skills.ts:89-90); describeSkillExport regenera o frontmatter e fatia o SKILL.md sem partir UTF-8 (services/skill-export.service.ts:53-56; services/skill-files.ts:55-75).</li>
+          <li><b>3. Entregar pacote:</b> retorna slug, folder, contentHash, janela skillMd, files[] só metadados, download do .zip e hint (services/skill-export.service.ts:61-84); .zip com bytes fixos e modo 755 no shebang sai só pela REST (services/skill-export.service.ts:40-46,29-31).</li>
+        </ol>
+      </div>
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>skill_file_get:</b> lê cada anexo listado em files[] e o resto do SKILL.md via nextOffset (tools/core/skills.ts:58-75).</li>
+          <li><b>skill_import:</b> reimporta o pacote exportado com o mesmo contentHash (services/skill-import.service.ts:328-374).</li>
+          <li><b>skill_get:</b> mostra os metadados sem a janela do export; o ETag do .zip é o contentHash (routes/skills.ts:135-141).</li>
+        </ul>
+      </div>
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>MCP sem .zip inline:</b> nenhuma resposta MCP carrega o .zip nem anexos por limite de 25-64 KB (services/skill-export.service.ts:8-10).</li>
+          <li><b>Offset além do fim:</b> vira 422 SkillFileOffsetError com o tamanho real em details (services/skill-export.service.ts:56; services/skill-files.ts:107-114).</li>
+          <li><b>Import nunca grava SKILL.md como anexo:</b> o nome é reservado para o corpo (services/skill-files.ts:9-10).</li>
+        </ul>
+      </div>
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5734,6 +5767,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Frontmatter regenerado</b> — export remonta name, description e demais campos das colunas (services/skill-export.service.ts:53-56).</li>
+          <li><b>ETag</b> — contentHash do pacote; mesmo pacote gera mesmos bytes (services/skill-export.service.ts:40-46).</li>
+          <li><b>Shebang 755</b> — arquivo que começa com #! vira executável no .zip (services/skill-export.service.ts:29-31).</li>
+          <li><b>Janela skillMd</b> — path, mime, encoding, size, offset, length, nextOffset e content (services/skill-export.service.ts:65-75).</li>
         </ul>
       </div>
 

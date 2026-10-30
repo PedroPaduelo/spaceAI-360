@@ -5702,6 +5702,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <b>render_preview</b> com <i>projectId, baseKey, theme</i> (padrão <i>light</i>) (screens.ts:231).</li>
+          <li>Leitura via <b>read()</b> chama <b>previewInfo</b> sem transação e sem captura (screens.ts:236-243).</li>
+          <li>O serviço carrega o <i>design</i> e escolhe o tema efetivo com fallback <i>light</i> (map.ts:88-94).</li>
+          <li>URLs vêm de <b>screenPreviewUrl</b> (limpa) e <i>screenViewUrl</i> (editor) (render-view-url.ts:78).</li>
+          <li>Retorna <i>size, revs, position</i> no mapa e <i>note</i> de que URL não prova render (map.ts:88-112).</li>
+          <li>Sem <i>APP_URL</i> o preview vem nulo com <b>APP_URL_MISSING</b> (render-view-url.ts:90).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>render_screen_screenshot</b> fotografa a mesma URL limpa e devolve PNG (screens.ts:236).</li>
+          <li><b>render_screen_get</b> lê a árvore que o preview só resume (screens.ts:130).</li>
+          <li><b>render_map_get</b> mostra a <i>position {x,y,page}</i> usada aqui (screens.ts:219; map.ts:58).</li>
+          <li><b>render_help</b> tópico <i>screens</i> explica <i>theme vs requestedTheme</i> (help.ts:15-19).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Preview sem imagem: URL não é evidência de render; só o PNG prova (map.ts:88-112).</li>
+          <li>Tema pedido pode não existir; confira <i>theme</i> vs <i>requestedTheme</i> (screens.ts:236-243).</li>
+          <li>Sem <i>APP_URL</i> configurada não há URL fotografável (render-view-url.ts:90).</li>
+          <li>Manifesto corrompido não quebra o preview; só zera a <i>position</i> (map.ts:88-100).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5720,6 +5761,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Preview limpo</b> — página sem chrome do editor, única fotografável (map.ts:88-112).</li>
+          <li><b>Editor URL</b> — abre a tela no editor do projeto para gente (map.ts:88-112).</li>
+          <li><b>requestedTheme</b> — tema pedido; <i>theme</i> é o fotografado (screens.ts:236).</li>
+          <li><b>Position</b> — <i>{x,y,page}</i> do <i>artboard</i> no mapa (map.ts:88-100).</li>
+          <li><b>APP_URL_MISSING</b> — sem base configurada não há URL (render-view-url.ts:90).</li>
         </ul>
       </div>
 

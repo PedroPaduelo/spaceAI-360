@@ -5709,6 +5709,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <b>render_screen_update</b> com <i>projectId, baseKey, metadata?, theme+tree/styles?, expectedRev?, expectedDesignRev?</i> (screens.ts:156).</li>
+          <li>O <i>handler</i> roda em <b>transaction()</b> SERIALIZABLE (screens.ts:156).</li>
+          <li>Metadados exigem <i>expectedDesignRev</i>; variante exige <i>expectedRev</i> (0 cria a variante) (screens.ts:156).</li>
+          <li>O serviço <b>updateScreen</b> valida e regrava só o pedido (screens.ts:321).</li>
+          <li>Reescrever <i>light</i> recalcula o delta do <i>dark</i> (screens.ts:156).</li>
+          <li>Para troca pequena prefira <b>render_node_apply</b> por chave (screens.ts:156).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>render_screen_get</b> lê os <i>revs</i> para o CAS daqui (screens.ts:130).</li>
+          <li><b>render_node_apply</b> edita nós sem reenviar a árvore (screens.ts:176).</li>
+          <li><b>render_history_list</b> mostra a revisão criada por cada update (screens.ts:184).</li>
+          <li><b>render_map_get</b> reflete <i>family/route</i> mudados aqui (screens.ts:219).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Sem o <i>rev</i> certo dá <i>VERSION_CONFLICT</i>; releia e reenvie (screens.ts:156).</li>
+          <li>Enviar <i>tree</i> sem <i>theme</i> não escreve variante (screens.ts:156).</li>
+          <li>Árvore inteira custa contexto; miudeza vai de <i>node_apply</i> (screens.ts:156).</li>
+          <li><i>dryRun</i> ensaia sem gravar; use antes de reescrever o <i>light</i> (screens.ts:156).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5727,6 +5768,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>designRev</b> — CAS dos metadados; <i>expectedDesignRev</i> ao mudar título/família (screens.ts:156).</li>
+          <li><b>expectedRev</b> — CAS da variante; 0 cria a variante (screens.ts:156).</li>
+          <li><b>Delta dark</b> — escuro recalculado do claro (screens.ts:156).</li>
+          <li><b>transaction()</b> — tudo-ou-nada SERIALIZABLE (common.ts:107).</li>
         </ul>
       </div>
 

@@ -5690,6 +5690,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Receber a janela:</b> <i>projectId + from/to/includeUnscheduled/unscheduledLimit</i> pelo <i>RoadmapQuerySchema</i> (tasks.ts:162; schemas/roadmap.ts:27-41).</li>
+          <li><b>2. Resolver o período:</b> padrão hoje−30d até hoje+90d; janela explícita maior que 366 dias vira 400 <i>INVALID_WINDOW</i> (task-roadmap.service.ts:64-71; task-roadmap.service.ts:15-17).</li>
+          <li><b>3. Buscar quem cobre:</b> tasks com data que tocam a janela, ordenadas por <i>startAt asc</i>, até 1000+1 para saber se cortou (task-roadmap.service.ts:76-101).</li>
+          <li><b>4. Completar em lote:</b> dependências pelos ids da página e progresso dos todos por agregação, sem N+1 (task-roadmap.service.ts:107-130).</li>
+          <li><b>5. Caber em 64 KB:</b> <i>fitTimeline</i> corta datadas primeiro e marca <i>truncated</i>; sem-data só com <i>includeUnscheduled</i> (tasks.ts:168; tasks.ts:114-126).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>Mesmo service da REST:</b> <i>GET /projects/:projectId/roadmap</i> lê <i>taskRoadmapService.timeline</i> (regra BE-06, tasks.ts:153-155).</li>
+          <li><b><i>task_update</i> move na timeline:</b> <i>startAt/endAt</i> replanejam; <i>null</i> limpa (tasks.ts:228-252).</li>
+          <li><b><i>task_dependency_*</i> desenha as setas:</b> <i>dependsOnIds</i> pode apontar para fora da janela (task-roadmap.service.ts:106-119).</li>
+          <li><b>Janela vs. lista:</b> <i>task_list</i> filtra por status/prioridade; aqui filtra por período com datas (tasks.ts:133-152).</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Teto duplo:</b> service pagina até 1000 e a tool corta o JSON em 64 KB; <i>truncated true</i> pede estreitar <i>from/to</i> (task-roadmap.service.ts:87-101; tasks.ts:87-88).</li>
+          <li><b>Sem-data é opt-in:</b> sem <i>includeUnscheduled</i> elas nem entram; com ele, <i>unscheduledLimit</i> capa (padrão 100) e <i>unscheduledTotal</i> conta todas (task-roadmap.service.ts:147-168).</li>
+          <li><b>366 dias só com os dois lados:</b> <i>from</i> ou <i>to</i> sozinho não dispara o teto (task-roadmap.service.ts:66).</li>
+          <li><b>Projeto na lixeira é 404:</b> conferido via <i>projectService.exists</i> antes de qualquer consulta (task-roadmap.service.ts:61).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5708,6 +5748,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>RoadmapQuerySchema</b> — <i>from/to/includeUnscheduled/unscheduledLimit</i> da janela (schemas/roadmap.ts:27-41).</li>
+          <li><b>fitTimeline</b> — corta datadas primeiro para caber em 64 KB (tasks.ts:114-126).</li>
+          <li><b>TIMELINE_TOOL_MAX_BYTES</b> — 64 KB de JSON compacto por resposta de tool (tasks.ts:87-88).</li>
+          <li><b>dependsOnIds</b> — destino pode estar fora da janela; a seta precisa dele (task-roadmap.service.ts:106-119).</li>
         </ul>
       </div>
 

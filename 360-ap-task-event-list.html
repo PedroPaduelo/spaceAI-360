@@ -5731,6 +5731,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Receber a página:</b> <i>taskId + cursor/limit/order</i> pelo <i>TaskEventQuerySchema</i> (padrão 50, desc) (tasks.ts:272; schemas/tasks.ts:162-172).</li>
+          <li><b>2. Conferir a task:</b> inexistente vira 404 antes de paginar (task-events.ts:239-240).</li>
+          <li><b>3. Paginar por <i>seq</i>:</b> após o cursor, <i>seq lt</i> em <i>desc</i> e <i>gt</i> em <i>asc</i>; lê <i>limit+1</i> e conta o total em paralelo (task-events.ts:242-250).</li>
+          <li><b>4. Resolver atores:</b> nomes de <i>User/AgentKey</i> numa consulta por tabela, com payload desserializado (task-events.ts:199-227).</li>
+          <li><b>5. Apontar a próxima:</b> <i>nextCursor</i> é o <i>seq</i> do último item, ou <i>null</i> quando acabou (task-events.ts:257).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b><i>task_get</i> resume o fim:</b> últimos 50 eventos em ordem de gravação com <i>taskEventsTruncated</i> quando há mais (task.service.ts:168-174; task.service.ts:499-500).</li>
+          <li><b>Mesmo service da REST:</b> <i>GET /tasks/:taskId/events</i> chama o mesmo <i>list</i> (tasks.ts:274).</li>
+          <li><b>Quem grava aqui:</b> criação, edição, status, decisões, anexos, vínculos, dependências e lease, tudo na mesma transação da mudança (task-events.ts:1-14).</li>
+          <li><b>Ator vem do principal:</b> MCP grava como agente sem id da chave (<i>MCP_AGENT_CONTEXT</i>) (task-events.ts:57).</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b><i>seq</i>, não <i>createdAt</i>:</b> eventos da mesma transação saem no mesmo milissegundo; <i>createdAt</i> não ordena nem serve de cursor (schema.prisma:921-938).</li>
+          <li><b>Padrão é o mais recente:</b> <i>order desc</i> traz o fim primeiro; use <i>asc</i> para ler como crônica (schemas/tasks.ts:162-172).</li>
+          <li><b><i>limit</i> 1–200:</b> fora disso o parse recusa antes do banco (schemas/tasks.ts:162-172).</li>
+          <li><b>Chave restrita recebe 404:</b> fora do projeto, igual ao de id inexistente; fora de <i>tools/call</i>, <i>NO_TOOL_CALL</i> (task-access.service.ts:81-97).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5749,6 +5789,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>TaskEventQuerySchema</b> — <i>cursor/limit/order</i>; padrão 50 desc (schemas/tasks.ts:162-172).</li>
+          <li><b>seq</b> — ordem de gravação e cursor; autoincremento por task (schema.prisma:921-938).</li>
+          <li><b>TASK_DETAIL_EVENT_LIMIT</b> — 50 eventos no detalhe; o resto fica aqui (task.service.ts:126).</li>
+          <li><b>TaskEventPayloads</b> — rótulos gravados no evento para ler mesmo após vínculo sumir (task-events.ts:105-136).</li>
         </ul>
       </div>
 

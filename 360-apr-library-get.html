@@ -5673,6 +5673,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <b>render_library_get</b> com <i>scope, projectId?, kind ui/tokens/manifest</i> (catalog.ts:193).</li>
+          <li>Leitura via <b>transaction()</b> chama <b>getLibraryTx</b> sem gravar (catalog.ts:193-197).</li>
+          <li>O serviço resolve herança: projeto sem cópia herda o global com aviso (library.ts:12; validate.ts:146).</li>
+          <li>Biblioteca grande: prefira leituras de componente/estilo/token (catalog.ts:193).</li>
+          <li>Retorna <i>{library, version, scope resolution}</i> com bytes do payload (library.ts:12).</li>
+          <li>Para design system use <b>render_design_system_library_get</b>, não este (catalog.ts:193).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>render_library_put</b> grava a biblioteca inteira lida aqui (catalog.ts:199).</li>
+          <li><b>render_component_list</b> pagina o que aqui vem inteiro (catalog.ts:210).</li>
+          <li><b>render_validate</b> valida o conteúdo lido antes de ligar telas (catalog.ts:252).</li>
+          <li><b>readSystemUi</b> é o equivalente para design system (system-reads.ts:17).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Herança global traz aviso de depreciação após o freeze do legado (help.ts:39-50).</li>
+          <li>Não herda de outro projeto: só do global e só quando sem cópia (catalog.ts:101).</li>
+          <li>Payload grande custa contexto; use <i>projection compact</i> nas leituras granulares (projection.ts:17).</li>
+          <li>Versão 0 significa biblioteca inexistente; 0 cria no <i>put</i> (help.ts:39-41).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5691,6 +5732,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Kind</b> — qual biblioteca: <i>ui, tokens</i> ou <i>manifest</i> (catalog.ts:193).</li>
+          <li><b>Effective library</b> — a que vale: cópia do projeto ou global herdado (validate.ts:29).</li>
+          <li><b>Inheritance notice</b> — aviso quando veio do global (validate.ts:146).</li>
+          <li><b>Version</b> — número para o próximo <i>expectedVersion</i> (common.ts:25).</li>
+          <li><b>Design system</b> — kit-fonte; telas nunca leem direto (help.ts:29-37).</li>
         </ul>
       </div>
 

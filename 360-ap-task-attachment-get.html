@@ -5793,6 +5793,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Receber o endereço:</b> <i>taskId + attachmentId + offset/maxBytes</i> pelo <i>TaskAttachmentReadSchema</i> (tasks.ts:321-325; schemas/tasks.ts:188-204).</li>
+          <li><b>2. Localizar com escopo:</b> <i>findFirst({ id, taskId, deletedAt: null })</i>; de outra task ou removido vira 404 (task-attachment.service.ts:401-405).</li>
+          <li><b>3. Desviar por tipo:</b> <i>isTextAttachment</i> separa texto (txt/md/csv/json) de binário (png/jpg/pdf/zip) (task-attachment.service.ts:60-62; task-attachment.service.ts:54-55).</li>
+          <li><b>4. Texto em janela:</b> lê <i>windowBytes</i> (1 KB–200 KB, padrão 64 KB) a partir de <i>offset</i>, cortada em fronteira UTF-8, com <i>nextOffset</i> (task-attachment.service.ts:417-447; schemas/tasks.ts:174-182).</li>
+          <li><b>5. Binário inteiro ou 413:</b> até 512 KB volta em base64; acima disso, <i>PAYLOAD_TOO_LARGE</i> com o caminho HTTP (task-attachment.service.ts:408-414; task-attachment.service.ts:57-58).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b><i>task_attachment_list</i> é o índice:</b> metadados sem conteúdo apontam o que ler aqui (tasks.ts:306-315).</li>
+          <li><b><i>task_attachment_add</i> é a escrita:</b> mesmo teto de tamanho e mesma regra de tipo da leitura (tasks.ts:344-354).</li>
+          <li><b><i>task_context_bundle</i> reusa <i>readContent</i>:</b> texto inline até o orçamento do bundle (tasks.ts:283-295).</li>
+          <li><b>Download HTTP é a saída:</b> <i>GET /tasks/:taskId/attachments/:attachmentId</i> serve o binário grande (task-attachment.service.ts:65-67).</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b><i>offset/maxBytes</i> só valem para texto:</b> binário ignora os dois e volta inteiro (schemas/tasks.ts:188-204).</li>
+          <li><b><i>offset</i> além do fim é 422:</b> <i>too_big</i> no campo <i>offset</i>, não página vazia (task-attachment.service.ts:422-428).</li>
+          <li><b>Imagem volta como bloco:</b> <i>image/*</i> sai como <i>image + texto</i> com metadados; pdf/zip saem com <i>contentBase64</i> (tasks.ts:334-342).</li>
+          <li><b>Anti-BOLA igual:</b> chave fora do projeto recebe NOT_FOUND igual ao de task inexistente (tasks.ts:759-768).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5811,6 +5851,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>TaskAttachmentReadSchema</b> — janela de texto <i>offset/maxBytes</i> (1 KB–200 KB) (schemas/tasks.ts:188-204).</li>
+          <li><b>ATTACHMENT_BINARY_INLINE_MAX_BYTES</b> — 512 KB; acima disso só por HTTP (task-attachment.service.ts:57-58).</li>
+          <li><b>isTextAttachment</b> — texto é txt/md/csv/json; o resto é binário (task-attachment.service.ts:60-62).</li>
+          <li><b>attachmentDownloadPath</b> — <i>/api/tasks/:taskId/attachments/:id</i> para o binário grande (task-attachment.service.ts:65-67).</li>
         </ul>
       </div>
 

@@ -5753,6 +5753,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Receber o trio:</b> <i>taskId + promptId (uuid) + relationType + note?</i> pelo <i>PromptLinkSchema</i> (tasks.ts:649; schemas/prompts.ts:131-137).</li>
+          <li><b>2. Conferir mesmo projeto:</b> task e prompt precisam ter o mesmo <i>projectId</i>; de outro projeto vira 404 (task-decision.service.ts:615-621).</li>
+          <li><b>3. Recusar lixeira:</b> prompt com <i>deletedAt</i> vira 422 <i>in_trash</i> com instrução de restaurar (task-decision.service.ts:622-626).</li>
+          <li><b>4. Gravar idempotente:</b> trio existente só atualiza <i>note</i>; novo cria com <i>prompt_linked</i> e nome (task-decision.service.ts:629-638).</li>
+          <li><b>5. Devolver com resumo:</b> vínculo com prompt sem corpo; corpo vem com <i>prompt_get</i> (task-decision.service.ts:628-640).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b><i>task_prompt_list/unlink</i> completam o trio:</b> leem e removem com a mesma chave (tasks.ts:653-685).</li>
+          <li><b><i>task_create</i> não aceita pelo MCP:</b> <i>promptLinks</i> estouraria o teto de 15.000 tokens; vincule depois (tasks.ts:74-85).</li>
+          <li><b>Toolset <i>prompts</i> opt-in:</b> <i>link</i> e <i>list</i> carimbados fora do padrão; <i>unlink</i> fica em <i>tasks-admin</i> (tasks.ts:688-697).</li>
+          <li><b>Espelho de skill, com escopo:</b> skill é global, prompt é do projeto — aqui o projeto é conferido (task-decision.service.ts:610-614).</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Prompt é do projeto:</b> copiar este vínculo para outra task de outro projeto dá 404, mesmo com uuid válido (task-decision.service.ts:621).</li>
+          <li><b>Lixeira não vincula:</b> 422 <i>in_trash</i>, não 404; restaure antes (task-decision.service.ts:622-626).</li>
+          <li><b>Chave é o trio:</b> mesmo prompt pode ter <i>execution + reference + validation</i>; religar o mesmo só atualiza nota (task-decision.service.ts:627-638).</li>
+          <li><b><i>note</i> até 2000:</b> motivo do vínculo com limite menor que o de skill/memória (schemas/prompts.ts:131-137).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5771,6 +5811,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>PromptLinkSchema</b> — <i>promptId + relationType + note</i>; <i>execution</i> padrão (schemas/prompts.ts:131-137).</li>
+          <li><b>AgentPromptTaskRelation</b> — <i>execution, reference, validation</i> (schema.prisma:719-723).</li>
+          <li><b>agent_prompt_task_links</b> — único por trio, com nota e autor (schema.prisma:613-629).</li>
+          <li><b>PROMPT_TASK_LINK_TOOLS</b> — <i>link/list</i> em <i>prompts</i>, <i>unlink</i> em <i>tasks-admin</i> (tasks.ts:695-697).</li>
         </ul>
       </div>
 

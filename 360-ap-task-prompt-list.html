@@ -5689,6 +5689,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Receber só a task:</b> <i>{ taskId }</i> como uuid, sem filtro de relação (tasks.ts:659-660).</li>
+          <li><b>2. Passar pelo portão:</b> <i>withTaskAccess</i> confere o projeto dono antes do handler (tasks.ts:759-768).</li>
+          <li><b>3. Filtrar vivos:</b> <i>where { taskId, prompt: { deletedAt: null } }</i>; lixeira some e volta com restore (task-decision.service.ts:642-648).</li>
+          <li><b>4. Ordenar e incluir:</b> <i>include prompt { PROMPT_LINK_SELECT }</i> com <i>orderBy createdAt asc</i> (task-decision.service.ts:643-647).</li>
+          <li><b>5. Achatar o resumo:</b> <i>shapePromptLinks</i> desserializa <i>tags</i>; corpo nunca sai aqui (task-decision.service.ts:136; tasks.ts:657-658).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b><i>task_prompt_link/unlink</i> mantêm:</b> criam e removem com a mesma chave de trio (tasks.ts:642-685).</li>
+          <li><b><i>prompt_get</i> aprofunda:</b> corpo markdown com janela de <i>offset</i>; aqui só resumo (schemas/prompts.ts:36-49).</li>
+          <li><b><i>project_context</i> lista ativas:</b> prompts ativos do projeto com <i>mustRead</i>; aqui os vinculados à task (context.ts:204-218).</li>
+          <li><b>Espelho de <i>skill_list</i>:</b> mesma regra sem corpo por peso do markdown (task-decision.service.ts:106-113).</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Sem corpo por desenho:</b> corpo tem dezenas de KB; carregar todos estouraria o contexto (task-decision.service.ts:106-113).</li>
+          <li><b>Lixeira some sem aviso:</b> vínculo preservado, mas filtrado; restaurar traz de volta (task-decision.service.ts:642-648).</li>
+          <li><b>Sem filtro por relação:</b> todos os <i>relationType</i> voltam juntos (task-decision.service.ts:642-649).</li>
+          <li><b>Fora do padrão:</b> exige ligar o toolset <i>prompts</i>; sem ele, <i>Unknown tool</i> (tasks.ts:688-697).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5707,6 +5747,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>PROMPT_LINK_SELECT</b> — <i>id, name, description, tags, isActive, version</i> sem corpo (task-decision.service.ts:114-121).</li>
+          <li><b>shapePromptLinks</b> — lote com <i>tags</i> como array (task-decision.service.ts:136).</li>
+          <li><b>PromptLinkQuerySchema</b> — <i>relationType</i> padrão na remoção (schemas/prompts.ts:140-142).</li>
+          <li><b>TaskPromptLinkSchema</b> — vínculo com prompt em resumo, como a API devolve (schemas/prompts.ts:217-226).</li>
         </ul>
       </div>
 

@@ -5760,6 +5760,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <b>render_node_get</b> com <i>projectId, baseKey, theme, key, depth?</i> (screens.ts:170).</li>
+          <li>Leitura via <b>read()</b> chama <b>getNode</b> sem transação (screens.ts:170-174).</li>
+          <li>O serviço carrega o <i>design</i> e recorta só a subárvore do <i>key</i> (screens.ts:378).</li>
+          <li>Profundidade padrão 5, máximo 48; nó ausente é 404, não nulo (screens.ts:170).</li>
+          <li>Retorna o nó com chaves estáveis para o próximo <i>node_apply</i> (screens.ts:378).</li>
+          <li>Tema é obrigatório aqui; sem tema use <b>render_screen_get</b> (screens.ts:130).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>render_node_apply</b> edita o nó lido aqui via <i>key + expectedRev</i> (screens.ts:176).</li>
+          <li><b>render_screen_get</b> lê a tela inteira ou por <i>nodeKey+depth</i> (screens.ts:130).</li>
+          <li><b>render_component_extract</b> parte deste nó para criar componente (extract.ts:13).</li>
+          <li>Prisma: variante em <b>RenderScreen</b> com <i>rev</i> próprio (schema.prisma:1388).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><i>key</i> exige até 200 chars; fora disso o zod recusa antes do banco (screens.ts:170).</li>
+          <li>Profundidade além de 48 é cortada; peça de novo com <i>depth</i> menor (screens.ts:170).</li>
+          <li>Ler não devolve <i>expectedRev</i> de escrita; o <i>rev</i> vem do detalhe da variante (screens.ts:130).</li>
+          <li>Nó de <i>dark</i> pode não existir; variante ausente não é nula (help.ts:39-41).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5778,6 +5819,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Subárvore</b> — recorte da árvore a partir do <i>key</i> (screens.ts:378).</li>
+          <li><b>Depth</b> — quantos níveis descer; 0 só o nó (screens.ts:170).</li>
+          <li><b>RenderScreen.rev</b> — revisão da variante para o CAS (schema.prisma:1388).</li>
+          <li><b>read()</b> — só-leitura sem transação (screens.ts:170).</li>
         </ul>
       </div>
 

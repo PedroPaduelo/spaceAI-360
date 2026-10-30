@@ -5784,6 +5784,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <b>render_screen_screenshot</b> com <i>projectId, baseKey, theme?</i> (screens.ts:236).</li>
+          <li>Leitura prévia via <b>read(previewInfo)</b> sem transação; a espera (até 60s) é fora dela (screens.ts:236-243).</li>
+          <li>URLs vêm de <b>screenPreviewUrl</b>; sem <i>APP_URL</i> volta <i>reason APP_URL_MISSING</i> (render-view-url.ts:78-90).</li>
+          <li>Captura com <b>captureScreenshot</b> no tamanho gravado <i>{w,h}</i> (render-screenshot.ts:105).</li>
+          <li>Sem tinta vira <i>{image:null, reason, state?}</i>; estados em <i>render_help screens</i> (screens.ts:236).</li>
+          <li>Compara <i>theme</i> fotografado vs <i>requestedTheme</i>; <i>viewportClamped/overLimit</i> viram <i>warnings</i> (screens.ts:236-260).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>render_preview</b> devolve as mesmas URLs sem fotografar (screens.ts:231).</li>
+          <li><b>render_screen_get</b> mostra a árvore que o PNG renderiza (screens.ts:130).</li>
+          <li><b>render_help</b> tópico <i>screens</i> lista os estados da captura (help.ts:15).</li>
+          <li><b>captureScreenshot</b> tem teto próprio de tamanho e viewport (render-screenshot.ts:105).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Sem imagem não confie em URL, <i>warnings:[]</i> ou <i>valid:true</i>; só PNG prova (screens.ts:236).</li>
+          <li><i>viewportClamped</i> significa outro breakpoint (largura diferente da gravada) (screens.ts:236-260).</li>
+          <li><i>no-library/no-tokens</i> pede aplicar design system antes (help.ts:39-41).</li>
+          <li><i>css-failed</i> indica classe rejeitada que zerou o lote (help.ts:39-41).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5802,6 +5843,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>PNG (images[])</b> — foto real para OLHAR; vai em <i>content</i>, não no JSON (common.ts:107).</li>
+          <li><b>requestedTheme</b> — pedido vs <i>theme</i> fotografado (screens.ts:236).</li>
+          <li><b>viewportClamped</b> — foto em largura menor que a gravada (screens.ts:236-260).</li>
+          <li><b>overLimit</b> — imagem passou do teto do serviço (render-screenshot.ts:48-53).</li>
+          <li><b>SHOT_NOT_CONFIGURED</b> — serviço de captura sem configuração (render-screenshot.ts:88).</li>
         </ul>
       </div>
 

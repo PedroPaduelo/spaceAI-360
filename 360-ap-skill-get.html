@@ -5678,6 +5678,39 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Resolver id ou slug:</b> entrada é texto livre id (tools/core/skills.ts:50); o service testa o formato UUID e busca pelo where certo (services/skill.service.ts:215-221).</li>
+          <li><b>2. Tratar ausência:</b> sem linha retorna SKILL_NOT_FOUND antes de tocar em arquivos ou versões (tools/core/skills.ts:53-54).</li>
+          <li><b>3. Projetar detalhe:</b> toSkillDetail fatia o corpo em 12 KB e lista files[] só com metadados (utils/serializers/skill.ts:66-83; services/skill-files.ts:40-42); truncado traz contentNextOffset e contentHint para skill_file_get (utils/serializers/skill.ts:74-80).</li>
+        </ol>
+      </div>
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>skill_list:</b> descobre id/slug pelo catálogo enxuto antes de puxar o corpo aqui (tools/core/skills.ts:27-42).</li>
+          <li><b>skill_file_get:</b> lê um anexo de files[] ou o resto do corpo via path SKILL.md (tools/core/skills.ts:58-75).</li>
+          <li><b>skill_export + project_skill_list:</b> exporta o pacote e lista onde a skill está ativa (tools/core/skills.ts:76-93; tools/core/context.ts:265-290).</li>
+        </ul>
+      </div>
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Corte em 12 KB:</b> corpo maior vem com contentTruncated true; sem a segunda chamada o agente decide pelo começo (utils/serializers/skill.ts:16,66-68).</li>
+          <li><b>files[] sem conteúdo:</b> cada item tem só path, filename, size, mimeType e encoding (utils/serializers/skill.ts:81; schemas/skills.ts:313-320).</li>
+          <li><b>Slug com cara de UUID:</b> valor em formato UUID busca por id, nunca por slug (services/skill.service.ts:216).</li>
+        </ul>
+      </div>
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5696,6 +5729,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>UUID x slug</b> — UUID busca por id, resto busca por slug (services/skill.service.ts:215-221).</li>
+          <li><b>Truncamento 12 KB</b> — corpo acima de SKILL_GET_CONTENT_MAX_BYTES vem fatiado com contentNextOffset (utils/serializers/skill.ts:16,66-68).</li>
+          <li><b>SKILL_BODY_PATH</b> — caminho reservado SKILL.md que lê o corpo em vez de anexo (services/skill-files.ts:19).</li>
+          <li><b>Detalhe x resumo</b> — detalhe tem corpo e files[]; resumo tem só id, slug, description e tags (utils/serializers/skill.ts:66-83; utils/skill-summary.ts:13-18).</li>
         </ul>
       </div>
 

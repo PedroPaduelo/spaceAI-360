@@ -5762,6 +5762,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <b>render_screen_create</b> com <i>projectId, baseKey, title, light{tree,styles}, dark?</i> (screens.ts:136).</li>
+          <li>O <i>handler</i> valida <i>tree/styles</i> por <i>treeSchema/stylesSchema</i> e publica forma compacta (wire.ts:86-97).</li>
+          <li>O serviço <b>createScreen</b> barra duplicata com <i>NAME_TAKEN</i> e checa variantes (screens.ts:144-155).</li>
+          <li>Conta componentes com <b>getCompNames</b> e gera <i>warnings</i> sem travar (screens.ts:144-155).</li>
+          <li>Grava <b>RenderDesign</b> + linhas <b>RenderScreen</b> (<i>light</i> e <i>dark</i> com delta) em transação (screens.ts:144-176).</li>
+          <li><i>dryRun</i> só devolve o recibo; <i>width/height</i> padrão 1440x900 viram viewport do print (screens.ts:136).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>render_screen_compose</b> cria a mesma tela a partir de nomes (screens.ts:145).</li>
+          <li><b>render_screen_get</b> lê a tela criada com <i>summary/outline/full</i> (screens.ts:130).</li>
+          <li><b>render_component_instantiate</b> monta o nó com <i>styleKeys</i> exigidos aqui (catalog.ts:258).</li>
+          <li><b>render_map_get</b> mostra onde a tela caiu no mapa (screens.ts:219).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><i>styles[]</i> só aceita <i>styleKeys</i> da biblioteca; nunca Tailwind (screens.ts:136).</li>
+          <li><i>baseKey</i> só com minúsculas, dígitos e hífen; rota precisa de <i>/</i> inicial (screens.ts:126-136).</li>
+          <li>Componente desconhecido vira <i>warning</i>, não erro; primitivos (Box/Text) pulam a checagem (help.ts:39-41).</li>
+          <li>Reescrever <i>light</i> recalcula o delta do <i>dark</i>; edite miudeza com <i>node_apply</i> (screens.ts:156).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5780,6 +5821,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>baseKey</b> — slug da tela; único por projeto (screens.ts:144).</li>
+          <li><b>Variant (light/dark)</b> — cópia por tema com <i>rev</i> próprio (screens.ts:144).</li>
+          <li><b>styleKeys</b> — chaves da biblioteca ativadas na tela (screens.ts:136).</li>
+          <li><b>NAME_TAKEN</b> — baseKey já existe; escolha outro (screens.ts:144).</li>
+          <li><b>Delta dark</b> — diff do escuro contra o claro canônico (screens.ts:144).</li>
         </ul>
       </div>
 

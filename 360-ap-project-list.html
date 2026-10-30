@@ -5720,6 +5720,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Resolver o alcance:</b> <i>toolCallProjectIds()</i> devolve os <i>projectIds</i> do principal do <i>tools/call</i> em curso, ou falha fechado fora dele (project-scope.ts:45-52; project-scope.ts:36-37).</li>
+          <li><b>2. Chamar a listagem:</b> o handler de <i>project_list</i> pede <i>list({ skip: 0, take: 200 })</i> com esse alcance (projects.ts:24).</li>
+          <li><b>3. Filtrar no banco:</b> o service monta <i>where = { ...ACTIVE, ...reachable(projectIds) }</i>, de modo que projeto na lixeira nunca aparece (project.service.ts:130; project.service.ts:89-90).</li>
+          <li><b>4. Ordenar e contar:</b> <i>findMany</i> ordena por <i>updatedAt desc</i> e <i>count</i> usa o mesmo <i>where</i>, com agregados via <i>COUNT_INCLUDE</i> (project.service.ts:131-140; project.service.ts:96-109).</li>
+          <li><b>5. Projetar o resumo:</b> cada linha vira <i>toProjectSummary</i> com <i>tags: []</i> e <i>counts</i> sem prompts nem timestamps; o total é descartado (project-summary.ts:29-40; projects.ts:25).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b><i>project_get</i> completa o par:</b> lê um projeto por id com contadores e timestamps, enquanto <i>project_list</i> resume sem paginação (projects.ts:40-43; project.service.ts:150-152).</li>
+          <li><b><i>project_context</i> é o próximo passo:</b> regras, prompts ativos, skills ativas e raiz de knowledge do projeto, tudo em resumos com <i>mustRead</i> (context.ts:180-262).</li>
+          <li><b><i>project_skill_list</i> detalha um contador:</b> o <i>counts.skills</i> do resumo vira a lista de vínculos com <i>isActive</i> (context.ts:265-290).</li>
+          <li><b>Lixeira única (DAT-07):</b> <i>ACTIVE = { deletedAt: null }</i> vale para <i>list</i>, <i>getById</i> e <i>exists</i>; purgar remove arquivos depois do commit (project.service.ts:89-90; project.service.ts:262-299).</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b><i>tags</i> sempre vazio:</b> campo removido do banco em 2026 e mantido por compatibilidade com clientes MCP (project-summary.ts:39).</li>
+          <li><b>Sem paginação para o agente:</b> <i>skip 0, take 200</i> fixos; catálogo maior que isso é truncado sem aviso de <i>truncated</i> (projects.ts:24).</li>
+          <li><b>404 não distingue motivo:</b> fora do alcance da chave recebe o mesmo 404 de inexistente, para não sondar ids (project-scope.ts:11-14).</li>
+          <li><b>Fora do gateway falha fechado:</b> sem <i>tools/call</i> em curso, <i>toolCallProjectIds()</i> lança <i>NO_TOOL_CALL</i> antes de qualquer I/O (project-scope.ts:45-52).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5738,6 +5778,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>projectIds / ReachableProjects</b> — projetos que o principal alcança; <i>undefined</i> = todos (project-scope.ts:22-29).</li>
+          <li><b>ACTIVE</b> — filtro <i>{ deletedAt: null }</i>; lixeira nunca aparece nas leituras (project.service.ts:89-90).</li>
+          <li><b>toProjectSummary</b> — projeção leve sem timestamps e com <i>tags: []</i> (project-summary.ts:29-40).</li>
+          <li><b>COUNT_INCLUDE</b> — agregados <i>_count</i> com memórias ativas e knowledges não apagadas (project.service.ts:96-109).</li>
         </ul>
       </div>
 

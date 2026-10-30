@@ -5701,6 +5701,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <b>project_update</b> com <i>projectId uuid</i> e <i>name/description</i> opcionais (core.ts:16).</li>
+          <li>O <i>handler</i> valida via <b>renderTool</b> com zod estrito (common.ts:107).</li>
+          <li>O serviço executa <b>projectService.update</b> só com os campos enviados (project.service.ts:162-183).</li>
+          <li>Sem campo novo nada muda além da validação; nome segue 1-200 e descrição até 20000 (core.ts:16).</li>
+          <li>Retorna <i>{projectId, name, description}</i> atualizados no envelope (core.ts:16).</li>
+          <li>Linha <b>Project</b> segue ativa (<i>deletedAt null</i>); lixeira não é tocada (schema.prisma:219-237).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>project_create</b> cria o projeto que aqui é editado (core.ts:11).</li>
+          <li><b>project_delete</b> leva o mesmo <i>projectId</i> à lixeira (core.ts:24).</li>
+          <li><b>render_help</b> tópico <i>overview</i> resume o ciclo criar-editar-apagar (help.ts:118).</li>
+          <li>Telas e mapa continuam no mesmo <i>projectId</i> após o rename (screens.ts:126).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Omitir <i>name</i> e <i>description</i> mantém tudo; não há reset para nulo (core.ts:16).</li>
+          <li><i>projectId</i> precisa ser uuid válido; inferir do header é proibido (common.ts:15).</li>
+          <li>Projeto na lixeira não atualiza como ativo; é preciso restaurar antes (project.service.ts:195-199).</li>
+          <li>Repetir a mesma chamada é idempotente no efeito, mas conta como escrita (common.ts:91).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5719,6 +5760,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Patch</b> — só os campos enviados mudam; omitido mantém (core.ts:16).</li>
+          <li><b>projectId (uuid)</b> — dono explícito; nunca inferido de header (common.ts:15).</li>
+          <li><b>Envelope</b> — <i>{ok, data, meta}</i> com <i>version 1.0.0</i> (common.ts:107).</li>
+          <li><b>Idempotente</b> — repetir não duplica, só reconfirma (common.ts:91).</li>
         </ul>
       </div>
 

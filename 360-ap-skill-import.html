@@ -5749,6 +5749,39 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Escolher fonte:</b> github (owner/repo, pasta e ref default main), url direta ou paste; source, repo, skill, ref, url, content, slug, force e dryRun (tools/core/skills.ts:187-201; services/skill-import.service.ts:81-86).</li>
+          <li><b>2. Prever sem gravar:</b> previewSource busca só o SKILL.md, parseia frontmatter e calcula versionAction create, upgrade, same ou downgrade por semver (services/skill-import.service.ts:296-316,386-407); dryRun retorna describeImportPreview sem escrever (tools/core/skills.ts:216).</li>
+          <li><b>3. Confirmar:</b> checa spec 422 e VERSION_CONFLICT 409 antes de baixar anexos; depois grava created ou updated com files imported, skipped e kept (services/skill-import.service.ts:328-374; tools/core/skills.ts:217-222).</li>
+        </ol>
+      </div>
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>skill_create:</b> cria do corpo digitado; import valida pelo padrão Agent Skills antes (lib/skill-spec.ts:161-185).</li>
+          <li><b>skill_version_list + skill_get:</b> mostram upgrade aplicado e o pacote resultante (tools/core/skills.ts:240-258,44-57).</li>
+          <li><b>skill_export:</b> gera o .zip que o import de zip reabre com o mesmo hash (services/skill-export.service.ts:40-46).</li>
+        </ul>
+      </div>
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Anexos divergem por fonte:</b> GitHub e .zip substituem o conjunto; paste e url mantêm os atuais em files.kept (services/skill-import.service.ts:323-326,341-347).</li>
+          <li><b>409 não baixa nada:</b> spec e versão são checadas antes de loadFiles (services/skill-import.service.ts:137-144).</li>
+          <li><b>Builtin nunca sobrescreve:</b> nem com force; duplique para customizar (services/skill-import.service.ts:186-193).</li>
+        </ul>
+      </div>
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5767,6 +5800,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>dryRun</b> — preview valida sem gravar; confirm grava (tools/core/skills.ts:216-217).</li>
+          <li><b>VERSION_CONFLICT</b> — downgrade ou mesma versão sem force vira 409 (services/skill-import.service.ts:56-79,186-193).</li>
+          <li><b>Semver</b> — prerelease conta; fora do padrão cai em fallback lexicográfico (services/skill-import.service.ts:386-407).</li>
+          <li><b>Kept x imported</b> — kept mantém anexos atuais; imported lista os gravados (services/skill-import.service.ts:110-128).</li>
         </ul>
       </div>
 

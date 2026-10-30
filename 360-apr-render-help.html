@@ -5692,6 +5692,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <b>render_help</b> com <i>topic</i> entre 8 valores, padrão <i>overview</i> (help.ts:118-120).</li>
+          <li>O <i>handler</i> não carrega documento; monta <i>{topic, rules, tools}</i> em memória (help.ts:118-124).</li>
+          <li>Tópicos vêm de <b>HELP_TOPICS</b>: <i>overview, screens, catalog, systems, operations, formats, security, transfer</i> (help.ts:15).</li>
+          <li>Cada tópico filtra por prefixo em <b>TOPIC_TOOLS</b> ou pelo toolset Render no <i>overview</i> (help.ts:19-29).</li>
+          <li>O <i>overview</i> inclui <b>WORKFLOW</b> de 7 passos e <i>protocol Streamable HTTP</i> (help.ts:29-37).</li>
+          <li>Resposta é leitura pura (<i>readOnly</i>), sem versão nem transação (help.ts:118; common.ts:91).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>render_screen_create / render_node_apply</b> têm os campos por op detalhados no tópico <i>operations</i> (help.ts:39).</li>
+          <li><b>render_component_* / render_style_* / render_token_*</b> estão no tópico <i>catalog</i> (help.ts:19-21).</li>
+          <li><b>render_design_system_*</b> e <b>render_port</b> estão no tópico <i>systems</i> (help.ts:19-21).</li>
+          <li><b>render_validate / render_usage</b> aparecem em <i>security/catalog</i> antes de mexer (help.ts:19-29).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Pedir tópico fora do <i>enum</i> recusa no zod; só os 8 de <b>HELP_TOPICS</b> passam (help.ts:15).</li>
+          <li><i>tools/list</i> mostra só o compacto (<i>publish</i>); o detalhe está aqui, não no catálogo (help.ts:113-124).</li>
+          <li>Nomes no gateway levam prefixo <i>agentpack_</i>; sem ele a chamada não acha a tool (help.ts:123).</li>
+          <li>Ajuda não valida nada: ela orienta; quem valida é <b>render_validate</b> (catalog.ts:252).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5710,6 +5751,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Tópico</b> — recorte da ajuda; <i>overview</i> é o fluxo de 7 passos (help.ts:29-37).</li>
+          <li><b>Toolset</b> — grupo de tools liberado pelo header <i>X-AgentPack-Toolsets</i> (help.ts:39-41).</li>
+          <li><b>Publish (compacto)</b> — forma curta do schema no <i>tools/list</i> (help.ts:113-124).</li>
+          <li><b>WORKFLOW</b> — ordem oficial: projeto → catálogo → tela → olhar PNG → validar (help.ts:29-37).</li>
+          <li><b>Agentpack_</b> — prefixo do nome da tool no gateway MCP (help.ts:123).</li>
         </ul>
       </div>
 

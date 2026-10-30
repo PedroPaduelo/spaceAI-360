@@ -5734,6 +5734,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <b>render_history_diff</b> com <i>projectId, baseKey, fromId, toId</i> (screens.ts:213).</li>
+          <li>Leitura via <b>read()</b> chama <b>diffRevisions</b> sem transação (screens.ts:213).</li>
+          <li>O serviço reconstrói os dois lados e diffa árvores: <i>added/removed/updated/moved</i> (history.ts:127).</li>
+          <li>Diffa metadados e estilos via <b>describeStyleDiff</b>; <i>stylesCompared false</i> se revisão antiga (history.ts:89).</li>
+          <li>Ordem não importa para o cálculo, mas <i>from</i> deve ser a mais antiga (screens.ts:213).</li>
+          <li>Revisões de variantes diferentes comparam só o que há em comum (history.ts:127).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>render_history_list/get</b> acham os <i>fromId/toId</i> comparados aqui (screens.ts:184-189).</li>
+          <li><b>render_history_restore</b> aplica o lado escolhido aqui (screens.ts:203).</li>
+          <li><b>render_screen_get</b> mostra o estado atual após o diff (screens.ts:130).</li>
+          <li><b>describeStyleDiff</b> detalha <i>added/removed/updated</i> de estilos (history.ts:89).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Revisão sem estilos gravados zera o diff de estilos com <i>stylesCompared false</i> (screens.ts:213).</li>
+          <li>Ids trocados invertem o sinal do diff; mantenha <i>from</i> mais antigo (history.ts:127).</li>
+          <li>Diff não grava nada; só <i>restore</i> escreve (screens.ts:203).</li>
+          <li>Snapshot ausente com variante apagada dá erro de validação, não diff vazio (history.ts:68-76).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5752,6 +5793,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Diff</b> — <i>added/removed/updated/moved</i> de nós + metadados (history.ts:127).</li>
+          <li><b>styleChanges</b> — diff das listas de estilos por chave (history.ts:89).</li>
+          <li><b>stylesCompared</b> — <i>false</i> quando revisão antiga não gravou estilos (screens.ts:213).</li>
+          <li><b>fromId/toId</b> — revisões comparadas; <i>from</i> a mais antiga (screens.ts:213).</li>
         </ul>
       </div>
 

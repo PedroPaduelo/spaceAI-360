@@ -5753,6 +5753,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <b>render_library_put</b> com <i>scope, kind, payload?, expectedVersion, dryRun</i> (catalog.ts:199).</li>
+          <li>O <i>handler</i> valida via <b>renderTool</b> e delega a <b>putLibrary</b> (mesmo serviço do REST) (catalog.ts:199-208).</li>
+          <li>O serviço valida o documento inteiro com <b>validateFullDoc</b> antes de gravar (validate.ts:117).</li>
+          <li><i>expectedVersion 0</i> cria (com defaults se <i>payload</i> omitido); senão exige a versão lida (catalog.ts:199).</li>
+          <li>Gravação é transacional com <b>catalogWriteGuard</b>; defasado dá <i>VERSION_CONFLICT 409</i> (validate.ts:151).</li>
+          <li>Retorna recibo com <i>version</i>; para um item use <i>component/style/token_apply</i> (catalog.ts:199).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>render_library_get</b> lê a versão para o <i>expectedVersion</i> daqui (catalog.ts:193).</li>
+          <li><b>render_component_apply</b> edita um item sem trocar a biblioteca inteira (catalog.ts:218).</li>
+          <li><b>render_validate</b> ensaia sem gravar o que aqui grava (catalog.ts:252).</li>
+          <li><b>render_help</b> tópico <i>catalog</i> manda preferir granular ao <i>put</i> (help.ts:19-21).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Trocar a biblioteca inteira sobrescreve tudo; prefira granular para um item (catalog.ts:199).</li>
+          <li><i>payload</i> só pode ser omitido criando; atualizando ele é obrigatório (catalog.ts:199).</li>
+          <li>Global congelado após o freeze é <i>READ_ONLY</i>; escreva no design system (help.ts:39-50).</li>
+          <li><i>dryRun true</i> valida e devolve o recibo sem gravar (catalog.ts:199).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5771,6 +5812,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Payload</b> — documento completo da biblioteca (<i>ui/tokens/manifest</i>) (catalog.ts:199).</li>
+          <li><b>Defaults</b> — sementes quando cria sem <i>payload</i> (validate.ts:111).</li>
+          <li><b>catalogWriteGuard</b> — trava CAS da versão antes de gravar (validate.ts:151).</li>
+          <li><b>READ_ONLY</b> — global congelado não aceita escrita (help.ts:39-50).</li>
+          <li><b>dryRun</b> — ensaia e devolve o recibo sem persistir (catalog.ts:199).</li>
         </ul>
       </div>
 

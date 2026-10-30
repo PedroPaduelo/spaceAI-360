@@ -5727,6 +5727,39 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Receber janela:</b> id mais path, offset default 0 e limit default 16 KiB entre 1 KiB e 40 KiB (tools/core/skills.ts:63-68; schemas/skills.ts:83-103).</li>
+          <li><b>2. Resolver arquivo:</b> getByIdOrSlug sem linha vira SKILL_NOT_FOUND (tools/core/skills.ts:71-72); path SKILL.md lê o corpo, outro path exige anexo exato de files[] senão 404 (services/skill-files.ts:122-143,95-104).</li>
+          <li><b>3. Fatiar e responder:</b> sliceUtf8 ou sliceBase64 sem partir caractere retorna path, mimeType, encoding, size, offset, length, nextOffset e content (services/skill-files.ts:55-92,122-155); repita com offset igual a nextOffset até null.</li>
+        </ol>
+      </div>
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>skill_get:</b> lista files[] e avisa o corte do corpo com contentHint para cá (utils/serializers/skill.ts:74-83).</li>
+          <li><b>skill_export:</b> usa a mesma janela para o SKILL.md canônico com frontmatter regenerado (services/skill-export.service.ts:53-56).</li>
+          <li><b>search:</b> localiza a skill pelo texto antes de ler o arquivo certo (services/search.service.ts:238-253).</li>
+        </ul>
+      </div>
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Path exato:</b> diferencia maiúsculas e exige o path de files[]; SKILL.md nunca é anexo (services/skill-files.ts:138-140).</li>
+          <li><b>Offset além do fim:</b> vira 422 com size real em details (services/skill-files.ts:107-114).</li>
+          <li><b>Binário em base64:</b> conta 4/3 no teto de 40 KiB e de 64 KB do MCP (schemas/skills.ts:86-87).</li>
+        </ul>
+      </div>
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5745,6 +5778,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Offset x nextOffset</b> — offset pede, nextOffset diz onde continuar; null é o fim (services/skill-files.ts:24-30).</li>
+          <li><b>UTF-8 sem corte</b> — slice avança e recua até limite de caractere (services/skill-files.ts:55-75).</li>
+          <li><b>Base64</b> — binário volta em base64; texto volta em utf-8 (services/skill-files.ts:77-92).</li>
+          <li><b>Mime e encoding</b> — metadados por anexo com size real em bytes (schemas/skills.ts:313-320).</li>
         </ul>
       </div>
 

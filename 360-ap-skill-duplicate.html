@@ -5724,6 +5724,39 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Resolver origem:</b> id da skill a copiar mais slug e name opcionais pelo DuplicateSkillSchema estrito (tools/core/skills.ts:100-104; schemas/skills.ts:75-80); origem ausente vira SKILL_NOT_FOUND (tools/core/skills.ts:107-108).</li>
+          <li><b>2. Definir slug:</b> informado em uso vira SKILL_SLUG_TAKEN (tools/core/skills.ts:109); omitido gera candidatos &lt;slug&gt;-custom e -custom-N cortados em 64 e checa com existingSlugs em 1 query (services/skill.service.ts:136-144,238-245,424-430).</li>
+          <li><b>3. Gravar cópia:</b> create com source local e origin duplicate leva pacote, anexos, metadata e pasta; name padrão &lt;nome&gt; (cópia) até 200 (services/skill.service.ts:431-443; tools/core/skills.ts:110).</li>
+        </ol>
+      </div>
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>skill_update + skill_delete de builtin:</b> falham com duplicate_to_customize e apontam para cá (services/skill.service.ts:107-119).</li>
+          <li><b>skill_get + skill_version_list:</b> conferem origem e a v1 origin duplicate da cópia (tools/core/skills.ts:44-57,240-258).</li>
+          <li><b>project_skill_add:</b> ativa a cópia local no projeto sem tocar na builtin (tools/core/skills.ts:298-323).</li>
+        </ul>
+      </div>
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Vale para qualquer skill:</b> não só builtin; copiar cópia gera -custom-2 e assim por diante (services/skill.service.ts:138-143).</li>
+          <li><b>Slug esgota:</b> após 50 candidatos sem livre retorna 409 pedindo slug explícito (services/skill.service.ts:429).</li>
+          <li><b>Schema estrito:</b> campo fora de slug e name é recusado pelo DuplicateSkillSchema (schemas/skills.ts:75-80).</li>
+        </ul>
+      </div>
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5742,6 +5775,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Sufixo -custom</b> — slug padrão &lt;slug&gt;-custom e -custom-N cortado em 64 (services/skill.service.ts:136-144).</li>
+          <li><b>existingSlugs</b> — uma query para saber quais candidatos já existem (services/skill.service.ts:238-245).</li>
+          <li><b>Origin duplicate</b> — versão 1 da cópia marcada como duplicate (services/skill.service.ts:431-443).</li>
+          <li><b>Strict</b> — DuplicateSkillSchema só aceita slug e name (schemas/skills.ts:75-80).</li>
         </ul>
       </div>
 

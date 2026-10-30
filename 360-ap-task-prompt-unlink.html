@@ -5712,6 +5712,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Receber a chave completa:</b> <i>taskId + promptId + relationType</i> (padrão <i>execution</i>); sem relação certa não remove (tasks.ts:669-673).</li>
+          <li><b>2. Conferir o prompt:</b> inexistente vira 404 de vínculo antes do delete (task-decision.service.ts:653-654).</li>
+          <li><b>3. Apagar com contagem:</b> <i>deleteMany({ taskId, promptId, relationType })</i>; 0 vira 404, não P2025 cru (task-decision.service.ts:655-657).</li>
+          <li><b>4. Traduzir só o não-existe:</b> <i>isMissingRecord</i> vira <i>TASK_PROMPT_LINK_NOT_FOUND</i>; resto sobe (tasks.ts:679-682).</li>
+          <li><b>5. Confirmar e registrar:</b> <i>{ unlinked: true, taskId, promptId, relationType }</i> com <i>prompt_unlinked</i> na transação (tasks.ts:683; task-decision.service.ts:658).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b><i>task_prompt_link</i> é o inverso:</b> cria o trio com a mesma chave e mesma regra de projeto (tasks.ts:642-652).</li>
+          <li><b><i>task_prompt_list</i> confere:</b> mostra as relações restantes do mesmo prompt (tasks.ts:653-662).</li>
+          <li><b>Mesma regra de <i>skill_unlink</i>:</b> <i>deleteMany + count</i> e <i>isMissingRecord</i> só para o não-existe (tasks.ts:679-682).</li>
+          <li><b>Histórico preserva o nome:</b> <i>prompt_unlinked</i> guarda <i>promptId, name, relationType</i> (task-decision.service.ts:658).</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Relação faz parte da chave:</b> remover <i>execution</i> mantém <i>reference/validation</i> do mesmo prompt (tasks.ts:668).</li>
+          <li><b>Prompt de outro projeto não apaga:</b> o vínculo nem existe para esta task, então dá 404 de vínculo (task-decision.service.ts:652-660).</li>
+          <li><b>Em <i>tasks-admin</i>:</b> nome com <i>_unlink</i> cai no opt-in fora do padrão (tasks.ts:691-693).</li>
+          <li><b>Sem desfazer:</b> para voltar, vincule de novo; o evento de saída fica no histórico (task-events.ts:129).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5730,6 +5770,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>PromptLinkQuerySchema</b> — <i>relationType</i> padrão <i>execution</i> na chave (schemas/prompts.ts:140-142).</li>
+          <li><b>isMissingRecord</b> — só o não-existe vira código de negócio (tasks.ts:679-682).</li>
+          <li><b>TASK_PROMPT_LINK_NOT_FOUND</b> — vínculo ausente para a chave pedida (tasks.ts:681).</li>
+          <li><b>prompt_unlinked</b> — evento com <i>promptId, name, relationType</i> (task-decision.service.ts:658).</li>
         </ul>
       </div>
 

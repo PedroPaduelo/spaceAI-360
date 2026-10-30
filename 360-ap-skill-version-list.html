@@ -5751,6 +5751,39 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Receber página:</b> id mais page 1-based e pageSize 1-200 default 50 (tools/core/skills.ts:246-250; schemas/skills.ts:70-72); skip sai de (page menos 1) vezes pageSize (tools/core/skills.ts:255).</li>
+          <li><b>2. Checar skill:</b> getByIdOrSlug sem linha vira SKILL_NOT_FOUND (tools/core/skills.ts:253-254); depois listVersions ordena por number desc com total (services/skill.service.ts:446-462).</li>
+          <li><b>3. Listar sem pacote:</b> cada item traz number, origin, restoredFrom, contentHash, source, slug, name, version e createdAt; monta { items, total, page, pageSize } à mão (tools/core/skills.ts:256; utils/serializers/skill.ts:86-98; services/skill-versions.ts:26-36).</li>
+        </ol>
+      </div>
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>skill_version_get:</b> lê o pacote completo de um number listado aqui (tools/core/skills.ts:259-277).</li>
+          <li><b>skill_version_restore:</b> aplica um number listado como nova versão (tools/core/skills.ts:278-295).</li>
+          <li><b>skill_get + audit_list:</b> comparam o atual com o histórico e a trilha de quem escreveu (tools/core/skills.ts:44-57; tools/core/index.ts:46-48).</li>
+        </ul>
+      </div>
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Sem corpo:</b> esta lista nunca traz SKILL.md nem anexos; pacote só em version_get (utils/serializers/skill.ts:85-98).</li>
+          <li><b>Escrita igual não versiona:</b> mesmo contentHash não cria linha nova (services/skill-versions.ts:103-106).</li>
+          <li><b>Opt-in skills-history:</b> fora do catálogo padrão; sem o toolset a tool nem aparece (tools/core/index.ts:63-64).</li>
+        </ul>
+      </div>
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5769,6 +5802,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Origin</b> — qual escrita gerou a versão: create, update, import, seed, files, restore ou duplicate (services/skill-versions.ts:68-78).</li>
+          <li><b>restoredFrom</b> — number restaurado quando origin é restore; null nos demais (schemas/skills.ts:372-382).</li>
+          <li><b>Paginação manual</b> — handler monta items, total, page e pageSize sem pageEnvelope (tools/core/skills.ts:256).</li>
+          <li><b>Append-only</b> — histórico só acrescenta, do mais novo ao mais antigo (services/skill-versions.ts:1-11).</li>
         </ul>
       </div>
 

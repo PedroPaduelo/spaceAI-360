@@ -5713,6 +5713,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <b>render_map_get</b> só com <i>projectId</i> (screens.ts:219).</li>
+          <li>Leitura via <b>read()</b> chama <b>getMap</b> sem transação (screens.ts:219-221).</li>
+          <li>O serviço exige o projeto e procura <i>RenderLibrary kind manifest</i> (map.ts:58-63).</li>
+          <li>Sem linha retorna <i>{version:0, exists:false}</i> com manifesto em branco (map.ts:58-63).</li>
+          <li>Com linha retorna <i>{version, exists:true, manifest}</i> validado por <i>manifestSchema</i> (map.ts:58-63).</li>
+          <li>Mapa nunca é herdado do global; só do projeto (screens.ts:219).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>render_map_apply</b> grava a versão lida aqui como <i>expectedVersion</i> (screens.ts:223).</li>
+          <li><b>render_preview</b> usa a <i>position</i> do mapa para a tela (map.ts:88).</li>
+          <li><b>render_screen_list</b> lista as telas que os <i>artboards</i> posicionam (screens.ts:126).</li>
+          <li>Prisma: <i>RenderLibrary</i> com <i>kind manifest</i> por projeto (schema.prisma:1406).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Versão 0 não é erro: significa mapa ainda não criado (map.ts:58-63).</li>
+          <li>Leitura não traz <i>expectedVersion</i> de escrita de tela; mapa e tela têm versões separadas (help.ts:39-41).</li>
+          <li>Manifesto corrompido não quebra preview, mas o <i>get</i> valida o schema (map.ts:58-63).</li>
+          <li>Mapa é só do projeto; não há fallback global (screens.ts:219).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5731,6 +5772,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>exists</b> — diz se há mapa; <i>false</i> com <i>version 0</i> é normal (map.ts:58-63).</li>
+          <li><b>Manifest</b> — páginas, <i>artboards</i> e anotações (map.ts:16).</li>
+          <li><b>RenderLibrary (manifest)</b> — linha que guarda o mapa com <i>version</i> (schema.prisma:1406).</li>
+          <li><b>projectId explícito</b> — mapa nunca vem de header (common.ts:15).</li>
         </ul>
       </div>
 

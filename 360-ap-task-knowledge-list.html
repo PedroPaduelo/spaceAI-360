@@ -5690,6 +5690,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Receber só a task:</b> <i>{ taskId }</i> como uuid, sem filtro de relação (tasks.ts:302-303).</li>
+          <li><b>2. Passar pelo portão:</b> <i>withTaskAccess</i> confere o projeto dono antes do handler (tasks.ts:759-768).</li>
+          <li><b>3. Buscar com filtro de lixeira:</b> <i>findUnique({ knowledgeLinks: { where: { knowledge: { isDeleted: false } } } })</i> (task.service.ts:505-509; task.service.ts:96-104).</li>
+          <li><b>4. Achatar o resumo:</b> <i>shapeKnowledgeLink</i> expõe <i>title, summary, category, format, version, updatedAt</i> direto (task.service.ts:109-117).</li>
+          <li><b>5. Ordenar por criação:</b> <i>orderBy createdAt asc</i>, do vínculo mais antigo ao mais novo (task.service.ts:96-104).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b><i>knowledge_get</i> aprofunda:</b> corpo da página vinculada se lê na tool de knowledge (tasks.ts:301).</li>
+          <li><b><i>knowledge_link_task/unlink</i> mantêm:</b> vinculam e removem páginas com <i>relationType</i> (tasks.ts:298-305).</li>
+          <li><b><i>task_create</i> já vincula em lote:</b> <i>knowledgeLinks[]</i> conferidos no projeto, 422 se fora dele (task.service.ts:279-286).</li>
+          <li><b><i>task_context_bundle</i> prioriza:</b> <i>solution/reference</i> entram em <i>mustRead</i> antes de executar (tasks.ts:283-295).</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Sem corpo por desenho:</b> lista traz resumo; corpo só com <i>knowledge_get</i> (task.service.ts:92-94).</li>
+          <li><b>Lixeira fica de fora:</b> página com <i>isDeleted</i> some; vínculo volta com o restore (task.service.ts:96-104).</li>
+          <li><b>Último <i>relationType</i> vence na criação:</b> tabela é única por <i>(knowledge, task)</i>, sem trio como skill/prompt (schema.prisma:431-444).</li>
+          <li><b>Task inexistente é 404:</b> sem distinção de projeto fora do alcance (task.service.ts:505-512).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5708,6 +5748,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>TASK_KNOWLEDGE_LINK_QUERY</b> — só knowledge com <i>isDeleted false</i>, em ordem de criação (task.service.ts:96-104).</li>
+          <li><b>shapeKnowledgeLink</b> — vínculo achatado com título e metadados (task.service.ts:109-117).</li>
+          <li><b>KnowledgeTicketRelation</b> — <i>reference, attachment, solution</i> (schema.prisma:425-429).</li>
+          <li><b>knowledge_ticket_links</b> — único por <i>(knowledgeId, taskId)</i> (schema.prisma:431-444).</li>
         </ul>
       </div>
 

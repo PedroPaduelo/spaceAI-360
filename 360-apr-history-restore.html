@@ -5730,6 +5730,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <b>render_history_restore</b> com <i>projectId, baseKey, revisionId, expectedRev, expectedDesignRev?</i> (screens.ts:203).</li>
+          <li>O <i>handler</i> roda em <b>transaction()</b> SERIALIZABLE (screens.ts:203).</li>
+          <li>O serviço <b>restoreRevision</b> relê marcador, árvore, estilos e metadados do snapshot (history.ts:203).</li>
+          <li><i>expectedRev 0</i> restaura variante apagada; senão exige o <i>rev</i> atual (CAS) (screens.ts:203).</li>
+          <li>Metadados exigem <i>expectedDesignRev</i>; sem ele a restauração de título/família falha (screens.ts:203).</li>
+          <li>Restaurar é escrita nova: gera novo <i>rev</i> e nova revisão, não desfaz (screens.ts:203).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>render_history_get</b> mostra o snapshot a restaurar (screens.ts:189).</li>
+          <li><b>render_history_diff</b> compara antes de escolher o que voltar (screens.ts:213).</li>
+          <li><b>render_node_apply</b> ajusta o fino após a volta (screens.ts:176).</li>
+          <li><b>render_screen_get</b> confirma o estado após a restauração (screens.ts:130).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Não é <i>undo</i>: é nova escrita que copia o passado; o futuro segue no histórico (screens.ts:203).</li>
+          <li><i>expectedRev</i> defasado dá <i>VERSION_CONFLICT</i>; releia o <i>rev</i> atual (screens.ts:203).</li>
+          <li>Restaurar variante apagada exige <i>expectedRev 0</i>; outro valor falha (screens.ts:203).</li>
+          <li>Snapshot sem estilos (revisão antiga) restaura sem estilos; confira <i>stylesCompared</i> (history.ts:89).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5748,6 +5789,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Restore</b> — nova escrita copiando revisão antiga (history.ts:203).</li>
+          <li><b>expectedRev 0</b> — variante não existe; permite recriar (screens.ts:203).</li>
+          <li><b>expectedDesignRev</b> — CAS dos metadados na restauração (screens.ts:203).</li>
+          <li><b>Nova revisão</b> — restaurar gera <i>rev</i> novo em vez de apagar história (screens.ts:203).</li>
         </ul>
       </div>
 

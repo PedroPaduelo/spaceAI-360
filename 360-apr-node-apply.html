@@ -5772,6 +5772,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <b>render_node_apply</b> com <i>projectId, baseKey, theme, operations, expectedRev</i> (screens.ts:176).</li>
+          <li>O <i>handler</i> valida o lote (1-100 ops) via <i>nodeOperationsSchema</i>; só nomes no <i>tools/list</i> (wire.ts:77).</li>
+          <li>O serviço <b>applyScreenNodeOps</b> confere <i>expectedRev</i> da variante (CAS; sem 0 automático) (screens.ts:386).</li>
+          <li>Aplica com <b>applyNodeOperations</b> por chave estável: <i>insert/update_props/text/replace/move/duplicate/remove</i> (render-agent-tree.ts:209).</li>
+          <li>Toda escrita roda em transação SERIALIZABLE via <b>transaction()</b> (common.ts:107).</li>
+          <li>Retorna recibo com novo <i>rev</i>; <i>dryRun</i> só ensaia (screens.ts:176).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>render_node_get</b> lê o <i>key</i> e o <i>rev</i> para montar o lote (screens.ts:170).</li>
+          <li><b>render_screen_update</b> reescreve a árvore inteira; prefira <i>node_apply</i> para ajuste fino (screens.ts:156).</li>
+          <li><b>render_help</b> tópico <i>operations</i> dá os campos de cada op de nó (help.ts:15).</li>
+          <li><b>render_history_list</b> mostra as revisões geradas por cada <i>apply</i> (screens.ts:184).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><i>expectedRev</i> defasado dá <i>VERSION_CONFLICT</i>; releia o <i>rev</i> e reenvie (screens.ts:176).</li>
+          <li>Limites: até 100 ops, 5000 nós, profundidade 48 e 2 MB por árvore (render-agent-tree.ts:10).</li>
+          <li>Chave instável (<i>__proto__/prototype/constructor</i>) é recusada (render-agent-tree.ts:109).</li>
+          <li>Trocar <i>light</i> recalcula o delta do <i>dark</i>; confira o tema após (help.ts:39-41).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5790,6 +5831,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>CAS (expectedRev)</b> — só grava se o <i>rev</i> lido ainda vale (screens.ts:176).</li>
+          <li><b>Node key</b> — chave estável do nó, ex. <i>&lt;baseKey&gt;.root</i> (screens.ts:170).</li>
+          <li><b>nodeOperationsSchema</b> — união discriminada das 8 ops de nó (render-agent-tree.ts:163).</li>
+          <li><b>TREE_LIMITS</b> — tetos de nós, profundidade e lote (render-agent-tree.ts:10).</li>
+          <li><b>dryRun</b> — valida e devolve recibo sem gravar (screens.ts:176).</li>
         </ul>
       </div>
 

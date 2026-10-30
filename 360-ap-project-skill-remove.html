@@ -5694,6 +5694,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Receber as chaves:</b> <i>projectId</i> e <i>skillId</i> identificam o vínculo <i>(projectId, skillId)</i> (skills.ts:330-333).</li>
+          <li><b>2. Conferir o pai:</b> <i>assertProjectExists</i> garante projeto ativo; lixeira vira 404 antes do delete (skill.service.ts:637).</li>
+          <li><b>3. Apagar o vínculo:</b> <i>delete({ where: { projectId_skillId } })</i> remove só a linha <i>projectSkill</i> (skill.service.ts:636-641).</li>
+          <li><b>4. Traduzir só o não-existe:</b> <i>isMissingRecord</i> vira <i>PROJECT_SKILL_NOT_FOUND</i>; resto sobe como falha interna (skills.ts:340-346).</li>
+          <li><b>5. Confirmar:</b> sucesso devolve <i>{ removed: true }</i> via <i>jsonContent</i> (skills.ts:338).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b><i>project_skill_add</i> é o inverso:</b> cria o vínculo que aqui é apagado, com o mesmo par de chaves (skills.ts:299-323).</li>
+          <li><b><i>project_skill_toggle</i> é o meio-termo:</b> desliga sem apagar; <i>remove</i> apaga de vez (skills.ts:349-371).</li>
+          <li><b><i>skill_delete</i> é outro nível:</b> apaga a skill do catálogo global e de todos os projetos (skills.ts:166-180).</li>
+          <li><b>Leitura de conferência:</b> <i>project_skill_list</i> mostra o que restou após remover (context.ts:265-290).</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Só o vínculo cai:</b> a skill continua no catálogo e em outros projetos (skill.service.ts:636-641).</li>
+          <li><b>Catch cirúrgico:</b> só <i>NotFoundError/P2025</i> viram código de negócio; banco fora vira <i>INTERNAL_ERROR</i> com <i>errorId</i> (skills.ts:340-346).</li>
+          <li><b>Sem desfazer:</b> remover não tem <i>restore</i>; para voltar, chame <i>add</i> de novo (skills.ts:328-329).</li>
+          <li><b>Chave única:</b> o <i>where</i> usa <i>projectId_skillId</i>; <i>isActive</i> não faz parte da chave aqui (schema.prisma:1217).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5712,6 +5752,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>projectId_skillId</b> — chave única do vínculo projeto↔skill (schema.prisma:1217).</li>
+          <li><b>isMissingRecord</b> — só o não-existe vira código de negócio; o resto sobe (skills.ts:340-346).</li>
+          <li><b>PROJECT_SKILL_NOT_FOUND</b> — vínculo ausente, inclusive pai na lixeira (skills.ts:345).</li>
+          <li><b>HINTS.remove</b> — escrita destrutiva, fora do catálogo padrão (skills.ts:334).</li>
         </ul>
       </div>
 

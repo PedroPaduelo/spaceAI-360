@@ -5738,6 +5738,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <b>render_history_list</b> com <i>projectId, baseKey, page/pageSize, theme?</i> (screens.ts:184).</li>
+          <li>Leitura via <b>read()</b> chama <b>historyList</b> sem transação (screens.ts:184).</li>
+          <li>O serviço lista revisões da mais nova à mais antiga sem snapshots (history.ts:17).</li>
+          <li><i>theme</i> filtra a variante; sem ele vêm as duas (screens.ts:184).</li>
+          <li>Paginação segue <b>pageShape</b> (padrão 20, máx 100) (common.ts:20).</li>
+          <li>Cada item traz ids para <i>get/pin/restore/diff</i> (history.ts:17).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>render_history_get</b> abre uma revisão listada aqui (screens.ts:189).</li>
+          <li><b>render_history_diff</b> compara duas revisões daqui (screens.ts:213).</li>
+          <li><b>render_history_pin</b> fixa uma revisão listada aqui (screens.ts:195).</li>
+          <li><b>render_screen_get</b> mostra o estado atual que a lista contextualiza (screens.ts:130).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Lista não traz árvore; para árvore use <i>get</i> com <i>includeSnapshot</i> (history.ts:44).</li>
+          <li>Página além do total volta vazia; não é erro (history.ts:17).</li>
+          <li>Retenção poda não fixadas; a lista pode encolher entre leituras (screens.ts:195).</li>
+          <li>Tela inexistente dá 404 na leitura (history.ts:17).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5756,6 +5797,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Revisão (revision)</b> — escrita versionada da variante (history.ts:17).</li>
+          <li><b>Snapshot</b> — árvore anterior guardada; só no <i>get</i> (history.ts:44).</li>
+          <li><b>Pinned</b> — fixada; sobrevive à retenção (schema.prisma:1492-1500).</li>
+          <li><b>pageShape</b> — <i>page/pageSize/search</i> padrão (common.ts:20).</li>
         </ul>
       </div>
 

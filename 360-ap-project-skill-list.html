@@ -5705,6 +5705,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Receber o filtro:</b> <i>projectId</i> obrigatório e <i>activeOnly</i> (padrão <i>true</i>) definem o que volta (context.ts:271-273).</li>
+          <li><b>2. Conferir o pai:</b> <i>assertProjectExists(projectId)</i> recusa projeto inexistente ou na lixeira com 404 (context.ts:277; skill.service.ts:537-543).</li>
+          <li><b>3. Ler os vínculos:</b> <i>listForProject(projectId)</i> faz <i>findMany</i> com <i>include skill { SKILL_LIST_SELECT }</i> ordenado por <i>addedAt desc</i> (skill.service.ts:516-531).</li>
+          <li><b>4. Filtrar em memória:</b> <i>.filter(!activeOnly || isActive)</i> separa só ativos das desativadas, sem <i>where</i> extra (context.ts:281).</li>
+          <li><b>5. Projetar o resumo:</b> cada item sai como <i>{ ...toSkillSummary, name, isActive, addedAt }</i>, sem corpo markdown (context.ts:282-287).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b><i>project_skill_add</i> cria o que aqui se lê:</b> vínculo com <i>isActive</i> padrão <i>true</i> (skills.ts:299-323).</li>
+          <li><b><i>project_skill_toggle/remove</i> mantêm a lista:</b> um muda o flag, o outro apaga a linha (skills.ts:324-371).</li>
+          <li><b><i>project_context</i> reusa o mesmo dado:</b> seção <i>activeSkills</i> com o mesmo shape mais <i>mustRead</i> de leitura (context.ts:219-232).</li>
+          <li><b>Corpo fica em <i>skill_get/file_get</i>:</b> listagem nunca traz corpo nem anexos (skill.service.ts:63-79).</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Projeto na lixeira some:</b> <i>assertProjectExists</i> só enxerga <i>deletedAt null</i>, então lixeira dá 404 (skill.service.ts:537-543).</li>
+          <li><b>Filtro pós-banco:</b> <i>activeOnly</i> não vai ao <i>where</i>; lista grande trafega inteira antes de filtrar (context.ts:281).</li>
+          <li><b>Sem corpo por desenho (DB-08):</b> corpo e anexos ficam fora para a resposta caber no contexto do agente (skill.service.ts:63-79).</li>
+          <li><b>Global vs. projeto:</b> para o catálogo inteiro use <i>skill_list</i>; aqui só o que está vinculado (context.ts:270).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5723,6 +5763,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>activeOnly</b> — padrão <i>true</i>; <i>false</i> inclui vínculos desativados (context.ts:273-281).</li>
+          <li><b>listForProject</b> — vínculos do projeto com a skill em colunas de lista (skill.service.ts:516-531).</li>
+          <li><b>assertProjectExists</b> — pai inexistente ou na lixeira vira 404 (skill.service.ts:537-543).</li>
+          <li><b>toSkillSummary</b> — resumo sem corpo para caber no contexto (skill.service.ts:63-79).</li>
         </ul>
       </div>
 

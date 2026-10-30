@@ -5706,6 +5706,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Validar entrada:</b> <i>projectId</i>, <i>skillId</i> e <i>isActive</i> (padrão <i>true</i>) chegam pelo schema da tool (skills.ts:305-309).</li>
+          <li><b>2. Travar o pai:</b> dentro da transação, <i>lockActiveProject(tx, projectId)</i> faz <i>FOR SHARE</i>; projeto na lixeira vira 404 (skill.service.ts:567; project-guard.ts:22-26).</li>
+          <li><b>3. Conferir a skill:</b> <i>assertSkillsExist([skillId])</i> recusa inexistente com 422 <i>VALIDATION_ERROR</i> antes do insert (skill.service.ts:568).</li>
+          <li><b>4. Inserir o vínculo:</b> <i>projectSkill.create({ projectId, skillId, isActive })</i>; duplicado (unique) vira 409 <i>Skill already linked</i> (skill.service.ts:569; skills.ts:573).</li>
+          <li><b>5. Devolver o link:</b> <i>{ id, skillId, isActive, addedAt }</i> via <i>jsonContent</i>; só o <i>ConflictError</i> vira texto simples, o resto sobe ao gateway (skills.ts:313-322).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b><i>project_skill_list</i> confere o resultado:</b> lista os vínculos do projeto com <i>isActive</i> e resumo da skill (context.ts:265-290).</li>
+          <li><b><i>project_skill_toggle</i> ajusta sem remover:</b> muda só o <i>isActive</i> do vínculo criado aqui (skills.ts:349-371).</li>
+          <li><b><i>project_skill_remove</i> desfaz:</b> apaga só a linha <i>projectSkill</i>, a skill fica no catálogo (skills.ts:324-348).</li>
+          <li><b>Catálogo vs. projeto:</b> <i>skill_list</i> lê o global, <i>skill_get</i> lê o corpo; este vínculo diz o que vale no projeto (skills.ts:27-43).</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Repetir não é idempotente:</b> vínculo existente dá 409, não sucesso silencioso; use <i>toggle</i> para mudar o flag (skill.service.ts:573).</li>
+          <li><b>Skill apagada na hora:</b> com o projeto travado, a FK só recusa por skill sumida entre checagem e insert, e a checagem roda de novo (skill.service.ts:574-576).</li>
+          <li><b>Lixeira é 404:</b> projeto inexistente ou com <i>deletedAt</i> não trava, lança <i>NotFoundError</i> (project-guard.ts:22-26).</li>
+          <li><b>Só 409 vira texto simples:</b> 404 e 422 sobem ao gateway com <i>{ code, message, details }</i>, não são tratados no handler (skills.ts:315-321).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5724,6 +5764,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>ProjectSkill</b> — vínculo <i>(projectId, skillId)</i> único com <i>isActive</i> e <i>addedAt</i> (schema.prisma:1207-1220).</li>
+          <li><b>lockActiveProject</b> — trava <i>FOR SHARE</i>; lixeira vira 404 sem corrida (project-guard.ts:22-26).</li>
+          <li><b>assertSkillsExist</b> — inexistente vira 422 com a lista, numa consulta só (skill.service.ts:549-556).</li>
+          <li><b>SKILL_LIST_SELECT</b> — colunas de listagem sem corpo nem anexos (skill.service.ts:63-79).</li>
         </ul>
       </div>
 

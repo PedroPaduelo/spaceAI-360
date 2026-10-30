@@ -5681,6 +5681,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Receber o patch:</b> <i>id</i> do todo mais <i>title/isCompleted/order</i> opcionais, do <i>UpdateTodoSchema.shape</i> (tasks.ts:720-724; schemas/tasks.ts:292-296).</li>
+          <li><b>2. Passar pelo portão:</b> <i>scopedArgsOf</i> marca <i>id</i> como <i>todo</i>; <i>withTaskAccess</i> resolve todo→task→projeto antes do handler (tasks.ts:750-768).</li>
+          <li><b>3. Gravar direto:</b> <i>updateMany({ where: { id }, data: patch })</i> sem transação nem trava de task (task.service.ts:768).</li>
+          <li><b>4. Traduzir o não-achado:</b> <i>count 0</i> vira <i>NotFoundError Todo</i> (404), nunca P2025 cru (task.service.ts:768-769).</li>
+          <li><b>5. Reler e devolver:</b> <i>findUnique</i> retorna o <i>TodoRow</i> fresco; se sumiu no meio, 404 de novo (task.service.ts:770-772).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b><i>todo_create</i> prepara:</b> cria pendente sem <i>isCompleted</i>; aqui se marca como feito (tasks.ts:699-713).</li>
+          <li><b><i>todo_delete</i> remove:</b> mesmo endereçamento por <i>id</i>, com o mesmo portão anti-BOLA (tasks.ts:730-742).</li>
+          <li><b><i>task_get/list</i> exibem:</b> o checklist ordenado por <i>order asc</i> com o flag atualizado (task.service.ts:699-705).</li>
+          <li><b>Mesmo schema da REST:</b> <i>PUT /todos/:id</i> usa o mesmo <i>UpdateTodoSchema</i> (regra BE-06, schemas/tasks.ts:292-296).</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Sem trava de task:</b> diferente de <i>createTodo/reorderTodos</i>, aqui não há <i>FOR UPDATE</i>; corrida de <i>order</i> pode duplicar posição (task.service.ts:763-773).</li>
+          <li><b>Patch parcial real:</b> omitidos ficam como estão; não há como limpar campo, só trocar (schemas/tasks.ts:292-296).</li>
+          <li><b>Id fora do formato:</b> valor cru é conferido antes do parse, então chave restrita recebe 404 igual ao de inexistente (task-access.service.ts:106-110).</li>
+          <li><b>Repetir é seguro:</b> <i>HINTS.update</i> idempotente; mesmo patch não cria nada novo (tasks.ts:726).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5699,6 +5739,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>UpdateTodoSchema</b> — patch parcial; omitido mantém o valor (schemas/tasks.ts:292-296).</li>
+          <li><b>updateMany + count</b> — 0 linhas vira 404 de domínio, sem P2025 (task.service.ts:768-769).</li>
+          <li><b>scopedArgsOf (todo)</b> — <i>id</i> de tool <i>todo_*</i> resolve como todo (tasks.ts:750-752).</li>
+          <li><b>HINTS.update</b> — atualização idempotente e não destrutiva (tasks.ts:726).</li>
         </ul>
       </div>
 

@@ -5737,6 +5737,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Receber o arquivo em base64:</b> <i>taskId + filename, mimeType, contentBase64, decisionId?</i> pelo <i>TaskAttachmentUploadSchema</i> (tasks.ts:350; schemas/tasks.ts:150-155).</li>
+          <li><b>2. Passar pelo portão:</b> <i>withTaskAccess</i> confere o projeto dono da task antes do handler (tasks.ts:759-768).</li>
+          <li><b>3. Resolver o tipo:</b> <i>resolveAttachmentMime</i> usa a extensão quando conhecida, senão o declarado se estiver na allowlist; fora dela, 422 (task-attachment.service.ts:164-175; task-attachment.service.ts:39-52).</li>
+          <li><b>4. Conferir tamanho e decisão:</b> base64 decodificado vazio ou acima de <i>TASK_ATTACHMENT_MAX_BYTES</i> é recusado; <i>decisionId</i> precisa ser decisão desta task (task-attachment.service.ts:362-369; task-attachment.service.ts:188-197).</li>
+          <li><b>5. Gravar e registrar:</b> <i>put</i> no storage e <i>create + attachment_added</i> na mesma transação; falha apaga o arquivo órfão (task-attachment.service.ts:371-376; task-attachment.service.ts:216-246).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b><i>task_attachment_list/get</i> leem o que aqui se grava:</b> metadados sem conteúdo e leitura em janelas ou base64 (tasks.ts:306-343).</li>
+          <li><b>REST prefere multipart:</b> <i>POST /tasks/:taskId/attachments</i> com campo <i>file</i> em streaming; o JSON com base64 segue aceito e deprecado (task-attachment.service.ts:307-355).</li>
+          <li><b><i>decisionId</i> ancora prova:</b> arquivo que sustenta decisão humana carrega o id, conferido na transação (task-attachment.service.ts:224).</li>
+          <li><b><i>task_context_bundle</i> embute texto:</b> anexos de texto entram inline no bundle até o orçamento (tasks.ts:283-295).</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Extensão manda:</b> <i>report.pdf</i> com <i>mimeType</i> estranho ainda grava <i>application/pdf</i>; sem extensão conhecida vale o declarado (task-attachment.service.ts:164-168).</li>
+          <li><b>Teto único:</b> mesmo limite para multipart e base64; acima dele, 413 com <i>maxBytes</i> em <i>details</i> (task-attachment.service.ts:107-111).</li>
+          <li><b>Arquivo vazio não entra:</b> 0 bytes vira 422 <i>too_small</i> antes de gravar (task-attachment.service.ts:363-364).</li>
+          <li><b>Prefira Knowledge para texto relido:</b> anexo é prova/arquivo; texto que será editado pertence a Knowledge (tasks.ts:348-349).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5755,6 +5795,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>ATTACHMENT_TYPES</b> — extensões aceitas e o tipo gravado: pdf, txt, md, csv, json, png, jpg, zip (task-attachment.service.ts:39-50).</li>
+          <li><b>resolveAttachmentMime</b> — extensão primeiro, declarado só se na allowlist (task-attachment.service.ts:164-175).</li>
+          <li><b>TaskAttachmentUploadSchema</b> — contrato JSON deprecado com <i>contentBase64</i> (schemas/tasks.ts:150-155).</li>
+          <li><b>attachment_added</b> — evento gravado na mesma transação do registro (task-attachment.service.ts:239).</li>
         </ul>
       </div>
 

@@ -5690,6 +5690,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Receber o estado:</b> <i>projectId</i>, <i>skillId</i> e <i>isActive</i> novo definem o destino do flag (skills.ts:355-359).</li>
+          <li><b>2. Conferir o pai:</b> <i>assertProjectExists</i> recusa projeto inexistente ou na lixeira com 404 (skill.service.ts:648).</li>
+          <li><b>3. Localizar o vínculo:</b> <i>findFirst({ projectId, skillId })</i>; ausente vira <i>NotFoundError ProjectSkill</i> (skill.service.ts:649-650).</li>
+          <li><b>4. Gravar o flag:</b> <i>update({ data: { isActive } })</i> muda só a coluna, sem tocar na skill (skill.service.ts:651-654).</li>
+          <li><b>5. Devolver o link:</b> <i>{ id, skillId, isActive, addedAt }</i>; só o não-existe vira <i>PROJECT_SKILL_NOT_FOUND</i> (skills.ts:361-370).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b><i>add</i> liga na criação:</b> <i>isActive</i> padrão <i>true</i>; <i>toggle</i> muda depois sem recriar (skills.ts:299-323).</li>
+          <li><b><i>remove</i> apaga a linha:</b> <i>toggle</i> preserva o vínculo e só alterna o flag (skills.ts:324-348).</li>
+          <li><b><i>list</i> reflete na hora:</b> <i>activeOnly</i> padrão esconde o que foi desligado aqui (context.ts:281).</li>
+          <li><b><i>project_context</i> só leva ativas:</b> seção <i>activeSkills</i> filtra <i>isActive</i> antes de montar o contexto (context.ts:200).</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Só o flag muda:</b> nada na skill global é tocado; vínculo continua existindo (skill.service.ts:647-655).</li>
+          <li><b>Vínculo ausente é 404 de negócio:</b> banco fora ou timeout sobem como falha interna, não como não-achado (skills.ts:366-368).</li>
+          <li><b>Lixeira é invisível:</b> projeto com <i>deletedAt</i> conta como não achado (skill.service.ts:537-543).</li>
+          <li><b>Sem alternância pelo MCP:</b> aqui <i>isActive</i> é obrigatório; só o service aceita <i>undefined</i> para alternar (skill.service.ts:647).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5708,6 +5748,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>isActive</b> — flag do vínculo; desligado esconde da lista padrão (skill.service.ts:647-655).</li>
+          <li><b>ProjectSkill</b> — linha de vínculo com <i>id, isActive, addedAt</i> (schema.prisma:1207-1220).</li>
+          <li><b>assertProjectExists</b> — pai ativo exigido antes de ligar/desligar (skill.service.ts:537-543).</li>
+          <li><b>HINTS.update</b> — atualização idempotente, sem duplicar vínculo (skills.ts:360).</li>
         </ul>
       </div>
 

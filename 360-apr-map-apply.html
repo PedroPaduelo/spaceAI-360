@@ -5749,6 +5749,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <b>render_map_apply</b> com <i>projectId, expectedVersion, operations[1-100], dryRun, actor</i> (screens.ts:223).</li>
+          <li>O <i>handler</i> valida e publica só <i>{op}</i> no <i>tools/list</i>; o detalhe está em <i>render_help operations</i> (wire.ts:77).</li>
+          <li>O serviço <b>applyMapOps</b> exige <i>expectedVersion</i> igual à atual; 0 cria o mapa (map.ts:65-77).</li>
+          <li>Aplica com <b>applyManifestOperations</b> e checa refs com <b>validateManifestRefs</b> (map.ts:16-42).</li>
+          <li>Artboard exige página existente e variante de tela existente (screens.ts:223).</li>
+          <li>Grava <i>RenderLibrary kind manifest</i> com versão+1 ou devolve plano com <i>dryRun</i> (map.ts:65-86).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>render_map_get</b> lê a versão para o <i>expectedVersion</i> daqui (screens.ts:219).</li>
+          <li><b>render_screen_create/compose</b> criam <i>artboards</i> que aqui são editados (screens.ts:136-145).</li>
+          <li><b>render_help</b> tópico <i>operations</i> lista <i>set_layout/set_pages/upsert/remove</i> (help.ts:15).</li>
+          <li><b>operationsWire</b> publica só os nomes de op no catálogo (wire.ts:77).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Mapa versionado por biblioteca: versão defasada dá <i>VERSION_CONFLICT</i>; releia (map.ts:65-77).</li>
+          <li>Máximo 100 ops por lote; tudo-ou-nada só dentro do lote (screens.ts:223).</li>
+          <li>Artboard sem página ou sem variante falha em <i>validateManifestRefs</i> (map.ts:42).</li>
+          <li>Chamadas separadas não são uma transação só; cada <i>apply</i> é atômico (help.ts:29-37).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5767,6 +5808,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Manifest</b> — <i>{pages, artboards, annotations}</i> do projeto (map.ts:16).</li>
+          <li><b>Artboard</b> — posição de uma variante no mapa; precisa de página e tela (screens.ts:223).</li>
+          <li><b>expectedVersion</b> — CAS da biblioteca; 0 cria o mapa (common.ts:25).</li>
+          <li><b>applyManifestOperations</b> — aplica o lote em memória antes de persistir (map.ts:16).</li>
+          <li><b>validateManifestRefs</b> — garante que todo <i>artboard</i> aponta para o que existe (map.ts:42).</li>
         </ul>
       </div>
 

@@ -5741,6 +5741,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Receber o trio:</b> <i>taskId + skillId (uuid ou slug) + relationType + note?</i> pelo <i>SkillLinkSchema</i> (tasks.ts:593; schemas/task-decisions.ts:121-126).</li>
+          <li><b>2. Resolver a skill:</b> <i>getByIdOrSlug(skillId)</i>; inexistente vira <i>SKILL_NOT_FOUND</i> antes do vínculo (tasks.ts:596-597; skill.service.ts:215-221).</li>
+          <li><b>3. Gravar idempotente:</b> <i>linkSkill</i> atualiza só <i>note</i> se o trio já existe; senão cria e grava <i>skill_linked</i> com slug e nome (task-decision.service.ts:579-593).</li>
+          <li><b>4. Validar só existência:</b> skill é catálogo global, sem checagem de projeto; task inexistente vira 404 (task-decision.service.ts:579-582).</li>
+          <li><b>5. Devolver o vínculo:</b> link com a skill em resumo (<i>SKILL_LINK_SELECT</i>), sem corpo markdown (task-decision.service.ts:80-89; tasks.ts:598-600).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b><i>task_skill_list</i> confere:</b> lista os vínculos com <i>relationType</i> e resumo da skill (tasks.ts:603-612).</li>
+          <li><b><i>task_skill_unlink</i> desfaz:</b> exige o mesmo <i>relationType</i> da chave (tasks.ts:613-641).</li>
+          <li><b><i>task_create</i> já vincula em lote:</b> <i>skillLinks[]</i> na criação atômica com o mesmo <i>SkillLinkSchema</i> (tasks.ts:198-227).</li>
+          <li><b>Corpo fica em <i>skill_get</i>:</b> <i>execution</i> manda ler antes de executar (tasks.ts:591-592).</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Chave é o trio:</b> <i>(taskId, skillId, relationType)</i> único; mesma skill pode ter <i>execution + reference + validation</i> (schema.prisma:1002-1017).</li>
+          <li><b>Repetir só atualiza nota:</b> religar o mesmo trio não duplica nem grava novo evento (task-decision.service.ts:585-592).</li>
+          <li><b><i>skillId</i> aceita slug:</b> conhecido por slug, resolvido para uuid antes de gravar (task-decision.service.ts:581).</li>
+          <li><b>Sem projeto no vínculo:</b> diferente de memória/prompt, skill global não valida <i>projectId</i> igual (task-decision.service.ts:571-578).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5759,6 +5799,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>SkillLinkSchema</b> — <i>skillId + relationType + note</i>; <i>execution</i> padrão (schemas/task-decisions.ts:121-126).</li>
+          <li><b>TaskSkillRelation</b> — <i>execution, reference, validation</i> (schema.prisma:708-712).</li>
+          <li><b>SKILL_LINK_SELECT</b> — resumo sem <i>content</i> para não pesar o detalhe (task-decision.service.ts:80-89).</li>
+          <li><b>skill_linked</b> — evento só quando o vínculo nasce, com slug e nome (task-decision.service.ts:589).</li>
         </ul>
       </div>
 

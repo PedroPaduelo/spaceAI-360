@@ -5673,6 +5673,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Receber só a task:</b> <i>{ taskId }</i> como uuid, sem filtro de relação (tasks.ts:609-610).</li>
+          <li><b>2. Passar pelo portão:</b> <i>withTaskAccess</i> confere o projeto dono antes do handler (tasks.ts:759-768).</li>
+          <li><b>3. Ler em ordem:</b> <i>findMany({ taskId }, include skill { SKILL_LINK_SELECT }, orderBy createdAt asc)</i> (task-decision.service.ts:594-596).</li>
+          <li><b>4. Achatar o resumo:</b> <i>shapeSkillLinks</i> desserializa <i>tags</i> e mantém skill sem <i>content</i> (task-decision.service.ts:103-104).</li>
+          <li><b>5. Orientar a leitura:</b> resposta diz para puxar o corpo com <i>skill_get</i> só das que serão seguidas (tasks.ts:607-608).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b><i>task_skill_link/unlink</i> mantêm:</b> criam e removem os vínculos listados aqui (tasks.ts:587-641).</li>
+          <li><b><i>task_get</i> embute o mesmo:</b> <i>skillLinks</i> do detalhe usam o mesmo <i>shape</i> e seleção (task.service.ts:157).</li>
+          <li><b><i>task_context_bundle</i> prioriza:</b> <i>execution</i> entra em <i>mustRead</i> antes de executar (tasks.ts:283-295).</li>
+          <li><b>Catálogo em <i>skill_list/get</i>:</b> global com corpo sob demanda; aqui só o vínculo da task (skills.ts:27-57).</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Nunca o markdown:</b> corpo tem dezenas de KB; listagem com corpo estouraria o contexto (task-decision.service.ts:80-89).</li>
+          <li><b>Sem filtro por relação:</b> todos os <i>relationType</i> voltam juntos; filtre no cliente (task-decision.service.ts:594-596).</li>
+          <li><b>Skill apagada some junto:</b> vínculo sem skill não se sustenta por cascata (schema.prisma:1002-1017).</li>
+          <li><b>Task inexistente é 404:</b> sem distinção de projeto fora do alcance (task-decision.service.ts:594-596).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5691,6 +5731,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>SKILL_LINK_SELECT</b> — <i>id, slug, name, description, tags, version, source, folderId</i> (task-decision.service.ts:80-89).</li>
+          <li><b>shapeSkillLinks</b> — lote com <i>tags</i> como array, sem corpo (task-decision.service.ts:103-104).</li>
+          <li><b>TaskSkillRelation</b> — por que a skill está na task, não o que ela é (schema.prisma:708-712).</li>
+          <li><b>task_skill_links</b> — único por trio, com nota e autor (schema.prisma:1002-1017).</li>
         </ul>
       </div>
 

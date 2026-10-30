@@ -5740,6 +5740,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <b>render_component_extract</b> com <i>projectId, baseKey, theme, key, name, expectedRev, expectedVersion</i> (extract.ts:13).</li>
+          <li>O <i>handler</i> abre <b>transaction()</b>: extração não deixa meio-componente (extract.ts:13).</li>
+          <li>Lê a variante e confere <i>expectedRev</i>; divergente dá <i>VERSION_CONFLICT</i> (extract.ts:13-20).</li>
+          <li>Lê o nó com <b>getNode</b> até profundidade 48 e valida como <i>componentSchema</i> (extract.ts:13).</li>
+          <li>Grava com <b>applyComponentsTx</b> (<i>op create</i>) e, por padrão, troca por instância via <b>applyScreenNodeOps</b> (<i>op replace</i>) (extract.ts:13-30).</li>
+          <li><i>dryRun/replaceWithInstance</i> controlam ensaio e troca; retorno traz <i>catalog+screen</i> (extract.ts:13).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>render_component_apply</b> ajusta <i>props/stories</i> depois da extração (catalog.ts:218).</li>
+          <li><b>render_node_get</b> lê o <i>key</i> que será extraído (screens.ts:170).</li>
+          <li><b>render_component_instantiate</b> prova o componente criado (catalog.ts:258).</li>
+          <li><b>render_help</b> tópico <i>operations</i> lista <i>create/replace</i> usados aqui (help.ts:15).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><i>expectedRev</i> e <i>expectedVersion</i> defasados falham; releia antes de repetir (extract.ts:13).</li>
+          <li>Sem transação parcial: ou cria componente e instancia, ou nada grava (extract.ts:13).</li>
+          <li>Chave com <i>key</i> de nó é removida do template via <i>withoutKeys</i>; não edite na mão (extract.ts:13-20).</li>
+          <li>Categoria fixa <i>composite</i> na extração; mude depois com <i>patch</i> se preciso (extract.ts:13).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5758,6 +5799,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Extração</b> — subárvore vira componente e vira instância numa só transação (extract.ts:13).</li>
+          <li><b>replaceWithInstance</b> — troca o trecho pelo <i>{type:name}</i> criado (extract.ts:13).</li>
+          <li><b>expectedRev/expectedVersion</b> — CAS da tela e do catálogo; 0 só cria (extract.ts:13).</li>
+          <li><b>applyComponentsTx</b> — escrita atômica do catálogo (entries.ts:162).</li>
+          <li><b>applyScreenNodeOps</b> — escrita atômica dos nós da tela (screens.ts:386).</li>
         </ul>
       </div>
 

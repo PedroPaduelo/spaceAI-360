@@ -5797,6 +5797,39 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Receber alvo:</b> id mais number inteiro a partir de 1; tool opt-in skills-history com HINTS.update (tools/core/skills.ts:284-289; schemas/skills.ts:65-68).</li>
+          <li><b>2. Travar e validar:</b> linha travada com FOR UPDATE; skill ou versão ausente vira 404, builtin vira 409 duplicate_to_customize e slug da versão em uso por outra vira 409 P2002 (services/skill.service.ts:475-510).</li>
+          <li><b>3. Restaurar como novo:</b> substitui o pacote inteiro e acrescenta versão origin restore com restoredFrom igual ao number; sem histórico prévio grava baseline antes (services/skill-versions.ts:98-106; services/skill.service.ts:484-504); retorna toSkillDetail (tools/core/skills.ts:293).</li>
+        </ol>
+      </div>
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>skill_version_list + skill_version_get:</b> localizam e comparam a versão a restaurar com a atual (tools/core/skills.ts:240-277).</li>
+          <li><b>skill_get + skill_export:</b> conferem o pacote após o restore e o hash resultante (tools/core/skills.ts:44-57,76-93).</li>
+          <li><b>skill_duplicate:</b> alternativa para builtin, que não pode ser restaurado (services/skill.service.ts:481).</li>
+        </ul>
+      </div>
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Histórico nunca reescrito:</b> restore só acrescenta; versão antiga continua consultável (services/skill-versions.ts:1-11).</li>
+          <li><b>Source e pasta ficam:</b> restore troca slug, corpo, anexos e metadata, mas mantém source e pasta atuais (services/skill.service.ts:485-500).</li>
+          <li><b>Slug em colisão:</b> slug da versão já usado por outra skill aborta a transação inteira (services/skill.service.ts:506-509).</li>
+        </ul>
+      </div>
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5815,6 +5848,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Restore x baseline</b> — restore acrescenta origin restore; baseline abre histórico de skill antiga (services/skill-versions.ts:98-106).</li>
+          <li><b>P2002 de slug</b> — slug da versão em uso por outra aborta tudo com 409 (services/skill.service.ts:506-509).</li>
+          <li><b>FOR UPDATE</b> — trava a skill da leitura até a escrita (services/skill.service.ts:477-504).</li>
+          <li><b>Origin restore</b> — nova versão carrega restoredFrom igual ao number pedido (services/skill-versions.ts:44-66).</li>
         </ul>
       </div>
 

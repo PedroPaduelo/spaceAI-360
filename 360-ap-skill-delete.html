@@ -5724,6 +5724,39 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Resolver alvo:</b> id aceita UUID ou slug (tools/core/skills.ts:172); getByIdOrSlug sem linha devolve SKILL_NOT_FOUND (tools/core/skills.ts:175-176).</li>
+          <li><b>2. Aplicar guardas:</b> service relê id, slug e source; ausente vira 404 NotFound e builtin vira 409 BuiltinSkillReadOnlyError (services/skill.service.ts:408-412; services/skill.service.ts:107-119).</li>
+          <li><b>3. Apagar em cascata:</b> delete remove a skill e o banco apaga versões, vínculos de projeto e de task (prisma/schema.prisma: SkillVersion onDelete Cascade; ProjectSkill onDelete Cascade); responde { deleted: true } (tools/core/skills.ts:177-178).</li>
+        </ol>
+      </div>
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>skill_get:</b> confirma o alvo antes de apagar, pois não há desfazer (tools/core/skills.ts:44-57).</li>
+          <li><b>project_skill_list + task_skill_list:</b> mostram o impacto em projetos e tasks antes do delete (tools/core/context.ts:265-290; tools/core/tasks.ts:603-612).</li>
+          <li><b>skill_duplicate:</b> preserva uma cópia editável quando o original não pode ser apagado por ser builtin (tools/core/skills.ts:94-112).</li>
+        </ul>
+      </div>
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Irreversível:</b> histórico de versões some junto; para fechar sem apagar prefira desativar o vínculo (tools/core/skills.ts:170-171).</li>
+          <li><b>Builtin nunca apaga:</b> nem com force; duplique para customizar (services/skill.service.ts:121-123).</li>
+          <li><b>Corrida some no meio:</b> linha apagada entre checagem e delete vira 404 NotFound (services/skill.service.ts:358-360).</li>
+        </ul>
+      </div>
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5742,6 +5775,9 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Cascade</b> — apagar a skill apaga versões e vínculos por onDelete Cascade (prisma/schema.prisma: SkillVersion; ProjectSkill).</li>
+          <li><b>Builtin read-only</b> — seed do repositório; editar ou apagar vira 409 duplicate_to_customize (services/skill.service.ts:107-119).</li>
+          <li><b>404 x 409</b> — ausente é NotFound; builtin é Conflict com reason e rota de duplicate (services/skill.service.ts:408-412).</li>
         </ul>
       </div>
 

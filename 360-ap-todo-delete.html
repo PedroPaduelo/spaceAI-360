@@ -5714,6 +5714,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Receber só o id:</b> <i>{ id }</i> como <i>z.string()</i> puro, sem checagem de uuid na tool (tasks.ts:730-742).</li>
+          <li><b>2. Passar pelo portão:</b> <i>scopedArgsOf</i> marca <i>id</i> como <i>todo</i>; <i>withTaskAccess</i> exige <i>tools/call</i> e confere o projeto dono (tasks.ts:750-768).</li>
+          <li><b>3. Apagar físico:</b> <i>todo.deleteMany({ where: { id } })</i> sem transação, lock ou evento (task.service.ts:776-779).</li>
+          <li><b>4. Traduzir o não-achado:</b> <i>count 0</i> vira <i>NotFoundError Todo</i> (404 NOT_FOUND) (task.service.ts:777-778).</li>
+          <li><b>5. Confirmar:</b> <i>{ deleted: true }</i> via <i>jsonContent</i>; auditoria só quando apagou de fato (tasks.ts:740).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b><i>todo_create/update</i> são o ciclo:</b> criam e editam o que aqui some fisicamente (tasks.ts:699-729).</li>
+          <li><b><i>task_delete</i> leva junto:</b> apagar a task leva os todos por cascata; aqui apaga só um item (task.service.ts:687-695).</li>
+          <li><b><i>task_get</i> reflete:</b> o checklist perde a linha sem reordenar as demais (task.service.ts:699-705).</li>
+          <li><b>Toolset <i>tasks-admin</i>:</b> nome com <i>_delete</i> cai no opt-in fora do padrão (tasks.ts:737).</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Sem soft delete:</b> <i>Todo</i> não tem lixeira; a linha some da tabela (schema.prisma:1042-1055).</li>
+          <li><b>Sem reordenação automática:</b> apagar não renumera <i>order</i>; buracos ficam até o próximo reorder (task.service.ts:734-760).</li>
+          <li><b><i>HINTS.remove</i> idempotente:</b> repetir não apaga além da primeira vez, mas a segunda já dá 404 (tasks.ts:737).</li>
+          <li><b>Fora do catálogo padrão:</b> com toolset desligado, o despacho responde <i>-32602 Unknown tool</i> sem revelar a tool (tasks.ts:737).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5732,6 +5772,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>deleteMany + count</b> — 0 linhas vira 404 de domínio, sem P2025 (task.service.ts:776-779).</li>
+          <li><b>Todo (CASCADE)</b> — filho da task; task apagada leva os todos (schema.prisma:1042-1055).</li>
+          <li><b>HINTS.remove</b> — destrutiva e idempotente; repetir não apaga além (tasks.ts:737).</li>
+          <li><b>NO_TOOL_CALL</b> — fora de <i>tools/call</i> a chamada é recusada fechada (task-access.service.ts:91-97).</li>
         </ul>
       </div>
 

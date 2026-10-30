@@ -5737,6 +5737,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <b>render_screen_compose</b> com <i>projectId, baseKey, title, components[1-50], layout, columns, dark</i> (screens.ts:145).</li>
+          <li>O <i>handler</i> valida em transação e delega a <b>composeScreen</b> (screens.ts:145-154).</li>
+          <li>O serviço instancia cada nome com defaults do catálogo e preenche <i>styleKeys</i> (compose.service.ts:125).</li>
+          <li>Empilha (<i>stack</i>) ou gradeia (<i>grid</i> até 6 colunas) e posiciona <i>artboards</i> no mapa (compose.service.ts:101-125).</li>
+          <li>Limites: 1-50 componentes e 1-6 colunas (<b>COMPOSE_LIMITS</b>) (compose.service.ts:47).</li>
+          <li>Retorna URLs de preview e <i>warnings</i> de componente/estilo (screens.ts:145).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>render_component_list</b> lista os nomes que aqui viram tela (catalog.ts:210).</li>
+          <li><b>render_component_instantiate</b> é o passo manual equivalente por peça (catalog.ts:258).</li>
+          <li><b>render_screen_create</b> é o caminho manual com árvore pronta (screens.ts:136).</li>
+          <li><b>render_map_get</b> mostra os <i>artboards</i> criados aqui (screens.ts:219).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Nome fora do catálogo não trava; vira <i>warning unknown-component</i> com a tela criada (help.ts:39-41).</li>
+          <li>Mais de 50 peças ou colunas fora de 1-6 recusam no zod (compose.service.ts:47).</li>
+          <li><i>dark:true</i> cria a variante escura junto (mesma árvore); sem ele só <i>light</i> (screens.ts:145).</li>
+          <li>Rota precisa começar com <i>/</i>; <i>page {id,name}</i> ausente vira <i>screens/Telas</i> (compose.service.ts:46).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5755,6 +5796,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Compose</b> — tela a partir de nomes, numa chamada (screens.ts:145).</li>
+          <li><b>COMPOSE_LIMITS</b> — 50 peças e 6 colunas no máximo (compose.service.ts:47).</li>
+          <li><b>Stack/Grid</b> — uma coluna ou grade por linhas (compose.service.ts:52).</li>
+          <li><b>Artboard</b> — posição automática no mapa (compose.service.ts:101).</li>
+          <li><b>Warnings</b> — já gravado, mas com ressalvas (help.ts:39-41).</li>
         </ul>
       </div>
 

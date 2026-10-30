@@ -5687,6 +5687,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Receber a chave completa:</b> <i>taskId + skillId + relationType</i> (padrão <i>execution</i>); sem relação certa não remove (tasks.ts:619-623).</li>
+          <li><b>2. Resolver a skill:</b> <i>getByIdOrSlug</i>; inexistente vira <i>SKILL_NOT_FOUND</i> sem tocar no vínculo (tasks.ts:626-627).</li>
+          <li><b>3. Apagar com contagem:</b> <i>deleteMany + count</i> em vez de <i>delete</i>; 0 vira 404 de domínio, não P2025 cru (task-decision.service.ts:600-608).</li>
+          <li><b>4. Traduzir só o não-existe:</b> <i>isMissingRecord</i> vira <i>TASK_SKILL_LINK_NOT_FOUND</i>; resto sobe como interna (tasks.ts:630-638).</li>
+          <li><b>5. Confirmar e registrar:</b> <i>{ unlinked: true, taskId, skillId, relationType }</i> com <i>skill_unlinked</i> na mesma transação (tasks.ts:639; task-decision.service.ts:606).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b><i>task_skill_link</i> é o inverso:</b> cria o trio que aqui se apaga, com a mesma chave (tasks.ts:587-602).</li>
+          <li><b><i>task_skill_list</i> confere:</b> mostra as relações restantes da mesma skill após sair uma (tasks.ts:603-612).</li>
+          <li><b>Espelho de memória/prompt:</b> mesma regra <i>deleteMany + count</i> e mesmo evento de <i>unlinked</i> (task-decision.service.ts:600-660).</li>
+          <li><b>Histórico conta a saída:</b> <i>skill_unlinked</i> com slug e nome preserva leitura após remoção (task-events.ts:127).</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Relação faz parte da chave:</b> passar <i>reference</i> quando o vínculo é <i>execution</i> dá 404 e mantém o original (tasks.ts:618).</li>
+          <li><b>Outras relações ficam:</b> só a relação pedida sai; a mesma skill pode continuar com outras (tasks.ts:618).</li>
+          <li><b>Ordem do <i>catch</i> importa:</b> genérico mentiria para o agente e para a métrica <i>mcp_tool_duration_seconds</i> (tasks.ts:631-636).</li>
+          <li><b>Fora do padrão:</b> nome com <i>_unlink</i> cai em <i>tasks-admin</i> por critério (tasks.ts:691-693).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5705,6 +5745,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>SkillLinkQuerySchema</b> — <i>relationType</i> padrão <i>execution</i> na chave (schemas/task-decisions.ts:130-132).</li>
+          <li><b>isMissingRecord</b> — só o não-existe vira código de negócio (tasks.ts:636-638).</li>
+          <li><b>TASK_SKILL_LINK_NOT_FOUND</b> — vínculo ausente para a chave pedida (tasks.ts:637).</li>
+          <li><b>skill_unlinked</b> — evento com <i>skillId, slug, name, relationType</i> (task-decision.service.ts:606).</li>
         </ul>
       </div>
 

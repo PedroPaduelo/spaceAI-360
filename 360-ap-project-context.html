@@ -5764,6 +5764,39 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Receber projeto:</b> projectId UUID obrigatório; gateway preenche quando omitido e getById 404 se lixeira (tools/core/context.ts:43,186,14-16; services/project.service.ts:150-152).</li>
+          <li><b>2. Buscar em paralelo:</b> memories rule e decision com 50 recentes cada, links de skills, roots de knowledge com 200, prompts ativos e tasks aguardando humano (tools/core/context.ts:192-198; tools/core/context.ts:38,41).</li>
+          <li><b>3. Caber em 20 KB:</b> ordena por rules, activePrompts, activeSkills, decisions e rootKnowledge; cada item entra inteiro ou não entra, truncated avisa e totals conta tudo (tools/core/context.ts:78,154-178,249-261; tools/core/context.ts:35).</li>
+        </ol>
+      </div>
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>project_get:</b> traz contadores e prefs de roadmap; o contexto traz o que ler primeiro (tools/core/projects.ts:31-45).</li>
+          <li><b>project_skill_list:</b> mesma lista de vínculos usada em activeSkills, com isActive e addedAt (tools/core/context.ts:265-290).</li>
+          <li><b>memory_get, skill_get, knowledge_get e prompt_get:</b> carregam os corpos apontados em mustRead (tools/core/context.ts:86-88,209-246).</li>
+        </ul>
+      </div>
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Só ativos entram:</b> skills e prompts inativos ficam fora do contexto (tools/core/context.ts:200,197).</li>
+          <li><b>decisionTools condicional:</b> só sai com tasks pendentes e aponta o toolset opt-in decisions (tools/core/context.ts:258-261).</li>
+          <li><b>Corte pela esquerda:</b> rootKnowledge cai primeiro e rules por último; truncated true exige nova leitura focada (tools/core/context.ts:74-76,167-176).</li>
+        </ul>
+      </div>
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5782,6 +5815,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>mustRead</b> — ordem de leitura com kind, id, title, why e tool que carrega o corpo (tools/core/context.ts:47-57).</li>
+          <li><b>Truncated x totals</b> — truncated avisa corte; totals conta tudo por seção (tools/core/context.ts:154-178,249-255).</li>
+          <li><b>SECTION_ORDER</b> — rules, activePrompts, activeSkills, decisions e rootKnowledge (tools/core/context.ts:78).</li>
+          <li><b>decisionTools</b> — ponteiro do toolset decisions com tasks pendentes, só quando há (tools/core/context.ts:93-97,258-261).</li>
         </ul>
       </div>
 

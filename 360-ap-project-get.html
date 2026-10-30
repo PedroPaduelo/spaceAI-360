@@ -5811,6 +5811,39 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Receber id:</b> único argumento texto livre sem formato cobrado (tools/core/projects.ts:36-38); sem projectId auto do gateway (tools/core/context.ts:14-16).</li>
+          <li><b>2. Filtrar ativos:</b> getById só vê deletedAt nulo; lixeira é invisível e vira PROJECT_NOT_FOUND (services/project.service.ts:89-90,150-152; tools/core/projects.ts:41-42).</li>
+          <li><b>3. Projetar resposta:</b> toFullProject com counts e prefs de roadmap mais createdAt e updatedAt em ISO (schemas/project.ts:10-28; services/project.service.ts:96-109).</li>
+        </ol>
+      </div>
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>project_list:</b> descobre o id antes do get; ambos usam o mesmo resumo e toProjectSummary (tools/core/projects.ts:13-30).</li>
+          <li><b>project_context:</b> passo seguinte ao entrar no projeto, com mustRead do que carregar (tools/core/context.ts:180-263).</li>
+          <li><b>search com projectId:</b> restringe knowledge, memories e tasks a este projeto (services/search.service.ts:485-500).</li>
+        </ul>
+      </div>
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Lixeira igual a inexistente:</b> deletedAt não nulo responde igual a id desconhecido (services/project.service.ts:144-148).</li>
+          <li><b>Criar e excluir fora daqui:</b> vivem no Render core, não neste módulo de leitura (tools/core/projects.ts:1-4).</li>
+          <li><b>Leitura não audita:</b> project_get não grava audit_events (tools/core/index.ts:46-48).</li>
+        </ul>
+      </div>
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5829,6 +5862,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>ACTIVE</b> — where deletedAt nulo; lixeira invisível (services/project.service.ts:89-90).</li>
+          <li><b>_count</b> — contadores de memories, tasks, knowledges, projectSkills, agentPrompts e projectMcps (services/project.service.ts:96-109).</li>
+          <li><b>Prefs de roadmap</b> — zoom, group, workingDays e weekStart com defaults (schemas/project.ts:22-26).</li>
+          <li><b>ReachableProjects</b> — chave de agente só vê seus projetos; usuário e bootstrap veem todos (services/project.service.ts:111-113).</li>
         </ul>
       </div>
 

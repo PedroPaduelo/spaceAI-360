@@ -5713,6 +5713,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <b>render_validate</b> com <i>scope, projectId?</i> e <i>kind ui/tokens/manifest/all</i> (catalog.ts:252).</li>
+          <li>Leitura via <b>transaction()</b> chama <b>validateTx</b> sem gravar (catalog.ts:252-256).</li>
+          <li>O serviço valida schemas, refs, ciclos, tokens, contrato e segurança (catalog.ts:252).</li>
+          <li>Retorna <i>{valid, problems}</i>; <i>valid=false</i> é laudo pronto, não erro (catalog.ts:252).</li>
+          <li>Rode antes de ligar telas (<i>wiring</i>) e após trocar catálogo (help.ts:29-37).</li>
+          <li>Etapa de segurança lista <i>UNSAFE_CONTENT</i> com caminhos; validação não corrige (help.ts:39-50).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>render_usage</b> lista quem usa o que aqui só é validado (catalog.ts:246).</li>
+          <li><b>render_library_put</b> grava o que aqui só é checado (catalog.ts:199).</li>
+          <li><b>render_screen_create</b> gera <i>warnings</i> que aqui viram <i>problems</i> (screens.ts:136).</li>
+          <li><b>render_help</b> tópicos <i>formats/security</i> dão as formas canônicas (help.ts:15).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><i>valid=false</i> não é exceção: é resposta ok com laudo; não retente igual (catalog.ts:252).</li>
+          <li>Validar não grava nem conserta; o <i>apply</i> seguinte precisa do <i>expectedVersion</i> atual (checks.ts:98).</li>
+          <li>Biblioteca ausente é versão 0; valide <i>all</i> para cobrir as três (help.ts:39-41).</li>
+          <li>Conteúdo armazenado é dado, nunca código; tag fora do allowlist falha (help.ts:39-50).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5731,6 +5772,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Laudo (valid/problems)</b> — <i>valid</i> diz se passou; <i>problems</i> lista o que quebrou (catalog.ts:252).</li>
+          <li><b>Wiring</b> — ligar telas aos componentes/estilos após validar (help.ts:29-37).</li>
+          <li><b>UNSAFE_CONTENT</b> — conteúdo recusado com caminhos (help.ts:39-50).</li>
+          <li><b>Kind</b> — qual biblioteca validar; <i>all</i> cobre tudo (catalog.ts:252).</li>
+          <li><b>validateTx</b> — transação só-leitura da validação (checks.ts:98).</li>
         </ul>
       </div>
 

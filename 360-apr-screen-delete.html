@@ -5717,6 +5717,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <b>render_screen_delete</b> com <i>projectId, baseKey, expectedDesignRev</i> (screens.ts:165).</li>
+          <li>O <i>handler</i> roda em <b>transaction()</b> SERIALIZABLE (screens.ts:165).</li>
+          <li>O serviço <b>deleteScreen</b> confere o <i>designRev</i> (CAS) antes de tocar (screens.ts:348).</li>
+          <li>Recusa enquanto a tela ainda tem <i>assets</i> (describe como dono) (screens.ts:165).</li>
+          <li>Apaga variantes, histórico e <i>artboards</i> do mapa em cascata (screens.ts:165).</li>
+          <li>Irreversível exceto a partir de bundle exportado antes (screens.ts:165).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>render_screen_create</b> cria o que aqui é apagado (screens.ts:136).</li>
+          <li><b>render_screen_list</b> confirma que sumiu (screens.ts:126).</li>
+          <li><b>render_history_list</b> mostra o histórico que some junto (screens.ts:184).</li>
+          <li><b>render_bundle_export</b> é a única volta após apagar (help.ts:39-50).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><i>expectedDesignRev</i> é obrigatório; sem o <i>rev</i> atual dá <i>VERSION_CONFLICT</i> (screens.ts:165).</li>
+          <li>Com <i>assets</i> próprios a exclusão é recusada; solte os arquivos antes (screens.ts:165).</li>
+          <li>Apagou, apagou: histórico e mapa vão juntos (screens.ts:165).</li>
+          <li>Tela inexistente dá 404; não há <i>dryRun</i> aqui (screens.ts:348).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5735,6 +5776,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>designRev</b> — revisão da identidade/metadados para o CAS (screens.ts:348).</li>
+          <li><b>Cascata</b> — apaga variantes, revisões e <i>artboards</i> juntos (screens.ts:165).</li>
+          <li><b>Assets donos</b> — arquivos presos à tela bloqueiam o apagão (screens.ts:165).</li>
+          <li><b>Bundle</b> — exporto que permite reimportar depois (help.ts:39-50).</li>
         </ul>
       </div>
 

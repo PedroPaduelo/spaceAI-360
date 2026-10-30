@@ -5720,6 +5720,39 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Receber patch parcial:</b> só name, description, content, author, version e tags entram pelo MCP; omitido mantém o valor (tools/core/skills.ts:142-150; schemas/skills.ts:48).</li>
+          <li><b>2. Travar e conferir:</b> busca por id ou slug devolve SKILL_NOT_FOUND se ausente (tools/core/skills.ts:153-154); linha travada com FOR UPDATE recusa builtin com 409 duplicate_to_customize (services/skill.service.ts:355-369).</li>
+          <li><b>3. Versionar:</b> pacote mudado recomputa contentHash e grava versão origin update; pacote igual não gera linha nova (services/skill-versions.ts:88-107; tools/core/skills.ts:155-163).</li>
+        </ol>
+      </div>
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>skill_get antes:</b> carrega o pacote atual para decidir o patch mínimo (tools/core/skills.ts:44-57).</li>
+          <li><b>skill_version_list + skill_version_get:</b> comparam o antes e o depois da escrita (tools/core/skills.ts:240-277).</li>
+          <li><b>skill_version_restore + skill_duplicate:</b> revertem a edição ou customizam builtin sem tocar no original (tools/core/skills.ts:278-295,94-112).</li>
+        </ul>
+      </div>
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Tags substituem tudo:</b> string vazia limpa a lista; omitir mantém (tools/core/skills.ts:161).</li>
+          <li><b>Só pasta não versiona:</b> mover de pasta vale até para builtin e não muda hash nem gera versão (services/skill.service.ts:348-350).</li>
+          <li><b>Slug em uso:</b> trocar para slug de outra skill cai no único P2002 virando 409 (services/skill.service.ts:371-373).</li>
+        </ul>
+      </div>
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5738,6 +5771,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Patch parcial</b> — UpdateSkillSchema é o create parcial; ausente mantém (schemas/skills.ts:48).</li>
+          <li><b>Pacote</b> — 12 campos que definem o hash e geram versão (services/skill-package.ts; services/skill.service.ts:351).</li>
+          <li><b>FOR UPDATE</b> — trava a linha da leitura até a escrita contra edição concorrente (services/skill.service.ts:355-369).</li>
+          <li><b>Baseline</b> — primeira versão de skill antiga sem histórico, origin baseline (services/skill-versions.ts:98-101).</li>
         </ul>
       </div>
 

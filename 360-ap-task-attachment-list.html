@@ -5707,6 +5707,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Receber só a task:</b> <i>{ taskId }</i> como uuid, sem paginação nem filtro extra (tasks.ts:311-313).</li>
+          <li><b>2. Passar pelo portão:</b> <i>withTaskAccess</i> confere o projeto dono antes do handler (tasks.ts:759-768).</li>
+          <li><b>3. Conferir a task:</b> <i>assertTaskExists</i>; inexistente vira 404 <i>Task</i> (task-attachment.service.ts:293-294; task-attachment.service.ts:183-186).</li>
+          <li><b>4. Listar ativos:</b> <i>findMany({ taskId, deletedAt: null }, orderBy createdAt asc)</i> do mais antigo ao mais novo (task-attachment.service.ts:295-299).</li>
+          <li><b>5. Projetar metadados:</b> <i>ATTACHMENT_SELECT</i> com <i>id, filename, mimeType, size, checksum, decisionId, createdAt</i>, sem conteúdo nem <i>storageKey</i> (task-attachment.service.ts:74-82).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b><i>task_attachment_get</i> aprofunda:</b> cada item daqui se lê com janela de texto ou base64 (tasks.ts:316-343).</li>
+          <li><b><i>task_attachment_add</i> alimenta:</b> upload cria a linha listada aqui com evento <i>attachment_added</i> (tasks.ts:344-354).</li>
+          <li><b><i>task_get</i> resume junto:</b> detalhe da task traz os mesmos metadados sem conteúdo (task.service.ts:151).</li>
+          <li><b>Remoção some daqui:</b> <i>remove</i> marca <i>deletedAt</i> e o item sai da lista (task-attachment.service.ts:451-469).</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Só metadados, sem conteúdo:</b> corpo do arquivo nunca sai aqui; use <i>get</i> ou o download HTTP (task-attachment.service.ts:74-82).</li>
+          <li><b>Removido some, não marca:</b> filtro <i>deletedAt null</i> esconde sem indicar que existiu (task-attachment.service.ts:295-299).</li>
+          <li><b>404 não distingue:</b> task inexistente ou fora do alcance da chave dá o mesmo NOT_FOUND (task-attachment.service.ts:293-294).</li>
+          <li><b>Ordem fixa:</b> sempre <i>createdAt asc</i>; sem ordenação por nome ou tamanho (task-attachment.service.ts:295-299).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5725,6 +5765,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>ATTACHMENT_SELECT</b> — colunas de lista, sem <i>storageKey</i> nem conteúdo (task-attachment.service.ts:74-82).</li>
+          <li><b>deletedAt null</b> — só anexos ativos; removido sai da lista (task-attachment.service.ts:295-299).</li>
+          <li><b>checksum (sha256)</b> — integridade gravada no registro e devolvida na lista (task-attachment.service.ts:74-82).</li>
+          <li><b>decisionId</b> — arquivo que sustenta decisão humana da task (task-attachment.service.ts:74-82).</li>
         </ul>
       </div>
 

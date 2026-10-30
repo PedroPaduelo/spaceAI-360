@@ -5689,6 +5689,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <b>render_tailwind_compile</b> com <i>scope, projectId?</i> e <i>classes[1-5000]</i> (catalog.ts:272).</li>
+          <li>O <i>handler</i> valida e delega a <b>renderTailwindService.compile</b> sem gravar (catalog.ts:272-279).</li>
+          <li>As classes passam por <b>normalizeClasses</b>: dedupe, limite 5000 e 200 chars por classe (render-tailwind.service.ts:248-262).</li>
+          <li>A compilação usa tokens materializados e <i>themeVersion</i> do escopo; cache por classes+compilador (render-tailwind.service.ts:270-291).</li>
+          <li>Retorna <i>{css, hash, themeVersion, cssBytes}</i>; desconhecida gera nada — procure a classe no <i>css</i> (catalog.ts:272).</li>
+          <li>Teto de <i>cssBytes 500_000</i>; acima disso falha em vez de entregar CSS parcial (render-tailwind.service.ts:107-110).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>render_component_instantiate</b> mostra <i>styleKeys/classes</i> que aqui viram CSS (catalog.ts:258).</li>
+          <li><b>render_library_get</b> lê os tokens que alimentam a compilação (catalog.ts:193).</li>
+          <li><b>render_screen_create</b> proíbe Tailwind em <i>styles[]</i>; só <i>styleKeys</i> (screens.ts:136).</li>
+          <li><b>render_validate</b> acusa classe rejeitada que derrubou o lote (catalog.ts:252).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Classe desconhecida some em silêncio; ausência no <i>css</i> não é erro da tool (catalog.ts:272).</li>
+          <li>Uma classe recusada faz a tela perder todo o CSS do lote; valide antes (render-tailwind.service.ts:116-129).</li>
+          <li>Limites: até 5000 classes e 200 chars cada; <i>data-[x=y]</i> dispensa escape (render-tailwind.service.ts:107-110).</li>
+          <li>Compilação não grava; <i>themeVersion</i> muda quando os tokens mudam (render-tailwind.service.ts:362-413).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5707,6 +5748,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>normalizeClasses</b> — limpa e ordena as classes para o cache (render-tailwind.service.ts:248).</li>
+          <li><b>twCacheKey</b> — chave do cache só por classes+versão do compilador (render-tailwind.service.ts:270).</li>
+          <li><b>themeVersion</b> — versão dos tokens usada no CSS (render-tailwind.service.ts:362-364).</li>
+          <li><b>cssBytes</b> — tamanho do CSS; teto de 500 KB (render-tailwind.service.ts:107-110).</li>
+          <li><b>RENDER_TW_LIMITS</b> — tetos de classes, tamanho e cache (render-tailwind.service.ts:107).</li>
         </ul>
       </div>
 

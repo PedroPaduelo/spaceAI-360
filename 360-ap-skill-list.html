@@ -5683,6 +5683,39 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Receber filtros:</b> search e source opcionais; source segue SkillSourceEnum local, community, imported ou builtin (tools/core/skills.ts:34-37; schemas/skills.ts:26).</li>
+          <li><b>2. Listar no banco:</b> where com source e textSearch em name, description e slug, ordenado por updatedAt desc (services/skill.service.ts:186-209); handler pede skip 0 take 200 e descarta o total (tools/core/skills.ts:39-40).</li>
+          <li><b>3. Resumir:</b> cada linha vira id, slug, description e tags via toSkillSummary; tags com JSON inválido viram lista vazia sem 500 (utils/skill-summary.ts:20-39; tools/core/skills.ts:41).</li>
+        </ol>
+      </div>
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>skill_get:</b> puxa o corpo SKILL.md de uma skill escolhida nesta lista (tools/core/skills.ts:44-57).</li>
+          <li><b>project_skill_list:</b> mostra os vínculos de um projeto; esta tool lê o catálogo global inteiro (tools/core/context.ts:265-290).</li>
+          <li><b>search + project_context:</b> busca fundida e contexto de projeto usam o mesmo resumo para decidir o que carregar (services/search.service.ts:244-253; tools/core/context.ts:219-232).</li>
+        </ul>
+      </div>
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Take fixo em 200:</b> sem paginação no MCP; acima disso refine com search (tools/core/skills.ts:40).</li>
+          <li><b>Sem folderId no MCP:</b> o service filtra por pasta, mas a tool não expõe o filtro (services/skill.service.ts:189-191).</li>
+          <li><b>Builtin aparece mas não edita:</b> update e delete de builtin falham com duplicate_to_customize (services/skill.service.ts:107-123).</li>
+        </ul>
+      </div>
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5701,6 +5734,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Catálogo global</b> — tabela Skill sem org nem projeto; vínculo por projeto é ProjectSkill (prisma/schema.prisma: Skill; tools/core/context.ts:265-290).</li>
+          <li><b>Take fixo</b> — MCP pede skip 0 take 200 e descarta o total (tools/core/skills.ts:40).</li>
+          <li><b>textSearch</b> — busca sem caixa em name, description e slug (services/skill.service.ts:192-195).</li>
+          <li><b>Resumo</b> — id, slug, description e tags para decidir; corpo só em skill_get (utils/skill-summary.ts:13-18).</li>
         </ul>
       </div>
 

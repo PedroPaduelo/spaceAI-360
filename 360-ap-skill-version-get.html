@@ -5680,6 +5680,39 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Entrar no toolset:</b> tool opt-in skills-history fora do catálogo padrão (tools/core/skills.ts:239-241; tools/core/index.ts:63-64); entrada id mais number inteiro a partir de 1 (tools/core/skills.ts:265-268; schemas/skills.ts:65-68).</li>
+          <li><b>2. Passar pelos dois portões:</b> skill ausente vira SKILL_NOT_FOUND (tools/core/skills.ts:271-272); versão pela chave skillId e number via getVersion, ausente vira SKILL_VERSION_NOT_FOUND (services/skill.service.ts:464-467; tools/core/skills.ts:273-274).</li>
+          <li><b>3. Projetar versão:</b> toSkillVersionDetail devolve pacote gravado com corpo até 12 KB e files[] sem conteúdo (utils/serializers/skill.ts:123-141; utils/serializers/skill.ts:16).</li>
+        </ol>
+      </div>
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>skill_version_list:</b> fornece o number a ler, do mais novo ao mais antigo (tools/core/skills.ts:240-258).</li>
+          <li><b>skill_get:</b> mostra o pacote atual para comparar com a versão antiga (tools/core/skills.ts:44-57).</li>
+          <li><b>skill_version_restore:</b> aplica a versão lida aqui como nova versão origin restore (tools/core/skills.ts:278-295).</li>
+        </ul>
+      </div>
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Número por skill:</b> começa em 1 e só existe dentro da skill dona (services/skill-versions.ts:80-107).</li>
+          <li><b>Versão imutável:</b> trigger recusa UPDATE em skill_versions; correção é nova versão (prisma/schema.prisma: SkillVersion trigger).</li>
+          <li><b>Fora do padrão:</b> sem ligar o toolset a chamada responde Unknown tool antes de qualquer leitura (tools/core/index.ts:63-64).</li>
+        </ul>
+      </div>
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5698,6 +5731,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>skills-history</b> — toolset opt-in fora do catálogo padrão (tools/core/skills.ts:239-241; tools/core/index.ts:63-64).</li>
+          <li><b>SKILL_VERSION_NOT_FOUND</b> — number inexistente na skill (tools/core/skills.ts:273-274).</li>
+          <li><b>Pacote gravado</b> — versão guarda corpo, anexos e metadata como estavam (services/skill-versions.ts:44-66).</li>
+          <li><b>Imutável</b> — linha gravada não muda; trigger recusa UPDATE (prisma/schema.prisma: SkillVersion).</li>
         </ul>
       </div>
 
