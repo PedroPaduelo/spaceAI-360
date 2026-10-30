@@ -5688,6 +5688,49 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida os argumentos com <i>validarArgsNativas('agent_abort', args)</i> (subagent.ts:379-380); o schema exige <i>subagentId</i> e aceita <i>reason</i> e <i>escopo: cascata|so_este</i> (subagent.ts:363-377).</li>
+          <li>Se o turno pai foi cancelado, recusa sem tocar na árvore (subagent.ts:381-383).</li>
+          <li>Chama <i>orch.abortChild</i> com <i>ancestralThreadId</i> do turno: só descendente do chamador pode ser cancelado (subagent.ts:388-392).</li>
+          <li>Se não é descendente ou não existe, devolve <i>recusado</i> sem cancelar nada (subagent.ts:393-395).</li>
+          <li>Sem turno rodando, marca como cancelado e avisa <i>sem_turno</i>; sem confirmação no prazo, fecha mesmo assim com <i>sem_confirmacao</i> (subagent.ts:398-403).</li>
+          <li>Em <i>cascata</i> (padrão) conta os extras abaixo; em <i>so_este</i> conta os órfãos que seguem rodando (subagent.ts:404-415).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li>Montada em <i>buildSubagentTools</i> com <i>spawn, list, status</i> (subagent.ts:117-122) e injetada por <i>buildNativeTools</i> (engine/index.ts:140-146).</li>
+          <li>Registro em <i>buildMcpTools</i>: nativa vence MCP e a ordem alfabética mantém o cache estável (registry.ts:92-110).</li>
+          <li>Em passo de workflow é negada como as irmãs (<i>SUBAGENTE_NEGADAS_NO_PASSO</i> em subagent.ts:105-110,421-440); o passo monta com <i>dentroDeRun: true</i> (engine/index.ts:233-235).</li>
+          <li>Executa <i>Orchestrator.abortChild</i> (subagent.ts:35,388) com confirmação de turno vivo e prazo (<i>turnoVivo, aguardarFim, prazoMs</i> em engine/index.ts:154-160).</li>
+          <li>Usa o canal de abort entre processos com assinante único por processo (engine/index.ts:162-175) e o reaper recolhe órfãos de processos mortos (engine/index.ts:177-205).</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Sem <i>escopo</i> vale <i>cascata</i>: alvo e subárvore viva param juntos (subagent.ts:360-373).</li>
+          <li>A guarda <i>ancestralThreadId</i> impede cancelar árvore de outra conversa da mesma org (subagent.ts:384-392); id chutado vira <i>recusado</i> (subagent.ts:393-395).</li>
+          <li><i>so_este</i> deixa órfãos rodando sem ascendência: é preciso cancelar cada um se não quiser mais (subagent.ts:412-415).</li>
+          <li><i>sem_turno</i> é só marca, sem nada rodando; <i>sem_confirmacao</i> fecha mesmo sem ACK no prazo (subagent.ts:398-403).</li>
+          <li>Valor de <i>escopo</i> fora do enum é barrado na validação antes de qualquer I/O (subagent.ts:368-380); detalhe da travessia por nós <i>active</i> é observação, sem confirmação no código.</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5706,6 +5749,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>cascata (padrão)</b> — cancela alvo e subárvore viva juntos; sem <i>escopo</i> é o que vale (subagent.ts:360-373,404-410).</li>
+          <li><b>so_este / órfão</b> — cancela só o alvo; descendentes seguem como órfãos sem ascendência (subagent.ts:368-373,412-415).</li>
+          <li><b>ancestralThreadId (guarda)</b> — alvo precisa ser descendente do turno que chama (subagent.ts:388-395).</li>
+          <li><b>sem_turno / sem_confirmacao</b> — nada rodando (só marca) ou turnos sem ACK no prazo, com fechamento mesmo assim (subagent.ts:398-403).</li>
         </ul>
       </div>
 

@@ -5734,6 +5734,49 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Cliente chama a flat tool com underscore (ex. <code>projects_list</code>) via <code>POST /api/mcp</code> (fastify-plugin.ts:230-253); <code>tools/call</code> usa SSE com keep-alive de 15s (fastify-plugin.ts:65-72).</li>
+          <li>Autenticacao a montante e <code>actorId</code> propagado (fastify-plugin.ts:11-14, 127-128, 176); sem <code>actorId</code> a chamada falha (server.ts:138).</li>
+          <li>Portao de papel: <code>risk=query</code> exige <code>viewer</code> (server.ts:108-112); excecao <code>services.stack_services</code> exige <code>developer</code> (server.ts:133, 140-144).</li>
+          <li>Sem barreira de confirmacao: <code>assertConfirmed</code> so age se <code>risk</code> for destructive (server.ts:84-85).</li>
+          <li>Despacho em <code>executeProcedure</code> (server.ts:368-377): ex. <code>projects.list</code> (server.ts:390), <code>services.list</code> (server.ts:409), <code>monitoring.system</code> (server.ts:489); definicoes (procedures.ts:1067, procedures.ts:1145, procedures.ts:2754).</li>
+          <li>Resposta como texto JSON mais <code>structuredContent</code> (server.ts:286-290); erro vira <code>{error}</code> com <code>isError</code> (server.ts:304-307); leitura 200 nao audita por padrao, 403 sempre audita (server.ts:188, 243).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlacoes</h3>
+        </div>
+        <ul>
+          <li><code>query</code> = 30 procedures so de leitura; contrasta com 47 <code>mutation</code> e 7 <code>destructive</code> no mesmo catalogo (procedures.ts:1064).</li>
+          <li>8 sandbox so-leitura (read/ls/glob/grep/workspace_info/process_output/process_list/worktree_list) mantem <code>risk=mutation</code> mas ganham <code>readOnlyHint</code> (server.ts:39-48) e dispensa de auditoria em sucesso (server.ts:193).</li>
+          <li><code>services.stack_services</code> e <code>query</code> (procedures.ts:2040) mas exige <code>developer</code> como a rota <code>GET /compose</code> (server.ts:133); continua com <code>readOnlyHint</code>.</li>
+          <li><code>search</code> conceitual lista o catalogo; <code>query</code> executa a leitura; <code>mutation/destructive</code> executam escritas com portoes extras (<code>confirm</code> em server.ts:84-94, <code>owner</code> em server.ts:120).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><code>monitoring.service_stats</code> devolve <code>null</code> quando sem amostra (server.ts:490 e procedures.ts:2761-2764); <code>null</code> nao e erro.</li>
+          <li>Respostas sensiveis passam por redacao: services sem segredos (server.ts:396-397, 409-415) e inspect sem env do painel (server.ts:516).</li>
+          <li>Tetos do transporte: corpo 4 MiB (fastify-plugin.ts:36, 196-204), 20 mil req/min por credencial (fastify-plugin.ts:244-251) e 256 em voo com 503 <code>panel busy</code> (fastify-plugin.ts:101-121).</li>
+          <li>Procedure desconhecida vira <code>Unknown procedure</code> (server.ts:526-527); toda falha volta <code>{error}</code> com <code>isError</code> (server.ts:304-307).</li>
+          <li>Nao invente <code>tools.ts:30-42</code> para <code>execute_query</code>: o pin so prova flat tools registradas (server.ts:344-347).</li>
+        </ul>
+      </div>
+
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5752,7 +5795,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+                  <li><b>Procedure</b> - entrada do catalogo <code>procedures[]</code> (procedures.ts:1064); leitura tipica ex. <code>projects.list</code> (procedures.ts:1067).</li>
+          <li><b>Risk query</b> - so-leitura; papel minimo <code>viewer</code> (server.ts:108-112) e <code>readOnlyHint</code> (server.ts:44-48).</li>
+          <li><b>RBAC (viewer/developer/owner)</b> - decisao em <code>assertAllowed</code> (server.ts:135-151); sem <code>actorId</code> nao ha autorizacao (server.ts:138).</li>
+          <li><b>Auditoria de leitura</b> - query 200 fica fora por padrao; negada (403) entra sempre; <code>MCP_AUDIT_QUERIES=true</code> liga o resto (server.ts:170, 182-188, 243).</li>
+          <li><b>Confirm</b> - campo exigido so para destructive (server.ts:78, 84-94); query nunca pede.</li>
+</ul>
       </div>
 
 </div>

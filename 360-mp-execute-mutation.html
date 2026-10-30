@@ -5761,6 +5761,49 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Cliente chama a flat tool de escrita (ex. <code>projects_create</code>) via <code>POST /api/mcp</code> (fastify-plugin.ts:230-253); <code>tools/call</code> em SSE (fastify-plugin.ts:65-72).</li>
+          <li>Identidade obrigatoria: sem <code>actorId</code> falha (server.ts:138); <code>assertAllowed</code> exige <code>developer</code> para <code>mutation</code> (server.ts:108-112, 140-144).</li>
+          <li>Sem <code>confirm</code>: <code>assertConfirmed</code> so barra destructive (server.ts:84-85); <code>owner</code> extra so para <code>projects.delete/backups.restore</code> (server.ts:120).</li>
+          <li>Despacho em <code>executeProcedure</code> (server.ts:368-377): ex. <code>projects.create</code> (server.ts:399), <code>sandboxes.create</code> (server.ts:417), <code>deployments.trigger</code> (server.ts:457), <code>domains.create</code> (server.ts:471), <code>docker.exec</code> (server.ts:517-521).</li>
+          <li>Escrita concorrente protegida por <code>updatedRow</code> com 404 honesto (server.ts:363-366).</li>
+          <li>Resposta em texto mais <code>structuredContent</code> (server.ts:286-290); vazio vira <code>{ok: true}</code> (server.ts:269); sandbox volta como passthrough (server.ts:260-267); mutacao sempre audita 200/500 e 499 se abortada (server.ts:247, 298-301).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlacoes</h3>
+        </div>
+        <ul>
+          <li><code>mutation</code> = 47 procedures de escrita nao-destrutiva no catalogo (procedures.ts:1064); ex. <code>projects.create/update</code> (procedures.ts:1093, 1110), <code>services.start/stop/restart</code> (server.ts:439-441) e <code>deployments.trigger/rollback</code> (server.ts:457-458).</li>
+          <li>8 sandbox so-leitura mantem <code>mutation</code> porque tocam a atividade da sandbox (server.ts:39-42), mas ganham <code>readOnlyHint</code> (server.ts:45) e dispensa de auditoria em sucesso (server.ts:193).</li>
+          <li>Contrasta com 30 <code>query</code> (viewer, sem auditoria em sucesso) e 7 <code>destructive</code> (com <code>confirm</code> em server.ts:84-94 e <code>destructiveHint</code> em server.ts:46).</li>
+          <li><code>search</code> conceitual descobre; <code>query/mutation/destructive</code> executam por <code>risk</code>; o pin so prova flat tools (server.ts:344-347), sem <code>tools.ts</code>.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Sandbox que so le ainda exige <code>developer</code>; nao confunda <code>readOnlyHint</code> com permissao de <code>viewer</code> (server.ts:39-48, 108-112).</li>
+          <li><code>env_vars.bulk</code> usa colunas snake_case com <code>is_secret</code> numero 0/1 (procedures.ts:170-178), diferente das outras env_vars booleanas.</li>
+          <li><code>services.stack_services</code> e leitura mas exige <code>developer</code> por expor YAML com segredo (server.ts:133).</li>
+          <li>Abortar vira 499 para escrita e nao para leitura bem-sucedida; erro vira 500 (server.ts:298-301); log guarda so nomes dos args, nunca valores (server.ts:314-326).</li>
+          <li>Nao cite <code>tools.ts:44-54</code> como prova de <code>execute_mutation</code>: arquivo ausente no pin.</li>
+        </ul>
+      </div>
+
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5779,7 +5822,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+                  <li><b>Procedure</b> - item de <code>procedures[]</code> (procedures.ts:1064) com <code>risk</code> e schemas (procedures.ts:5-9).</li>
+          <li><b>Risk mutation</b> - escrita nao-destrutiva; papel minimo <code>developer</code> (server.ts:108-112), sem <code>confirm</code> (server.ts:84-85).</li>
+          <li><b>RBAC</b> - <code>assertAllowed</code> (server.ts:135-151) com <code>RISK_MIN_ROLE</code> (server.ts:108-112), <code>MCP_OWNER_ONLY</code> (server.ts:120) e <code>MCP_DEVELOPER_READS</code> (server.ts:133).</li>
+          <li><b>READ_ONLY_SANDBOX</b> - 8 tools sandbox so-leitura com <code>mutation</code> mas <code>readOnlyHint</code> e sem auditoria em sucesso (server.ts:39-48, 193).</li>
+          <li><b>structuredContent/outputSchema</b> - forma validada do retorno (server.ts:337-339, 286-290); vazio vira <code>{ok: true}</code> (server.ts:269).</li>
+</ul>
       </div>
 
 </div>

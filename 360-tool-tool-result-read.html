@@ -5725,6 +5725,52 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida os argumentos com <i>validarArgsNativas</i> (tool-result.ts:78-79); o schema exige <i>toolCallId</i> e aceita <i>offset</i> (tool-result.ts:65-76).</li>
+          <li>Se o turno foi cancelado, recusa sem ler nada (tool-result.ts:80); normaliza o id com <i>trim</i> (tool-result.ts:81).</li>
+          <li>Valida <i>offset</i> com <i>lerOffset</i>: inteiro &gt;= 0; inválido vira mensagem pedindo inteiro (tool-result.ts:82-87).</li>
+          <li>Procura o resultado em <i>options.messages</i> do mais novo ao mais velho, por <i>role tool</i> e <i>toolCallId</i> (tool-result.ts:43-56,89).</li>
+          <li>Sem achado, explica que o id não confere ou a conversa foi compactada e manda chamar a tool de novo (tool-result.ts:90-94).</li>
+          <li>Se o achado não é texto, diz que já está inteiro no contexto (tool-result.ts:96-98); se só há a cópia cortada, diz que o resto não está aqui (tool-result.ts:99-103).</li>
+          <li>Se o texto cabe no limite, diz que não foi cortado e já está inteiro (tool-result.ts:105-112).</li>
+          <li>Pagina com <i>cortar/paginar</i>: início onde o corte parou ou no offset, trecho e aviso de quanto falta ou <i>Fim do resultado</i> (tool-result.ts:113-128).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li>Montada por <i>buildToolResultTools</i> (tool-result.ts:58-64) e injetada em <i>buildNativeTools</i> no turno normal e no passo (engine/index.ts:140-146,233-240).</li>
+          <li>Lê <i>options.messages</i> que o AI SDK v5 entrega ao <i>execute</i>: histórico mais o que o turno produziu, com texto inteiro (tool-result.ts:8-12).</li>
+          <li>Detecta a cópia cortada pelo regex <i>AVISO_DO_CORTE</i> (tool-result.ts:34-35); o corte original é só na cópia da request (tool-result.ts:5-7).</li>
+          <li>Usa <i>config/clip</i> (<i>TOOL_RESULT_PAGE_CHARS, toolResultMaxChars, cortar, lerOffset, paginar</i> em tool-result.ts:25-32).</li>
+          <li>Registro em <i>buildMcpTools</i> com ordem alfabética e nativas vencendo MCP (registry.ts:68-113); <i>applyToolPolicy</i> pode filtrar por nome da tool ou do servidor (registry.ts:129-157).</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Lê o contexto do turno, sem banco nem cache paralelo: id de outra conversa ou compactada não acha (tool-result.ts:8-12,90-94).</li>
+          <li>Se o SDK passar as mensagens já cortadas, a tool diz que só tem a cópia e não finge ter o resto (tool-result.ts:99-103).</li>
+          <li>Resultado não-texto nunca pagina: já está inteiro no contexto (tool-result.ts:96-98).</li>
+          <li>Nunca diz que cópia cortada é o todo: o fim é <i>Fim do resultado</i> (tool-result.ts:121-128).</li>
+          <li>Sem <i>tool_result_read</i> na <i>toolPolicy</i> do turno, o aviso não promete a chamada — observação, sem confirmação no código para o texto exato do aviso.</li>
+          <li>Nativa fora do corte: vale no chat e no passo de IA do workflow (tool-result.ts:18-19).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5743,6 +5789,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>toolCallId / offset</b> — id do aviso de corte e caractere inicial; ausente começa onde o corte parou, 0 lê do começo (tool-result.ts:65-76,113-114).</li>
+          <li><b>TOOL_RESULT_MAX_CHARS</b> — teto do corte só na cópia; gravado, tela e messages seguem inteiros (tool-result.ts:5-12).</li>
+          <li><b>TOOL_RESULT_PAGE_CHARS</b> — tamanho da página devolvida por chamada, sem partir par substituto — observação, sem confirmação no código para o valor numérico.</li>
+          <li><b>AVISO_DO_CORTE</b> — regex que reconhece a cópia cortada no contexto (tool-result.ts:34-35,99-103).</li>
+          <li><b>options.messages</b> — mensagens do step antes do prepareStep, de onde a tool lê o texto inteiro (tool-result.ts:8-12,43-56).</li>
         </ul>
       </div>
 

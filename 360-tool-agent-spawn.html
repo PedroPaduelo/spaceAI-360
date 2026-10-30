@@ -5766,6 +5766,51 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida os argumentos antes de qualquer I/O com <i>validarArgsNativas('agent_spawn', args)</i>; o erro volta como texto ao modelo (subagent.ts:198-199). O schema exige <i>title</i> e <i>task</i> (subagent.ts:189-190).</li>
+          <li>Se o <i>abortSignal</i> do turno pai já abortou, recusa sem INSERT para não criar órfão (subagent.ts:204-206).</li>
+          <li>Valida <i>workdir</i>: tipo errado é recusado e texto vazio conta como ausente (subagent.ts:211-215).</li>
+          <li>Resolve <i>setupId</i> (slug ou id) via <i>findSetup</i> na org do turno, só ativo; inexistente ou inativo vira texto orientando <i>setup_list</i>, sem spawnar (subagent.ts:220-227).</li>
+          <li>Chama <i>orch.spawn</i> com <i>parentThreadId, parentTurnId, toolCallId, title, task, systemPrompt, tools, workdir, ferramentasDoPai</i> e <i>agentId</i> (subagent.ts:230-245).</li>
+          <li>Erros de teto ou escopo (<i>SubagentLimitError, SubagentScopeError</i>) viram texto em PT-BR e o turno do pai segue (subagent.ts:250-251); tetos padrão 3/8/24, 0 desliga (subagent.ts:21-26).</li>
+          <li>Devolve recibo imediato com <i>subagentId</i>, profundidade, escopo só quando restringe e <i>persona: herdada</i> quando for o caso (subagent.ts:253-266). O resultado chega depois como notificação cortada em 8000 (subagent.ts:28-31).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li>Montada em <i>buildSubagentTools</i> junto das irmãs <i>agent_list, agent_status, agent_abort</i> (subagent.ts:117-122) e injetada no turno por <i>buildNativeTools</i> (engine/index.ts:140-146).</li>
+          <li>Registro unificado em <i>buildMcpTools</i>: nativas entram por último, vencem qualquer MCP homônimo e tudo é reordenado em ordem alfabética para prefixo de cache estável (registry.ts:92-110).</li>
+          <li>Em passo de workflow é negada por omissão: <i>SUBAGENTE_PERMITIDAS_NO_PASSO</i> vazia e <i>SUBAGENTE_NEGADAS_NO_PASSO</i> com as 4 tools (subagent.ts:102-110,421-440); o engine monta o passo com <i>dentroDeRun: true</i> (engine/index.ts:233-235).</li>
+          <li>Compartilha <i>Orchestrator.spawn</i> (subagent.ts:35,230), <i>setups/service.findSetup</i> (subagent.ts:37,223), <i>SubagentLimitError</i> (subagent.ts:38), <i>SubagentScopeError/resumoDoEscopo</i> (subagent.ts:39,262) e <i>config/clip</i> para corte e paginação (subagent.ts:40-48).</li>
+          <li>O teto de ferramentas do filho é o conjunto real do turno (<i>ferramentasDoPai</i>, subagent.ts:59-64,242-243); só <i>tool_result_read</i> e <i>agent_status</i> escapam do subconjunto (subagent.ts:168-172).</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Retorna imediatamente e não espera: o resultado só chega via notificação cortada em 8000 e emoldurada como dado não confiável (subagent.ts:17-19,28-31); sem <i>agent_status</i> não há resto.</li>
+          <li>Filho nunca tem escopo maior que o pai: sem <i>agent_spawn</i> na lista, ele não cria netos (subagent.ts:168-172).</li>
+          <li><i>workdir</i> fora do escopo é o <i>spawn</i> quem recusa (subagent.ts:207-210); tipo errado já barra aqui (subagent.ts:211-213).</li>
+          <li><i>setup</i> privado de outra pessoa conta como inexistente e não spawna (subagent.ts:216-226); a org vem sempre do contexto, nunca dos args (setup.ts:17-20).</li>
+          <li>Mesmo <i>toolCallId</i> pode devolver <i>retomado</i> em vez de criar outro (subagent.ts:254-255); condição exata de reuso após término é observação, sem confirmação no código.</li>
+          <li>Recusa de teto ou escopo vira texto, nunca exceção crua, e o turno segue (subagent.ts:24-26,250-251).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5784,6 +5829,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Subagente / thread filha</b> — agente criado em paralelo no mesmo workspace; o pai segue trabalhando e é notificado ao fim (subagent.ts:123-131).</li>
+          <li><b>Profundidade (depth)</b> — nível na árvore (pai + 1); teto padrão 3 níveis (subagent.ts:21-26,253-266).</li>
+          <li><b>ferramentasDoPai / subconjunto</b> — teto real do turno gravado no spawn; o filho nunca usa tool que o pai não tem (subagent.ts:59-64,242-243).</li>
+          <li><b>workdir como instrução</b> — diretório permitido, dentro do escopo do pai; texto vazio conta como ausente (subagent.ts:174-179,211-215).</li>
+          <li><b>setupId (slug ou id)</b> — setup opcional do filho; inexistente ou inativo vira erro legível sem spawnar (subagent.ts:183-187,220-227).</li>
         </ul>
       </div>
 

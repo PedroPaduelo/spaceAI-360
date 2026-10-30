@@ -5659,6 +5659,50 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida com <i>validarArgsNativas('setup_get', args)</i> (setup.ts:339-340); o schema exige <i>setup</i> (slug ou id) (setup.ts:331-336).</li>
+          <li>Normaliza a referência com <i>trim</i>; vazia vira erro orientando <i>setup_list</i> (setup.ts:341-343).</li>
+          <li>Busca com <i>findSetup(orgId, ref, leitor, includeArchived)</i>; erro de banco cai em <i>catch null</i> e vira <i>não encontrado</i> (setup.ts:346).</li>
+          <li>Arquivado também é lido, com estado à vista, para explicar sumiço da lista (setup.ts:343-346).</li>
+          <li>Redige o override com <i>redactConfig</i>; sem objeto vira <i>{}</i> (setup.ts:348-351).</li>
+          <li>Classifica estado em ativo, inativo ou arquivado com data ISO (setup.ts:352-356).</li>
+          <li>Devolve texto com nome, slug, id, versão, <i>isDefault</i>, visibilidade, estado, descrição, persona, <i>toolPolicy</i> e override redigido (setup.ts:357-366).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>setup_list</i> descobre os slugs; <i>setup_get</i> abre o inteiro antes de <i>setup_update</i> (setup.ts:250-270,423-435).</li>
+          <li>Mesma regra da rota REST via <i>findSetup</i> (setup.ts:11-15,48-60) com leitor <i>public-only</i> no run (setup.ts:241-243).</li>
+          <li>Injetada por <i>buildNativeTools</i> no turno e no passo; no passo só leitura passa (engine/index.ts:140-146,233-240; setup.ts:507-527).</li>
+          <li>Registro em <i>buildMcpTools</i> com ordem alfabética e descrições estáticas para cache estável (setup.ts:37-41, registry.ts:105-110).</li>
+          <li>Compartilha <i>redactConfig/REDACTED</i> e o aviso de que persona não chega ao passo (setup.ts:61,324-330,363-364).</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>A org vem sempre do contexto, nunca dos args: não lê setup de org alheia (setup.ts:17-20).</li>
+          <li>Todo erro de banco vira <i>não encontrado</i> pelo <i>catch null</i>; falha real se parece com slug errado (setup.ts:346).</li>
+          <li>Segredos saem como <i>•••</i> (setup.ts:324-328,348-351); sem valor a chave some do JSON — observação, sem confirmação no código para cada chave legada.</li>
+          <li>Persona (<i>systemPrompt</i>) não chega ao passo de workflow: papel e critério vão no <i>prompt</i> do passo (setup.ts:329-330,363-364).</li>
+          <li>Leitura vale no chat e no run, mas escrita (<i>create/update</i>) é negada no passo por governança (setup.ts:75-85,507-527).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5677,6 +5721,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>slug ou id</b> — as duas formas resolvem o mesmo setup; vazio vira erro de <i>setup_list</i> (setup.ts:331-343).</li>
+          <li><b>includeArchived</b> — arquivado também é legível, com estado à vista (setup.ts:343-356).</li>
+          <li><b>isDefault / visibilidade</b> — marca o padrão da org e se é público ou privado só seu (setup.ts:357-362).</li>
+          <li><b>toolPolicy</b> — allowlist de tools do setup, ausente ou vazia sem restrição (setup.ts:209-216,365).</li>
+          <li><b>systemPrompt (persona)</b> — vale na conversa; não chega ao passo de workflow (setup.ts:329-330,363-364).</li>
         </ul>
       </div>
 

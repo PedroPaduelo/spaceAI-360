@@ -5658,6 +5658,50 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>Localiza o alvo:</b> <i>path</i> ausente vale <i>.</i> (<i>internal/tools/files/files.go:96-103</i>); se nao existe, <i>Not found</i>; FIFO/device/socket viram <i>spawn ENOTDIR</i> como no original (<i>internal/tools/files/grep.go:30-42</i>).</li>
+          <li><b>Define diretorio e alvo:</b> diretorio roda com alvo <i>.</i>; arquivo unico roda com <i>cwd</i> no diretorio e so o nome como alvo, para o <i>rg</i> imprimir so o nome (<i>internal/tools/files/grep.go:44-47</i>).</li>
+          <li><b>Monta o argv sem shell:</b> <i>grepArgs</i> monta <i>--hidden --glob !.git --color never</i> mais o modo pedido; o pattern entra com <i>-e</i> e o alvo apos <i>--</i>, entao texto com <i>-</i> nunca vira flag (<i>internal/tools/files/grep.go:102-131, 53-54</i>).</li>
+          <li><b>Roda o rg com prazo:</b> <i>exec.CommandContext</i> com 30 s; saida ate 8 MB e erro ate 64 KB via <i>capBuffer</i> que descarta o resto sem parar o processo (<i>internal/tools/files/grep.go:56-64, 17-25, 133-148</i>).</li>
+          <li><b>Traduz o exit:</b> prazo estourado vira <i>timed out after 30 s</i>; exit 1 vira <i>No matches</i> como texto normal; outro exit vira <i>grep failed</i> com o <i>stderr</i> (<i>internal/tools/files/grep.go:65-82</i>).</li>
+          <li><b>Limpa e pagina:</b> tira o prefixo <i>./</i>, conta ate <i>head_limit</i> (padrao 250) e avisa <i>N more lines not shown</i> quando corta (<i>internal/tools/files/grep.go:84-98, 24</i>).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlacoes</h3>
+        </div>
+        <ul>
+          <li><b>grep → read/edit:</b> acha com <i>grep</i>, confirma com <i>read</i> e troca com <i>edit</i>; o modo <i>content</i> ja traz <i>arquivo:linha:texto</i> (<i>internal/tools/files/grep.go:109-113</i>).</li>
+          <li><b>grep x glob:</b> <i>grep</i> filtra por conteudo e aceita <i>glob/type</i> do <i>rg</i>; <i>glob</i> filtra por nome em Go puro (<i>internal/tools/files/grep.go:124-129</i>; <i>internal/fsops/glob.go:33-63</i>).</li>
+          <li><b>tool rg x helper Go:</b> a tool usa <i>rg</i> como filho; o <i>fs-helper</i> tem dois motores (<i>rg</i> ou Go puro) com os mesmos tetos (<i>internal/fsops/grep.go:102-180, 469-675</i>).</li>
+          <li><b>context so no content:</b> <i>context</i> (ate 20) e <i>--max-columns 400</i> so entram no modo padrao; <i>files_with_matches</i> e <i>count</i> nao aceitam (<i>internal/tools/files/grep.go:109-113</i>).</li>
+          <li><b>redacao e IsError:</b> como nas demais, <i>Registry.Call</i> mascara e <i>ToolError</i> vira <i>IsError</i> legivel (<i>internal/tools/registry.go:146-206</i>).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Modo padrao engana:</b> sem <i>output_mode</i> volta so nomes; para ver linha use <i>content</i> (<i>internal/tools/files/grep.go:49-52</i>).</li>
+          <li><b>Regex invalida e erro de tool:</b> exit diferente de 0/1 vira <i>grep failed</i> com o <i>stderr</i> (ate 64 KB); nao e texto normal (<i>internal/tools/files/grep.go:77-82, 22</i>).</li>
+          <li><b>Teto corta com aviso:</b> <i>head_limit</i> padrao 250; passou disso, o rodape orienta estreitar com <i>path/glob/type</i> (<i>internal/tools/files/grep.go:90-98</i>).</li>
+          <li><b>30 s aqui e erro, la e parcial:</b> no <i>grep</i> o prazo falha; no <i>glob</i> o mesmo prazo devolve parcial (<i>internal/tools/files/grep.go:65-67</i>; <i>internal/tools/files/glob.go:59-62</i>).</li>
+          <li><b>Pattern nunca vira flag:</b> vai apos <i>-e</i> e o alvo apos <i>--</i>; pode comecar com <i>-</i> sem risco (<i>internal/tools/files/grep.go:53-54</i>).</li>
+          <li><b>Binario e ocultos:</b> roda com <i>--hidden</i> menos <i>.git</i>; binario segue o <i>rg</i> padrao da tool (<i>internal/tools/files/grep.go:103</i>).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5676,6 +5720,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>output_mode</b> — <i>files_with_matches</i> (padrao), <i>content</i> e <i>count</i>; so <i>content</i> mostra linha e aceita <i>context</i> (<i>internal/tools/files/grep.go:49-52, 109-113</i>).</li>
+          <li><b>capBuffer</b> — guarda so o comeco da saida/erro e descarta o resto sem travar o <i>rg</i> (<i>internal/tools/files/grep.go:133-148, 21-22</i>).</li>
+          <li><b>exit 1 do rg</b> — significa so nao achou: vira texto <i>No matches</i>, nao erro (<i>internal/tools/files/grep.go:73-76</i>).</li>
+          <li><b>grepTimeout (30 s)</b> — mata o <i>rg</i> e devolve erro, nao parcial (<i>internal/tools/files/grep.go:19, 56-67</i>).</li>
+          <li><b>--max-columns 400</b> — corta linha longa no modo <i>content</i> para nao lotar a saida (<i>internal/tools/files/grep.go:110</i>).</li>
         </ul>
       </div>
 

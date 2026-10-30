@@ -5777,6 +5777,49 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida com <i>validarArgsNativas('setup_create', args)</i> (setup.ts:400-401); o schema exige <i>name</i> e aceita slug, descrição, persona, override, toolPolicy e visibilidade (setup.ts:381-398).</li>
+          <li>Aplica RBAC como o REST: membro cria só privado, público só admin (setup.ts:402-403).</li>
+          <li>Varre segredo em texto com <i>procurarSegredo</i> (<i>basic.apiKey, compactor.apiKey, mcps.token/env/headers</i>); achou, recusa antes de validar (setup.ts:137-160,405-406).</li>
+          <li>Monta o corpo só com os campos enviados via <i>montarBody(CAMPOS_CREATE)</i>; <i>confirmarPadrao</i> nunca entra (setup.ts:162-167,408).</li>
+          <li>Cria com <i>createSetup(orgId, body, quemEscreve)</i>; erros tipados viram texto via <i>erroParaTexto</i>, sem vazar exceção (setup.ts:170-188,410-419).</li>
+          <li>Devolve nome, slug, id, versão e override redigido, com dica de <i>setup_update</i> (setup.ts:411-416).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li>Chame <i>setup_list</i> antes para não duplicar e <i>setup_get</i> depois para ver o inteiro (setup.ts:250-270,322-369).</li>
+          <li>Mesma regra de negócio da rota REST via serviço <i>createSetup/findSetup</i> (setup.ts:30-35,48-60).</li>
+          <li>Negada em passo de workflow como toda escrita: só <i>list/get</i> passam com <i>dentroDeRun</i> (setup.ts:73,85,507-527; engine/index.ts:233-240).</li>
+          <li>Registro em <i>buildMcpTools</i> com ordem alfabética e descrições estáticas para cache estável (setup.ts:37-41, registry.ts:105-110).</li>
+          <li>Compartilha <i>procurarSegredo, redactConfig, roleOf/quemEscreve</i> e <i>PROPS_ESCRITA/CAMPOS_CREATE</i> (setup.ts:61-62,125-160,194-227,244-248).</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Nunca envie segredo em texto: a chamada é recusada e segredo se cadastra na tela de Setups (setup.ts:22-28,374-380,405-406).</li>
+          <li>Slug já usado vira erro orientando <i>setup_update</i>, não exceção (setup.ts:176-180,370-380).</li>
+          <li>Placeholder <i>•••</i> ou vazio mantém a guardada; na criação não há guardada para repor (setup.ts:125-126,190-192).</li>
+          <li><i>configOverride</i> substitui o override inteiro na edição: mandar só <i>{basic}</i> apaga MCPs e contexto — leia com <i>setup_get</i> e reenvie completo (setup.ts:423-435).</li>
+          <li>Montagem usa <i>quemEscreve</i> com papel real (<i>roleOf</i>); a ferramenta nunca é atalho para o que o REST barra (setup.ts:244-248,402-403).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5795,6 +5838,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>configOverride</b> — o que o setup define (rota, contexto, cache, MCPs, voz); ausente é herdado da base (setup.ts:92-117,202-208).</li>
+          <li><b>procurarSegredo / •••</b> — varre apiKey, token, env e headers sensíveis; texto literal é recusado (setup.ts:125-160,405-406).</li>
+          <li><b>CAMPOS_CREATE / montarBody</b> — só campos enviados entram; confirmarPadrao nunca vai ao serviço (setup.ts:162-167,219-227,408).</li>
+          <li><b>visibility private/org</b> — só seu contra toda a org; membro cria só privado (setup.ts:389-395,402-403).</li>
+          <li><b>erroParaTexto</b> — erro tipado do serviço vira texto legível, sem vazar exceção (setup.ts:170-188,417-419).</li>
         </ul>
       </div>
 

@@ -5747,6 +5747,51 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida os argumentos com <i>validarArgsNativas('agent_status', args)</i> (subagent.ts:318-319); o schema exige <i>subagentId</i> e aceita <i>includeResult, resultOffset</i> (subagent.ts:301-316).</li>
+          <li>Se o turno pai foi cancelado, recusa sem ler o banco (subagent.ts:320-322).</li>
+          <li>Busca o filho com <i>getChild(orgId, subagentId)</i>; inexistente vira texto <i>não encontrado</i> (subagent.ts:323-324).</li>
+          <li>Monta o cabeçalho <i>[status] título (id) · profundidade</i> (subagent.ts:325); interpreta <i>includeResult</i> com tolerância a <i>"true"/"false"</i> em texto (subagent.ts:326-334,450-459).</li>
+          <li>Sem <i>includeResult</i>, devolve só o cabeçalho, sem tocar no resultado (subagent.ts:335-336).</li>
+          <li>Com <i>includeResult</i>, valida <i>resultOffset</i> com <i>lerOffset</i>: negativo conta do fim e é recusado com mensagem (subagent.ts:340-346).</li>
+          <li>Lê só o que esta conversa recebeu via <i>getChildResultText(orgId, threadId, threadQueRecebeu)</i>; sem texto guardado explica que ainda não terminou ou o aviso não chegou aqui (subagent.ts:349-354).</li>
+          <li>Pagina com <i>paginaDoResultado</i>: início onde o aviso parou, páginas de <i>RESULT_PAGE_CHARS</i>, moldura de dado não confiável e chamada da próxima página (subagent.ts:356,474-504).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li>Quem a alimenta é <i>agent_spawn</i> (cria e retorna o <i>subagentId</i> em subagent.ts:253-266) e quem resume a árvore é <i>agent_list</i> (subagent.ts:282-288).</li>
+          <li>Montada em <i>buildSubagentTools</i> (subagent.ts:117-122) e injetada por <i>buildNativeTools</i> (engine/index.ts:140-146); usa <i>config/clip</i> (<i>RESULT_PAGE_CHARS, notifyMaxChars, paginar, cortar</i> em subagent.ts:40-48).</li>
+          <li>Registro em <i>buildMcpTools</i> com nativas vencendo MCP e ordem alfabética para cache estável (registry.ts:92-110).</li>
+          <li>Em passo de workflow é negada como as irmãs (<i>SUBAGENTE_NEGADAS_NO_PASSO</i> em subagent.ts:105-110,421-440); o passo monta com <i>dentroDeRun: true</i> (engine/index.ts:233-235).</li>
+          <li>Prima de <i>tool_result_read</i>: ambas paginam resto cortado, mas <i>status</i> lê o resultado guardado do filho e <i>tool_result_read</i> lê <i>options.messages</i> do turno (tool-result.ts:8-12,58-64).</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><i>includeResult</i> não-booleano não volta calado: devolve erro legível pedindo <i>true</i> (subagent.ts:327-334); <i>"true"/"false"</i> em texto são tolerados (subagent.ts:450-459).</li>
+          <li><i>resultOffset</i> negativo ou inválido é recusado antes do banco; sem ele a leitura começa onde a notificação parou (subagent.ts:340-346,480).</li>
+          <li>Estado não tem trava de conversa, mas o texto sim: só a thread que recebeu o aviso abre o resultado (subagent.ts:347-354).</li>
+          <li>Cópia cortada na origem por versão antiga sai marcada: o que passou do corte não foi guardado e não há como ler (subagent.ts:482-488).</li>
+          <li>Notificação chega cortada em 8000 e emoldurada como dado não confiável (subagent.ts:28-31,292-300); o fim da última página diz <i>Fim do texto guardado</i>, nunca finge que a cópia é o todo (subagent.ts:496-504).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5765,6 +5810,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>includeResult / resultOffset</b> — sem o flag vem só estado; com ele vem página do texto a partir do corte ou do offset (subagent.ts:326-346).</li>
+          <li><b>RESULT_PAGE_CHARS</b> — tamanho da página sem partir par substituto, com <i>resultOffset=fim</i> para continuar (subagent.ts:474-504).</li>
+          <li><b>corteNaOrigem</b> — marca de cópia antiga cortada antes de guardar; o resto não existe mais (subagent.ts:482-488).</li>
+          <li><b>Dado não confiável</b> — moldura do trecho do filho; posição e próxima chamada ficam fora dela (subagent.ts:471-473,501-504).</li>
+          <li><b>threadQueRecebeu</b> — só a conversa que recebeu o aviso lê o texto; o estado não tem essa trava (subagent.ts:347-354).</li>
         </ul>
       </div>
 

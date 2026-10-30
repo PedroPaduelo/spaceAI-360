@@ -5724,6 +5724,49 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Cliente chama a flat tool destrutiva (ex. <code>projects_delete</code>) via <code>POST /api/mcp</code> (fastify-plugin.ts:230-253); <code>tools/call</code> em SSE (fastify-plugin.ts:65-72).</li>
+          <li>Papel: destructive exige <code>developer</code> (server.ts:108-112), mas <code>projects.delete/backups.restore</code> exigem <code>owner</code> (server.ts:120, 140-141); sem <code>actorId</code> falha (server.ts:138).</li>
+          <li>Confirmacao: <code>assertConfirmed</code> exige <code>confirm</code> igual ao id alvo (server.ts:84-94); campo <code>CONFIRM_FIELD</code> (server.ts:78); alvo sai de <code>id/serviceId/projectId</code> (server.ts:80-82).</li>
+          <li>Esquema exige <code>id+confirm</code>: ex. projects.delete (procedures.ts:1128-1138), services.delete (procedures.ts:2064-2074), env_vars.delete (procedures.ts:2295-2306), domains.delete (procedures.ts:2428-2439), backups.restore (procedures.ts:2563-2574).</li>
+          <li>Despacho: <code>executeProcedure</code> (server.ts:368-377) com casos <code>projects.delete</code> (server.ts:406), <code>sandboxes.destroy</code> (server.ts:426), <code>services.delete</code> (server.ts:438), <code>env_vars.delete</code> (server.ts:465), <code>domains.delete</code> (server.ts:473), <code>backups.restore/delete</code> (server.ts:481-482).</li>
+          <li>Resposta e auditoria: vazio vira <code>{ok: true}</code> (server.ts:269); 200 audita (server.ts:247), negada 403 (server.ts:243), falha 500 (server.ts:301) e abortada 499 para escrita (server.ts:298); alvo via <code>auditTargetOf/targetIdOf</code> (server.ts:177-180).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlacoes</h3>
+        </div>
+        <ul>
+          <li><code>destructive</code> = 7 em 84: projects.delete (procedures.ts:1128), sandboxes.destroy (procedures.ts:1429), services.delete (procedures.ts:2064), env_vars.delete (procedures.ts:2295), domains.delete (procedures.ts:2428), backups.restore (procedures.ts:2563), backups.delete (procedures.ts:2589).</li>
+          <li>Contrasta com 30 <code>query</code> (viewer, sem <code>confirm</code>, sem auditoria em sucesso em server.ts:188) e 47 <code>mutation</code> (developer, sem <code>confirm</code>).</li>
+          <li><code>search</code> conceitual descobre o catalogo (procedures.ts:1064); <code>query/mutation/destructive</code> executam por <code>risk</code> com portoes crescentes: papel (server.ts:108-112), <code>owner</code> (server.ts:120), <code>confirm</code> (server.ts:84-94) e <code>destructiveHint</code> (server.ts:46).</li>
+          <li><code>tools.ts</code> ausente no pin; o fluxo verificavel e flat tools registradas (server.ts:344-347) com nome underscore (server.ts:65-67, 375-377).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><code>confirm</code> deve repetir o id exato; alvo vazio ou diferente recusa (server.ts:88-93); nao ha desfazer.</li>
+          <li><code>backups.restore</code> so prepara (<code>staged</code>, aplica no restart) e apaga o criado depois do backup (procedures.ts:2563-2565); backup de servico nao restaura (501).</li>
+          <li><code>services.delete</code> em stack leva volumes e compose junto (procedures.ts:2064-2066); <code>projects.delete</code> e parcial se um servico falhar (procedures.ts:1128-1129).</li>
+          <li><code>sandboxes.destroy</code> apaga <code>/workspace</code> nao commitado e o erro <code>will be swept</code> significa que ja foi (procedures.ts:1429-1430); <code>backups.delete</code> em agenda apaga runs e cron (procedures.ts:2589-2591).</li>
+          <li>Transporte: corpo 4 MiB (fastify-plugin.ts:36), 20 mil req/min por credencial (fastify-plugin.ts:244-251), 256 em voo (fastify-plugin.ts:101-121); origem sem <code>Origin</code> de CLI passa, browser estranho leva 403 (fastify-plugin.ts:215-228).</li>
+        </ul>
+      </div>
+
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5742,7 +5785,13 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+                  <li><b>Procedure</b> - item de <code>procedures[]</code> (procedures.ts:1064); destrutiva ex. <code>projects.delete</code> (procedures.ts:1128).</li>
+          <li><b>Risk destructive</b> - irreversivel; <code>destructiveHint</code> (server.ts:46) e <code>confirm</code> obrigatorio (server.ts:84-94).</li>
+          <li><b>Confirm</b> - campo <code>confirm</code> (server.ts:78) deve igualar o alvo de <code>targetIdOf</code> (server.ts:80-82).</li>
+          <li><b>RBAC owner/developer</b> - destructive pede <code>developer</code> (server.ts:108-112); <code>projects.delete/backups.restore</code> pedem <code>owner</code> (server.ts:120).</li>
+          <li><b>Auditoria destrutiva</b> - 200/403/500/499 sempre auditados (server.ts:243, 247, 298-301); alvo via <code>auditTargetOf</code> (server.ts:177-180).</li>
+          <li><b>Staged restore</b> - <code>backups.restore</code> so vale no proximo restart (procedures.ts:2563-2565).</li>
+</ul>
       </div>
 
 </div>

@@ -5695,6 +5695,50 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>Registro e validacao:</b> <i>files.Register</i> registra <i>write</i> com o schema do catalogo (<i>internal/tools/files/files.go:32-63</i>); <i>Registry.Call</i> valida argumentos e mascara a resposta (<i>internal/tools/registry.go:146-169, 184-195</i>); o boot entrega a ponte <i>Batcher</i> para as super-tools (<i>internal/tools/files/files.go:62</i>; <i>main.go:84-87</i>).</li>
+          <li><b>Localiza o caminho:</b> <i>locate</i> resolve o <i>path</i> exigido (<i>internal/tools/files/files.go:81-94</i>); relativo parte do workspace, absoluto vale como esta, sem confinar (<i>internal/fsops/root.go:42-47, 155-178</i>).</li>
+          <li><b>Recusas antes de gravar:</b> diretorio recusa com <i>is a directory</i>; device/FIFO/socket recusa antes da leitura previa (<i>internal/tools/files/write.go:31-37</i>); arquivo existente sem leitura previa recusa com <i>Read before modifying</i> e, se mudou, com <i>changed since you last read it</i> (<i>internal/tools/files/write.go:38-42</i>; <i>internal/tools/files/files.go:173-186</i>).</li>
+          <li><b>Teto de 1 MB:</b> conteudo acima de <i>maxEditBytes</i> (1 MB) e recusado com dica de usar <i>bash</i> ou dividir o arquivo (<i>internal/tools/files/write.go:15, 44-49</i>); o tamanho e mostrado em KB com <i>kib</i> (<i>internal/tools/files/write.go:18-20</i>).</li>
+          <li><b>Gravacao atomica:</b> <i>AtomicWrite</i> cria os pais, grava temporario no mesmo diretorio e renomeia por cima (<i>internal/fsops/atomic.go:21-53</i>); arquivo novo sai 0644 e existente preserva o modo (<i>internal/fsops/atomic.go:25-28</i>; <i>internal/tools/files/write.go:50</i>).</li>
+          <li><b>Confirma e lembra:</b> apos gravar, novo <i>stat</i> vira base via <i>remember</i> (<i>internal/tools/files/write.go:53-55</i>); resposta <i>Created/Updated abs (N lines, M bytes)</i> (<i>internal/tools/files/write.go:56-64</i>).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlacoes</h3>
+        </div>
+        <ul>
+          <li><b>write → read via <i>check</i>:</b> <i>write</i> em arquivo existente exige <i>read</i> previo; a memoria <i>readState</i> guarda ate 5000 caminhos (<i>internal/tools/files/files.go:132-186</i>).</li>
+          <li><b>write ↔ edit mesmo teto:</b> ambos recusam acima de 1 MB e usam <i>AtomicWrite</i> + <i>remember</i>; <i>edit</i> troca trecho, <i>write</i> troca tudo (<i>internal/tools/files/write.go:15, 25-64, 70-164</i>).</li>
+          <li><b>write → batch/edit_and_check:</b> a ponte <i>Batch.ApplyEdits</i> valida tudo antes de gravar nada, pela mesma memoria (<i>internal/tools/files/batch.go:132-223</i>); o boot liga via <i>batch.New</i> (<i>main.go:116-123</i>).</li>
+          <li><b>write grande → bash:</b> a mensagem de teto orienta gravar em partes com <i>bash</i> ou dividir o arquivo; o modo do destino e preservado via <i>Target.Mode</i> (<i>internal/fsops/atomic.go:10-16</i>).</li>
+          <li><b>falha padrao:</b> <i>ToolError</i> vira <i>IsError</i> com a mensagem; outro erro vira <i>Unexpected error</i> (<i>internal/tools/registry.go:197-206</i>).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Sem leitura, sem escrita:</b> criar e livre, mas atualizar exige <i>read</i> previo na sessao; outro processo que muda o arquivo invalida a base (<i>internal/tools/files/files.go:173-186</i>).</li>
+          <li><b>1 MB nao e negociavel:</b> tanto o conteudo pedido quanto o arquivo no <i>edit</i> batem no mesmo teto; acima disso use <i>bash (sed/perl)</i> (<i>internal/tools/files/write.go:44-49, 97-102</i>).</li>
+          <li><b>Pais criados sozinhos:</b> <i>MkdirAll</i> cria diretorios faltantes; nao existe erro de <i>parent not found</i> neste caminho (<i>internal/fsops/atomic.go:22</i>).</li>
+          <li><b>Nunca meio-arquivo:</b> falha no temporario remove o tmp e o destino fica intacto; o rename e atomico (<i>internal/fsops/atomic.go:33-52</i>).</li>
+          <li><b>Device vira arquivo? Nao:</b> escrever em device/FIFO e recusado em vez de trocar o no por arquivo comum (<i>internal/tools/files/write.go:34-37</i>).</li>
+          <li><b>Sem confinamento:</b> como no <i>read</i>, absoluto fora do workspace vale; o confinamento e so do <i>fs-helper</i> (<i>internal/tools/files/files.go:25-28</i>).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5713,6 +5757,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>AtomicWrite</b> — temporario no mesmo diretorio + rename: crash no meio nao deixa meio-arquivo (<i>internal/fsops/atomic.go:21-53</i>).</li>
+          <li><b>maxEditBytes (1 MB)</b> — teto do que <i>write/edit</i> leem ou gravam de uma vez para nao estourar a memoria (<i>internal/tools/files/write.go:15</i>).</li>
+          <li><b>readState</b> — memoria de ate 5000 caminhos com <i>mtime+size</i>; base da regra leu-antes-e-nao-mudou (<i>internal/tools/files/files.go:132-186</i>).</li>
+          <li><b>Target.Mode</b> — modo a preservar: existente mantem bits, novo sai 0644 (<i>internal/fsops/atomic.go:10-16, 25-28</i>).</li>
+          <li><b>Batcher</b> — ponte que expoe a mesma memoria de leitura as super-tools (<i>internal/tools/files/files.go:62</i>; <i>internal/tools/files/batch.go:13-23</i>).</li>
         </ul>
       </div>
 

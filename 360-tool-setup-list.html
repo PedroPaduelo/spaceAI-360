@@ -5656,6 +5656,50 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Sem argumentos: <i>inputSchema</i> vazio (setup.ts:268).</li>
+          <li>Garante o padrão com <i>getDefaultAgentId</i>; falha no seed não derruba a listagem (setup.ts:270-273).</li>
+          <li>Busca <i>agent.findMany</i> com <i>orgId</i> do turno, <i>isActive, archivedAt null</i> e <i>visibleWhere(leitor)</i> (setup.ts:274-283).</li>
+          <li>Ordena por <i>slug asc</i>, <i>take 50</i>, com <i>select</i> de id, slug, nome, descrição, versão, padrão, visibilidade e override (setup.ts:284-296).</li>
+          <li>Lê a base técnica com <i>getOrgConfig</i> (setup.ts:297); sem setups devolve texto de vazio (setup.ts:299-300).</li>
+          <li>Resume cada setup com <i>resumirOverride</i> (<i>define</i>) e cruza <i>CHAVES_SETUP</i> com a base (<i>herda</i>) (setup.ts:303-314).</li>
+          <li>Devolve linhas com slug, id, versão, marca <i>(padrão)/(privado)</i> e orientação de uso em <i>setupId</i> (setup.ts:315-318).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li>Irmã <i>setup_get</i> detalha um slug listado aqui; <i>setup_create/update</i> são a escrita governada (setup.ts:73,85,322-370).</li>
+          <li>Mesma regra de leitura da rota REST via <i>findSetup/visibleWhere</i> e leitor <i>public-only</i> no run contra <i>userId</i> na conversa (setup.ts:11-15,241-243).</li>
+          <li>Injetada por <i>buildNativeTools</i> no turno e no passo (engine/index.ts:140-146,233-240); no passo só leitura passa (setup.ts:507-527).</li>
+          <li>Registro em <i>buildMcpTools</i> com ordem alfabética e descrições estáticas para cache estável (setup.ts:37-41, registry.ts:105-110).</li>
+          <li>Compartilha <i>getPrisma, getOrgConfig, getDefaultAgentId, redactConfig</i> e <i>CHAVES_SETUP/resumirOverride</i> (setup.ts:44-62,92-117).</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Arquivado e inativo ficam fora das escolhas; <i>take 50</i> corta sem paginação (setup.ts:278-296).</li>
+          <li>No run só públicos: privado não aparece e workflow não aceita (setup.ts:241-243).</li>
+          <li><i>apiKey</i> nunca entra no resumo; o resto passa por <i>redactConfig</i> (setup.ts:99-103,190-192).</li>
+          <li>Persona é sinalizada como <i>NÃO chega ao passo</i> para não induzir escolha pelo nome (setup.ts:111-116).</li>
+          <li>Descrição dinâmica quebraria o cache: por isso o texto é estático e a lista entra só na resposta (setup.ts:37-41,251-267).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5674,6 +5718,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Setup / (padrão)</b> — configuração padrão do agente; uma org tem exatamente um padrão (setup.ts:5-9,250-267).</li>
+          <li><b>visibleWhere / leitor</b> — públicos mais privados do dono na conversa; só públicos no run (setup.ts:241-243,278-283).</li>
+          <li><b>define / herda</b> — o que o override declara via <i>resumirOverride</i> e o que vem da base técnica <i>CHAVES_SETUP</i> (setup.ts:92-117,303-314).</li>
+          <li><b>Seed preguiçoso</b> — garante o padrão antes de listar; falha não derruba a resposta (setup.ts:270-273).</li>
+          <li><b>redactConfig (•••)</b> — segredo sai mascarado e nunca entra no transcript (setup.ts:22-28,190-192).</li>
         </ul>
       </div>
 

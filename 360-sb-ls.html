@@ -5679,6 +5679,51 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>Registro e caminho padrao:</b> <i>ls</i> e registrado com as demais tools de arquivo (<i>internal/tools/files/files.go:32-63</i>); <i>path</i> e opcional e ausente vale <i>.</i> via <i>pathArg</i> (<i>internal/tools/files/files.go:96-103</i>).</li>
+          <li><b>Localiza e classifica:</b> <i>locate</i> resolve o caminho (<i>internal/tools/files/files.go:81-94</i>); se nao existe, <i>Not found</i>; se e arquivo, <i>is a file. Use read</i> (<i>internal/tools/files/ls.go:32-37</i>).</li>
+          <li><b>Profundidade:</b> <i>depth&lt;1</i> vira 1 (<i>internal/tools/files/ls.go:38-41</i>); a caminhada <i>walk</i> le com <i>os.ReadDir</i> nivel a nivel (<i>internal/tools/files/ls.go:44-87</i>).</li>
+          <li><b>Ordena diretorios antes:</b> pastas primeiro, depois arquivos, com <i>collate</i> sem diferenciar caixa (minuscula desempata) (<i>internal/tools/files/ls.go:49-55</i>; <i>internal/tools/files/files.go:200-229</i>).</li>
+          <li><b>Formata sem seguir link:</b> diretorio ganha <i>/</i> (e <i>not expanded</i> se pulado); symlink ganha <i>-&gt; symlink</i>; regular mostra <i>(N B)</i> (<i>internal/tools/files/ls.go:60-84</i>).</li>
+          <li><b>Pula o pesado:</b> <i>lsSkip</i> lista mas nao desce em <i>.git/node_modules/.next/dist/.venv/__pycache__/.cache</i> (<i>internal/tools/files/ls.go:17-19, 62-73</i>).</li>
+          <li><b>Teto e vazio:</b> para em 500 entradas com <i>Listing stopped... Narrow the path or use glob</i>; vazio devolve <i>is empty</i> (<i>internal/tools/files/ls.go:22, 57-58, 91-98</i>).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlacoes</h3>
+        </div>
+        <ul>
+          <li><b>ls → read:</b> <i>ls</i> lista, <i>read</i> mostra conteudo; arquivo no <i>ls</i> manda usar <i>read</i> e diretorio no <i>read</i> manda usar <i>ls</i> (<i>internal/tools/files/ls.go:35-36</i>; <i>internal/tools/files/read.go:43-45</i>).</li>
+          <li><b>ls → glob no teto:</b> ao bater 500 entradas, a propria mensagem sugere <i>glob</i> para filtrar (<i>internal/tools/files/ls.go:95-96</i>).</li>
+          <li><b>ls → grep:</b> <i>ls</i> mostra nomes, <i>grep</i> procura dentro do conteudo com <i>rg</i> (<i>internal/tools/files/grep.go:29-99</i>).</li>
+          <li><b>ls simples x tree do helper:</b> a tool <i>ls</i> e rasa com <i>depth</i> e <i>lsSkip</i>; o <i>fs-helper</i> tem <i>list/tree</i> paginados com outros tetos (<i>internal/fsops/list.go:46-77, 185-266</i>).</li>
+          <li><b>mesmo registro/redacao:</b> validacao por <i>inputSchema</i> e mascara por <i>Redactor</i> como nas demais (<i>internal/tools/registry.go:146-195</i>).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>path opcional, mas vazio recusa:</b> ausente lista o workspace; presente e vazio cai em <i>path is required</i> no <i>locate</i> (<i>internal/tools/files/files.go:96-103, 81-84</i>).</li>
+          <li><b>Skip lista, nao some:</b> diretorio pulado continua na lista com <i>(not expanded)</i> quando raso; so nao desce (<i>internal/tools/files/ls.go:64-67</i>).</li>
+          <li><b>500 e teto de saida, nao de leitura total:</b> passou disso, o resto nem aparece; estreite o caminho ou use <i>glob</i> (<i>internal/tools/files/ls.go:57-58, 95-96</i>).</li>
+          <li><b>Symlink nao e seguido:</b> aparece como link na lista; a resolucao sem confinamento segue o SO na leitura, nao na listagem (<i>internal/tools/files/ls.go:75-78</i>).</li>
+          <li><b>Ordem e aproximacao:</b> <i>collate</i> imita <i>localeCompare</i> sem colacao ICU completa; basta para diretorio (<i>internal/tools/files/files.go:197-229</i>).</li>
+          <li><b>Sem confinamento:</b> vale a mesma regra do <i>read</i>: relativo no workspace, absoluto onde for (<i>internal/tools/files/files.go:25-28</i>).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5697,6 +5742,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>lsSkip</b> — diretorios que listam mas nao expandem por serem grandes e sem interesse para o modelo (<i>internal/tools/files/ls.go:17-19</i>).</li>
+          <li><b>lsMaxEntries (500)</b> — teto de linhas da listagem; passou disso, corta com aviso (<i>internal/tools/files/ls.go:22, 57-58</i>).</li>
+          <li><b>collate</b> — ordem sem diferenciar caixa primeiro, com minuscula desempatando (<i>internal/tools/files/files.go:200-229</i>).</li>
+          <li><b>depth</b> — niveis a descer; menor que 1 vira 1 (<i>internal/tools/files/ls.go:38-41</i>).</li>
+          <li><b>pathArg</b> — caminho opcional: ausente usa o padrao, presente e vazio e erro (<i>internal/tools/files/files.go:96-103</i>).</li>
         </ul>
       </div>
 

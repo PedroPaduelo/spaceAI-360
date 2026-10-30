@@ -5700,6 +5700,49 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Recebe objeto vazio: <i>inputSchema</i> sem propriedades e sem filtros (subagent.ts:273-277).</li>
+          <li>Se o <i>abortSignal</i> do turno pai já abortou, devolve erro sem consultar o banco (subagent.ts:279-280).</li>
+          <li>Lista os filhos via <i>orch.listChildren</i> com <i>orgId</i> e <i>threadId</i> do turno (subagent.ts:282).</li>
+          <li>Sem filhos, responde texto fixo de conversa vazia (subagent.ts:283).</li>
+          <li>Conta quantos estão com <i>status running</i> e monta uma linha por filho no formato <i>[status] título (id)</i> (subagent.ts:284-288).</li>
+          <li>Devolve o total e os rodando mais as linhas; o estado detalhado de cada um sai via <i>agent_status</i> (subagent.ts:288,292-300).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li>Montada em <i>buildSubagentTools</i> com as irmãs <i>spawn, status, abort</i> (subagent.ts:117-122) e injetada por <i>buildNativeTools</i> (engine/index.ts:140-146).</li>
+          <li>Registro em <i>buildMcpTools</i>: entra no mesmo Record, nativa vence MCP e a ordem alfabética mantém o prefixo de cache estável (registry.ts:68-113).</li>
+          <li>Em passo de workflow é negada por omissão via <i>SUBAGENTE_NEGADAS_NO_PASSO</i> e <i>dentroDeRun</i> (subagent.ts:105-110,421-440); o passo usa <i>map</i>/fan-out orçado (engine/index.ts:233-235).</li>
+          <li>Quem cria o que ela lista é <i>agent_spawn</i> via <i>orch.spawn</i> (subagent.ts:230-245); quem detalha cada linha é <i>agent_status</i> com <i>getChild</i> (subagent.ts:323-325).</li>
+          <li>Leitura pura do turno, como <i>tool_result_read</i> (tool-result.ts:58-64); ambas valem no chat e no passo, mas só <i>setup_list/get</i> passam no run entre as de setup (setup.ts:73,507-527).</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Sem paginação, sem filtro por estado e sem busca: <i>take</i> e ordenação de setups não valem aqui; o schema é vazio (subagent.ts:273-277).</li>
+          <li>Mostra só filhos diretos do turno (<i>orgId + threadId</i> em subagent.ts:282); netos e outras conversas não aparecem — observação, sem confirmação no código para o filtro exato de netos.</li>
+          <li>Cancelamento do pai aborta antes de ler (subagent.ts:279-280); recusa de teto em <i>spawn</i> não afeta a listagem (subagent.ts:250-251).</li>
+          <li>Tool nova de subagente nasce negada ao passo e gera aviso <i>console.warn</i> se não classificada (subagent.ts:434-439); não some em silêncio.</li>
+          <li>Qualquer mudança na ordem das tools invalida o cache (registry.ts:10-17); a ordem alfabética existe para o prefixo ficar byte-idêntico (registry.ts:105-110).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5718,6 +5761,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>listChildren (orgId + threadId)</b> — busca só os filhos diretos do turno que chama (subagent.ts:282).</li>
+          <li><b>running / done / errored / aborted</b> — estados exibidos entre colchetes com título e id (subagent.ts:284-288).</li>
+          <li><b>dentroDeRun / negada no passo</b> — em workflow a tool nem é montada; paralelismo orçado é <i>map</i> (subagent.ts:105-110,421-440).</li>
+          <li><b>Prefixo de cache estável</b> — ordem alfabética do Record mantém tools + system + histórico idênticos entre turnos (registry.ts:10-17,105-110).</li>
         </ul>
       </div>
 

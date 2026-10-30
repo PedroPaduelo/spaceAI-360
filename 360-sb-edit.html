@@ -5725,6 +5725,51 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>Localiza e valida o alvo:</b> <i>locate</i> resolve o caminho (<i>internal/tools/files/files.go:81-94</i>); se nao existe, orienta usar <i>write</i>; se e diretorio ou nao-regular, recusa (<i>internal/tools/files/write.go:71-84</i>).</li>
+          <li><b>Exige frescor:</b> <i>state.check</i> exige <i>read</i> previo e <i>mtime+size</i> iguais (<i>internal/tools/files/write.go:85-87</i>; <i>internal/tools/files/files.go:173-186</i>).</li>
+          <li><b>Valida os trechos:</b> <i>old_string</i> vazio ou igual a <i>new_string</i> e recusado (<i>internal/tools/files/write.go:91-96</i>); arquivo acima de 1 MB e recusado (<i>internal/tools/files/write.go:97-102, 15</i>).</li>
+          <li><b>Le e converte CRLF:</b> le tudo com <i>ReadAllCapped</i> ate 1 MB (<i>internal/fsops/read.go:273-282</i>); se o arquivo e CRLF e o trecho veio do <i>read</i> em LF, converte <i>\n</i> para <i>\r\n</i> antes de casar (<i>internal/tools/files/write.go:103-120</i>).</li>
+          <li><b>Casa literal:</b> <i>allIndexes</i> lista ocorrencias sem sobreposicao como <i>indexOf</i> repetido (<i>internal/tools/files/write.go:183-193</i>); zero vira <i>not found</i> com dica, mais de uma sem <i>replace_all</i> lista ate 10 linhas (<i>internal/tools/files/write.go:122-135</i>).</li>
+          <li><b>Grava atomico e lembra:</b> troca o trecho, grava com <i>AtomicWrite</i> preservando o modo e atualiza <i>remember</i> (<i>internal/tools/files/write.go:137-148</i>; <i>internal/fsops/atomic.go:21-53</i>).</li>
+          <li><b>Devolve o trecho:</b> calcula a linha com <i>lineOf</i> (<i>internal/tools/files/write.go:196-198</i>), recorta com <i>splitStripCR</i> (<i>internal/tools/files/write.go:200-207</i>) e numera com <i>numbered</i>; com <i>replace_all</i> informa <i>N replacements</i> (<i>internal/tools/files/write.go:150-164</i>).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlacoes</h3>
+        </div>
+        <ul>
+          <li><b>edit → read obrigatorio:</b> a mesma memoria <i>readState</i> do <i>read/write</i>; sem <i>remember</i> previo o <i>edit</i> nem abre o arquivo (<i>internal/tools/files/files.go:155-186</i>).</li>
+          <li><b>edit ↔ write:</b> mesmo teto de 1 MB, mesmo <i>AtomicWrite</i> e mesmo <i>remember</i> pos-gravacao; diferem no que trocam (trecho x tudo) (<i>internal/tools/files/write.go:15, 25-64, 70-164</i>).</li>
+          <li><b>edit → edit_and_check:</b> o lote <i>Batch.ApplyEdits</i> so aceita troca unica por arquivo e e transacional: valida todas antes de gravar qualquer uma (<i>internal/tools/files/batch.go:132-223</i>); o <i>edit</i> simples aceita <i>replace_all</i> (<i>internal/tools/files/write.go:138-142</i>).</li>
+          <li><b>grep → read → edit:</b> <i>grep</i> acha o trecho, <i>read</i> copia exato sem prefixo de linha, <i>edit</i> casa literal; a dica <i>notFoundHint</i> diferencia espaco nas pontas de conteudo ausente (<i>internal/tools/files/write.go:168-180</i>).</li>
+          <li><b>saida numerada comum:</b> <i>numbered</i> e o mesmo formato do <i>read</i>, para o modelo conferir sem reler (<i>internal/tools/files/read.go:153-167</i>).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Unico ou nada:</b> sem <i>replace_all</i>, duas ocorrencias ja recusam; inclua contexto ou use <i>replace_all=true</i> (<i>internal/tools/files/write.go:126-135</i>).</li>
+          <li><b>Copie exato:</b> <i>old_string</i> nao achado pede para reler e copiar sem o prefixo de linha; se o texto existe com outro espaco, o aviso diz (<i>internal/tools/files/write.go:168-180</i>).</li>
+          <li><b>Vazio e identico recusados:</b> <i>old_string</i> vazio manda usar <i>write</i>; trechos iguais dizem <i>nothing to change</i> (<i>internal/tools/files/write.go:91-96</i>).</li>
+          <li><b>CRLF automatico, mas parcial:</b> a conversao so vale quando o arquivo tem <i>\r\n</i> e o trecho nao tem <i>\r</i>; arquivo misto exige trecho exato (<i>internal/tools/files/write.go:115-120</i>).</li>
+          <li><b>1 MB tambem aqui:</b> arquivo maior que o teto manda editar em partes com <i>bash (sed/perl)</i> (<i>internal/tools/files/write.go:97-102</i>).</li>
+          <li><b>Snippet curto:</b> a resposta mostra o trecho com 3 linhas antes e o alterado mais 2 depois, nao o arquivo todo (<i>internal/tools/files/write.go:150-158</i>).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5743,6 +5788,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>allIndexes</b> — lista posicoes do trecho sem sobreposicao, como <i>indexOf</i> repetido (<i>internal/tools/files/write.go:183-193</i>).</li>
+          <li><b>replace_all</b> — troca todas as ocorrencias; sem ele, mais de uma ocorrencia e erro (<i>internal/tools/files/write.go:126-142</i>).</li>
+          <li><b>CRLF x LF</b> — arquivo com <i>\r\n</i> casa trecho em <i>\n</i> apos conversao; o <i>\r</i> e preservado na gravacao (<i>internal/tools/files/write.go:114-120</i>).</li>
+          <li><b>lineOf</b> — numero (1-based) da linha que contem a posicao do casamento (<i>internal/tools/files/write.go:196-198</i>).</li>
+          <li><b>ApplyEdits transacional</b> — valida todas as edicoes antes de gravar qualquer uma (<i>internal/tools/files/batch.go:132-223</i>).</li>
         </ul>
       </div>
 

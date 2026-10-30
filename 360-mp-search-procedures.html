@@ -5764,6 +5764,50 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Catalogo verificado: array <code>procedures</code> (procedures.ts:1064) com 84 entradas; cada uma e <code>ProcedureDef</code> (procedures.ts:5-9) com <code>name/category/risk/inputSchema/outputSchema</code>; niveis em <code>RiskLevel</code> (procedures.ts:3).</li>
+          <li>Registro: <code>createMcpServer</code> (server.ts:216) percorre o catalogo (server.ts:223) e registra cada procedure como tool propria.</li>
+          <li>Nome exposto: ponto vira underscore em <code>toolName</code> (server.ts:65-67); despacho aceita as duas formas (server.ts:375-377).</li>
+          <li>Apresentacao: titulo curto <code>titleFor</code> (server.ts:51-55) e anotacao <code>annotationsFor</code> (server.ts:44-48): query vira <code>readOnlyHint</code>, destructive vira <code>destructiveHint</code>.</li>
+          <li>Esquemas: <code>inputSchema</code> via <code>fromJsonSchema</code> (server.ts:344-345) e <code>outputSchema</code> (server.ts:337-339); schema completo comentado (server.ts:30-36).</li>
+          <li>Transporte: <code>POST /api/mcp</code> em <code>mcpPlugin</code> (fastify-plugin.ts:230-253); JSON (fastify-plugin.ts:52-58) para lista e SSE com keep-alive de 15s para <code>tools/call</code> (fastify-plugin.ts:65-72); teto de corpo 4 MiB (fastify-plugin.ts:36).</li>
+        </ol>
+        <p>Observacao honesta: <code>tools.ts</code> nao existe no pin (pasta so tem bounds/fastify-plugin/instructions/procedures/server); a descoberta verificavel e via <code>tools/list</code> das flat tools.</p>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlacoes</h3>
+        </div>
+        <ul>
+          <li>Conceito de 4 nomes (search/query/mutation/destructive) versus implementacao real: 84 flat tools particionadas por <code>risk</code> - 30 query, 47 mutation, 7 destructive (contagem em procedures.ts:1064 e seguintes).</li>
+          <li><code>search</code> = visao do catalogo (filtra por <code>category/risk</code> no cliente); <code>query</code> = 30 so-leitura (ex. projects.list procedures.ts:1067, monitoring.system procedures.ts:2754); <code>mutation</code> = 47 escritas nao-destrutivas; <code>destructive</code> = 7 irreversiveis.</li>
+          <li>Destrutivas fixas: projects.delete (procedures.ts:1128), sandboxes.destroy (procedures.ts:1429), services.delete (procedures.ts:2064), env_vars.delete (procedures.ts:2295), domains.delete (procedures.ts:2428), backups.restore (procedures.ts:2563), backups.delete (procedures.ts:2589).</li>
+          <li>Portoes comuns: RBAC por <code>risk</code> (server.ts:108-112), <code>confirm</code> so para destructive (server.ts:84-94) e auditoria seletiva (server.ts:182-193).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Nao cite <code>tools.ts:21-28/78-86/96-102</code> como evidencia: arquivo ausente no pin; use procedures.ts/server.ts/fastify-plugin.ts.</li>
+          <li>Contagens antigas (76 itens, 29 query, 40 mutation) estao desatualizadas; o pin tem 84/30/47/7.</li>
+          <li>Filtro <code>category===</code> ou substring nao tem implementacao no pin; a filtragem e do cliente sobre <code>tools/list</code>.</li>
+          <li>Nome com ponto e recusado por clientes Anthropic (server.ts:57-64); chame com underscore e saiba que o servidor aceita os dois (server.ts:375-377).</li>
+          <li>Sem <code>inputSchema</code> a tool recebe <code>{}</code> (server.ts:347); retorno vazio vira <code>{ok: true}</code> (server.ts:269).</li>
+        </ul>
+      </div>
+
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5782,7 +5826,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+                  <li><b>Procedure</b> - entrada do catalogo <code>procedures[]</code> (procedures.ts:1064) com <code>name/category/risk/inputSchema/outputSchema</code> (procedures.ts:5-9).</li>
+          <li><b>Risk (query/mutation/destructive)</b> - niveis em <code>RiskLevel</code> (procedures.ts:3); decide papel minimo (server.ts:108-112) e anotacao (server.ts:44-48).</li>
+          <li><b>Category</b> - agrupamento da procedure (ex. projects/services/monitoring); aparece na descricao do catalogo (procedures.ts:1067-1070).</li>
+          <li><b>toolName (ponto para underscore)</b> - <code>projects.list</code> vira <code>projects_list</code> para a API Anthropic (server.ts:57-67); despacho aceita os dois (server.ts:375-377).</li>
+          <li><b>readOnlyHint/destructiveHint</b> - anotacao da tool: query e 8 sandbox so-leitura ganham <code>readOnlyHint</code>; destructive ganha <code>destructiveHint</code> (server.ts:44-48).</li>
+</ul>
       </div>
 
 </div>

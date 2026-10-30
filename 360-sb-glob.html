@@ -5682,6 +5682,51 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>Valida pattern e caminho:</b> <i>pattern</i> obrigatorio; <i>path</i> ausente vale <i>.</i> (<i>internal/tools/files/glob.go:18-21</i>; <i>internal/tools/files/files.go:96-103</i>); se nao existe, <i>glob failed: spawn rg ENOENT</i>; se nao e diretorio, <i>spawn ENOTDIR</i> para casar com o agente original (<i>internal/tools/files/glob.go:28-33</i>).</li>
+          <li><b>Aplica o teto da pagina:</b> <i>head_limit&lt;1</i> vira 200 (<i>internal/tools/files/glob.go:34-37</i>); a busca roda com prazo de 30 s (<i>internal/tools/files/glob.go:14, 38-40</i>).</li>
+          <li><b>Caminha em Go puro:</b> <i>Root.Glob</i> valida o pattern vazio e compila com <i>compileGlob</i> (<i>internal/fsops/glob.go:33-42, 278-284</i>); sem barra o pattern casa o nome em qualquer profundidade.</li>
+          <li><b>Filtra como o rg:</b> nao entra em <i>.git</i>, nao segue symlink, so lista arquivo regular (<i>internal/fsops/glob.go:135-160</i>); respeita <i>.gitignore</i> em cadeia, mas so dentro de repo git (<i>internal/fsops/glob.go:68-100, 144-146</i>).</li>
+          <li><b>Para no teto ou no prazo:</b> saida acima de 8 MB ou prazo estourado marca <i>Partial</i> em vez de erro (<i>internal/fsops/glob.go:109, 120-176</i>).</li>
+          <li><b>Ordena e corta:</b> mais novos primeiro, desempate por nome (<i>internal/fsops/glob.go:55-62</i>); mostra ate <i>head_limit</i> e avisa quantos ficaram de fora; se parcial, avisa que a lista e parcial (<i>internal/tools/files/glob.go:50-62</i>).</li>
+          <li><b>Zero nao e erro:</b> sem achado devolve <i>No files match</i> como texto normal, ou aviso de parada antes do primeiro achado (<i>internal/tools/files/glob.go:44-48</i>).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlacoes</h3>
+        </div>
+        <ul>
+          <li><b>glob → ls:</b> quando <i>ls</i> corta em 500, <i>glob</i> filtra por nome (<i>internal/tools/files/ls.go:95-96</i>; <i>internal/tools/files/glob.go:56-58</i>).</li>
+          <li><b>glob (nome) x grep (conteudo):</b> <i>glob</i> e busca em Go puro por caminho; <i>grep</i> roda <i>rg</i> como filho sem shell (<i>internal/fsops/glob.go:33-63</i>; <i>internal/tools/files/grep.go:58-64</i>).</li>
+          <li><b>glob → read/batch_read:</b> achados viram entrada de <i>read</i> ou do lote, que compartilha a mesma memoria de leitura (<i>internal/tools/files/batch.go:30-82</i>).</li>
+          <li><b>.gitignore so com .git:</b> fora de repo, nenhum <i>.gitignore</i> vale, como no <i>rg</i> (<i>internal/fsops/glob.go:65-87</i>).</li>
+          <li><b>mensagens para casar o Node:</b> <i>ENOENT/ENOTDIR</i> imitam o <i>spawn rg</i> do agente original em vez de mensagens novas (<i>internal/tools/files/glob.go:28-33</i>).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Sem barra casa em tudo:</b> pattern sem <i>/</i> procura o nome em qualquer profundidade; com <i>/</i> ancora na base (<i>internal/fsops/glob.go:278-284</i>).</li>
+          <li><b><i>!</i> exclui:</b> pattern com <i>!</i> na frente inverte o casamento (<i>internal/fsops/glob.go:34-35, 178-181</i>).</li>
+          <li><b>Parcial nao e erro:</b> 30 s ou 8 MB geram lista parcial com aviso; so o <i>grep</i> trata prazo como erro (<i>internal/tools/files/glob.go:59-62</i>; <i>internal/tools/files/grep.go:65-67</i>).</li>
+          <li><b>Symlink e diretorio pesado somem:</b> links nao sao seguidos e <i>.git</i> nunca entra; o resto filtra por <i>.gitignore</i> (<i>internal/fsops/glob.go:135-146</i>).</li>
+          <li><b>head_limit corta em silencio parcial:</b> alem do limite, o rodape diz <i>N more files not shown</i>; estreite pattern ou caminho (<i>internal/tools/files/glob.go:56-58</i>).</li>
+          <li><b>Ordem e por mtime:</b> nao espere ordem alfabetica; o mais novo vem antes (<i>internal/fsops/glob.go:55-61</i>).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5700,6 +5745,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>globTimeout (30 s)</b> — prazo da varredura; estourado, devolve parcial com aviso, nao erro (<i>internal/tools/files/glob.go:14, 38-40</i>).</li>
+          <li><b>head_limit</b> — linhas mostradas; padrao 200 quando ausente ou menor que 1 (<i>internal/tools/files/glob.go:34-37</i>).</li>
+          <li><b>ignoreChain/inGitRepo</b> — junta <i>.gitignore</i> da raiz ate a busca, mas so dentro de repo git (<i>internal/fsops/glob.go:68-100</i>).</li>
+          <li><b>compileGlob</b> — traduz <i>* ? [..] {a,b}</i> para regexp, com ou sem ancora (<i>internal/fsops/glob.go:278-284</i>).</li>
+          <li><b>Partial</b> — marca de busca cortada por prazo ou 8 MB de saida (<i>internal/fsops/glob.go:109; internal/tools/files/glob.go:59-62</i>).</li>
         </ul>
       </div>
 

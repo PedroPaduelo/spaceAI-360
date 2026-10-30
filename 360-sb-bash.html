@@ -5757,6 +5757,50 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>Entrada e limites:</b> <i>handleBash</i> le <i>command/timeout_ms/wait_ms</i> (<i>internal/tools/exec/tools.go:30-44</i>); vazio recusa antes de spawnar (<i>internal/tools/exec/proc.go:77-80</i>); vida padrao 600 s, maxima 3600 s (<i>internal/tools/exec/manager.go:41-42</i>).</li>
+          <li><b>Sobe como fundo com nome vazio:</b> <i>bash</i> chama <i>startBackground</i> com vida <i>clamp(timeout, 1 s, 3600 s)</i> (<i>internal/tools/exec/manager.go:549-555</i>); <i>spawn</i> sobe <i>bash -c</i> em grupo proprio com entrada <i>/dev/null</i> (<i>internal/tools/exec/manager.go:194-208</i>).</li>
+          <li><b>Espera so o lider:</b> espera <i>p.exited</i> ate <i>min(wait, vida+3 s)</i>; <i>wait</i> padrao e o orcamento do boot (45 s) (<i>internal/tools/exec/manager.go:556-558</i>; <i>internal/config/config.go:37, 56</i>).</li>
+          <li><b>Confirma largados:</b> ate 10 voltas de 50 ms com <i>refresh</i> antes de concluir que sobrou membro (<i>internal/tools/exec/manager.go:559-571</i>); a confirmacao exige 2 varreduras vazias por causa do <i>execve</i> (<i>internal/tools/exec/proc.go:276-297</i>).</li>
+          <li><b>Monta a resposta:</b> <i>finishBash</i> entrega saida ate a ultima linha completa; rodando vira <i>still running</i>, prazo vira <i>timed out</i>, lider morto com membros vira <i>detached</i> (<i>internal/tools/exec/manager.go:575-608, 528-544</i>).</li>
+          <li><b>Terminou sai da lista:</b> comando que terminou dentro da chamada e removido (<i>dropLocked</i>) com log apagado; o que segue vivo fica listado para <i>process_wait/kill</i> (<i>internal/tools/exec/manager.go:605-607</i>).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlacoes</h3>
+        </div>
+        <ul>
+          <li><b>bash → bash_background:</b> <i>bash</i> e para comando curto com espera; servidor ou tarefa longa usa <i>bash_background</i>, que nao tem vida e dorme 1,5 s antes de devolver o id (<i>internal/tools/exec/manager.go:549-572, 647-660</i>).</li>
+          <li><b>bash → process_*:</b> o que segue rodando vira processo rastreado: <i>process_list/output/wait/kill</i> usam o mesmo id (<i>internal/tools/exec/tools.go:16-28</i>; <i>internal/tools/exec/wait.go:13-23</i>).</li>
+          <li><b>bash → RunBash interno:</b> <i>Manager.RunBash</i> e o caminho com pipe para git interno e checks; a tool <i>bash</i> usa log em arquivo para leitura incremental (<i>internal/tools/exec/run.go:25-160</i>; <i>internal/tools/exec/output.go:44-88</i>).</li>
+          <li><b>marca que atravessa &amp;/setsid:</b> todo filho herda <i>MYPANEL_PROC_TAG</i>; o grupo mata o normal e a varredura <i>/proc</i> acha o que fugiu (<i>internal/tools/exec/manager.go:210-257, 331-343</i>).</li>
+          <li><b>saida mascarada e podada:</b> <i>head 16 KB + tail 48 KB</i> com <i>[... N bytes omitted ...]</i> e mascara com margem anti-corte (<i>internal/tools/exec/manager.go:33-37, 238-264</i>).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>timeout_ms e vida, wait_ms e espera:</b> o comando morre no fim da vida (TERM depois KILL em 2 s); a chamada so espera ate <i>wait</i> e o comando segue vivo (<i>internal/tools/exec/manager.go:41-42, 550, 162-185</i>).</li>
+          <li><b>cwd precisa ser diretorio:</b> relativo parte do workspace; inexistente ou arquivo vira <i>cwd is not a directory</i> (<i>internal/tools/exec/manager.go:261-271</i>).</li>
+          <li><b>stdin e /dev/null:</b> prompt interativo recebe EOF na hora; nao espere interagir (<i>internal/tools/exec/manager.go:188-193</i>).</li>
+          <li><b>detached morre na vida:</b> <i>bash</i> que larga <i>&amp;/nohup/setsid</i> avisa que os membros morrem no fim de <i>timeout_ms</i>; para manter, use <i>bash_background</i> (<i>internal/tools/exec/manager.go:535-544</i>).</li>
+          <li><b>ids por boot:</b> id antigo apos restart explica que <i>process ids are per boot</i> e manda usar <i>process_list</i> (<i>internal/tools/exec/proc.go:168-180</i>).</li>
+          <li><b>reap 15 min:</b> encerrado some da lista apos 15 min e o log vai junto (<i>internal/tools/exec/manager.go:71-78, 209-218</i>).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>

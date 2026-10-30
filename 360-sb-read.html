@@ -5772,6 +5772,51 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>Registro e validacao:</b> <i>files.Register</i> registra <i>read</i> junto de <i>write/edit/ls/glob/grep</i> e recusa schema fora do catalogo (<i>internal/tools/files/files.go:32-63</i>); <i>Registry.Call</i> valida os argumentos contra o <i>inputSchema</i> e mascara a saida pelo redator (<i>internal/tools/registry.go:146-169, 184-195</i>); o MCP expoe via <i>toolHandler</i> (<i>internal/mcpserver/mcp.go:57-91</i>).</li>
+          <li><b>Localiza o caminho:</b> <i>locate</i> exige <i>path</i> nao vazio e resolve com <i>Root.ToolPath/Resolve</i> (<i>internal/tools/files/files.go:81-94</i>); sem confinamento, o relativo parte do workspace e o absoluto vale como esta (<i>internal/fsops/root.go:42-47, 155-178</i>).</li>
+          <li><b>Abre sem travar:</b> se nao existe, <i>File not found</i>; se e diretorio, orienta usar <i>ls</i> (<i>internal/tools/files/read.go:34-64</i>); a abertura usa <i>OpenRegular</i> com <i>O_NONBLOCK</i> e <i>fstat</i>, recusando device/FIFO/socket (<i>internal/fsops/read.go:55-70</i>).</li>
+          <li><b>Escolhe o ramo:</b> <i>readOpen</i> decide entre imagem, binario, arquivo pequeno ou por linha (<i>internal/tools/files/read.go:68-101</i>); imagem ate 5 MB volta como bloco de imagem (<i>internal/tools/files/read.go:70-77, 24</i>).</li>
+          <li><b>Detecta binario ou le rapido:</b> <i>SniffBinary</i> olha NUL nos primeiros 8000 bytes (<i>internal/fsops/read.go:258-269</i>); ate 256 KB sai inteiro com <i>ReadAllCapped</i> (<i>internal/fsops/read.go:273-282</i>) e <i>fastText</i> (<i>internal/tools/files/read.go:105-128</i>).</li>
+          <li><b>Arquivo grande por linha:</b> acima de 256 KB, <i>ScanLines</i> conta todas as linhas e guarda so a pagina pedida sem lotar a memoria (<i>internal/fsops/read.go:317-348</i>), formatada por <i>streamText</i> (<i>internal/tools/files/read.go:132-149</i>).</li>
+          <li><b>Lembra e numera:</b> todo ramo que leu chama <i>state.remember</i> com <i>mtime+size</i> (<i>internal/tools/files/files.go:155-170</i>); a saida e <i>N&lt;tab&gt;linha</i> com corte em 2000 runes (<i>internal/tools/files/read.go:153-167, 26</i>).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlacoes</h3>
+        </div>
+        <ul>
+          <li><b>read → edit/write via <i>remember/check</i>:</b> o <i>read</i> grava <i>mtime+size</i> e <i>edit/write</i> exigem leitura previa e arquivo inalterado (<i>internal/tools/files/files.go:155-186</i>); sem ela, <i>Read before modifying</i>.</li>
+          <li><b>read → batch_read mesma memoria:</b> a ponte <i>Batch</i> sai do mesmo <i>service</i>, entao <i>batch_read</i> conta como <i>read</i> para o <i>edit</i> seguinte (<i>internal/tools/files/batch.go:13-23, 30-82</i>).</li>
+          <li><b>read imagem so no simples:</b> o <i>read</i> devolve bloco de imagem (<i>internal/mcpserver/mcp.go:81-84</i>); no lote vira texto <i>is an image... Read it with the read tool</i> (<i>internal/tools/files/batch.go:48-52</i>).</li>
+          <li><b>descoberta → leitura:</b> <i>ls/glob/grep</i> acham o caminho e o <i>read</i> mostra o conteudo; diretorio no <i>read</i> manda usar <i>ls</i> (<i>internal/tools/files/read.go:43-45</i>).</li>
+          <li><b>redacao central:</b> <i>Registry.Call</i> e <i>mcp.toolHandler</i> mascaram texto e <i>structuredContent</i>; <i>ToolError</i> vira <i>IsError</i> sem stack (<i>internal/tools/registry.go:184-206</i>).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>offset 1-based, limit padrao 2000:</b> <i>offset&lt;1</i> vira 1 e <i>limit&lt;1</i> vira 2000 (<i>internal/tools/files/read.go:51-58, 19</i>); <i>offset</i> alem do fim nao e erro, avisa <i>past the end</i> (<i>internal/tools/files/read.go:117-119, 136-138</i>).</li>
+          <li><b>Linha longa cortada:</b> cada linha sai com ate 2000 runes mais <i>… [line truncated]</i> (<i>internal/tools/files/read.go:161-163</i>); no caminho por linha, o corte e em 64 KB com marca no comeco (<i>internal/fsops/read.go:302-304, 339-342</i>).</li>
+          <li><b>Imagem so ate 5 MB:</b> acima disso cai no ramo texto/binario e nao volta como imagem (<i>internal/tools/files/read.go:24, 70</i>).</li>
+          <li><b>Sem fim nao se le:</b> device, FIFO e socket sao recusados antes de ler, com <i>it has no end</i> (<i>internal/tools/files/files.go:114-130</i>).</li>
+          <li><b>Sem confinamento:</b> relativo resolve dentro do workspace, absoluto vai aonde for, e symlink vale como no SO (<i>internal/tools/files/files.go:25-28</i>); nao confunda com o <i>fs-helper</i> confinado (<i>internal/fsops/root.go:17-28</i>).</li>
+          <li><b>CRLF vira LF:</b> o sufixo <i>\r</i> e removido por linha na saida (<i>internal/tools/files/read.go:113-115</i>).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5790,6 +5835,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>readState (remember/check)</b> — memoria de leitura: <i>remember</i> guarda <i>mtime+size</i> apos ler/escrever; <i>check</i> exige leitura previa e recusa arquivo mudado (<i>internal/tools/files/files.go:132-186</i>).</li>
+          <li><b>fastRead x ScanLines</b> — ate 256 KB le tudo de uma vez; acima, le linha a linha sem lotar a memoria (<i>internal/tools/files/read.go:22, 87-100</i>; <i>internal/fsops/read.go:317-348</i>).</li>
+          <li><b>SniffBinary</b> — teste de NUL nos primeiros 8000 bytes para dizer se e binario sem ler tudo (<i>internal/fsops/read.go:258-269</i>).</li>
+          <li><b>numbered N&lt;tab&gt;linha</b> — saida numerada que o modelo copia para o <i>edit</i> sem o prefixo (<i>internal/tools/files/read.go:153-167</i>).</li>
+          <li><b>Redactor</b> — mascara segredos em toda saida de tool, inclusive erro (<i>internal/tools/registry.go:184-195</i>).</li>
         </ul>
       </div>
 
