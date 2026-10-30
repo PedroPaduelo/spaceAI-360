@@ -5758,6 +5758,44 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <code>github_search_code</code> com <code>query</code> única em sintaxe code-search (ex. “addClass+repo:jquery/jquery”) (repos.ts:473-475).</li>
+          <li>Wrapper <code>gh</code> resolve o McpServer “GitHub” (shared.ts:39-48); <code>GH.read</code> marca leitura (repos.ts:476).</li>
+          <li>Escopo <code>read</code> duplo: catálogo (shared.ts:96-101) e GET em <code>callGitHubApi</code> (github-tools.service.ts:132-153).</li>
+          <li>Serviço faz <code>GET /search/code?q={query}</code>; a query vira <code>q</code> na URL (repos.ts:478-482; github-tools.service.ts:213-216).</li>
+          <li>Resultados voltam via <code>jsonContent</code>; erro previsto vira <code>errorContent</code> (shared.ts:48-53).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>360-gh-get-code-scanning-alert.html</b> — alerta que indica qual trecho buscar aqui (security.ts:55-61).</li>
+          <li><b>360-gh-list-code-scanning-alerts.html</b> — lista de alertas que motiva a busca (security.ts:27-40).</li>
+          <li><b>360-gh-list-secret-scanning-alerts.html</b> — quando o vazado é segredo, não padrão de código (security.ts:79-86).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Só aceita <code>query</code>; sem <code>per_page/page/sort/order</code> como em <code>search/repositories</code> (repos.ts:473-475,27-36).</li>
+          <li>Sintaxe code-search exige qualificador (ex. <code>repo:</code>); query genérica retorna muito ruído ou 422 como <code>GITHUB_API_ERROR</code> (repos.ts:471-472; github-tools.service.ts:259-262).</li>
+          <li>Timeout de 15 s; busca ampla pode estourar e virar <code>GITHUB_TIMEOUT</code> (github-tools.service.ts:40,233-249).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5776,6 +5814,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>code-search q</b> — <code>query</code> vira <code>q</code> em <code>GET /search/code</code> (repos.ts:478-482).</li>
+          <li><b>Sintaxe repo:</b> — exemplo “addClass+repo:jquery/jquery” filtra por repositório (repos.ts:471-472).</li>
+          <li><b>Sem paginação</b> — só <code>query</code> no input, sem <code>per_page/page/sort</code> (repos.ts:473-475).</li>
+          <li><b>GITHUB_TIMEOUT</b> — 15 s via <code>AbortController</code> (github-tools.service.ts:40,233-249).</li>
         </ul>
       </div>
 

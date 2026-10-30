@@ -5750,7 +5750,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
-      <div class="card" id="card-glossario">
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida <i>owner/repo/branch/from_sha</i> como strings obrigatórias (repos.ts:141-146).</li>
+          <li>Resolve o McpServer “GitHub” com cache de 60 s (github-tools.service.ts:54-66).</li>
+          <li>Confere escopo: POST exige <i>github:write</i>; GH.create marca escrita (shared.ts:22; github-tools.service.ts:132-135).</li>
+          <li>Monta POST <i>/repos/{owner}/{repo}/git/refs</i> com corpo {ref: refs/heads/branch, sha: from_sha} (repos.ts:148-154).</li>
+          <li>Chama <i>fetch</i> com JSON, headers versionados e timeout de 15 s (github-tools.service.ts:219-224,237-249).</li>
+          <li>Devolve JSON da ref criada ou <i>errorContent</i> (shared.ts:39-54).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>github_get_branch</i> (repos.ts:119-134) para conferir se a branch já existe antes de criar.</li>
+          <li><i>github_list_branches</i> (repos.ts:98-117) para listar após criar.</li>
+          <li><i>github_get_commit</i> (repos.ts:81-96) para validar o <i>from_sha</i> de origem.</li>
+          <li><i>github_create_pull_request</i> (pulls.ts:51-76) para abrir PR a partir da nova branch (<i>head</i>).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><i>from_sha</i> precisa ser SHA existente; SHA curto ou inexistente vira 422 GITHUB_API_ERROR (github-tools.service.ts:259-262; repos.ts:145).</li>
+          <li>Branch duplicada falha; a segunda chamada não é idempotente (repos.ts:148-154).</li>
+          <li>Sem <i>github:write</i> a tool some do catálogo (shared.ts:96-102).</li>
+          <li>Ref com “..” ou controle é recusada pelo <i>safeGitHubApiPath</i> (github-tools.service.ts:117-130).</li>
+        </ul>
+      </div>
+
+    <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
           <h3>Glossario</h3>
@@ -5768,7 +5809,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+                            <li><b>from_sha</b> — SHA de origem para onde a nova branch aponta (repos.ts:145).</li>
+                    <li><b>git/refs</b> — endpoint de refs; o corpo usa <i>ref: refs/heads/&lt;branch&gt;</i> (repos.ts:150-153).</li>
+                    <li><b>GH.create</b> — escrita de criação; exige <i>github:write</i> (shared.ts:22).</li>
+                    <li><b>idempotente</b> — repetir a criação com mesmo nome falha em vez de reutilizar.</li>
+</ul>
       </div>
 
 </div>

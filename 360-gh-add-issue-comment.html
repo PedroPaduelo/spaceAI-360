@@ -5750,7 +5750,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
-      <div class="card" id="card-glossario">
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida <i>owner/repo/issue_number/body</i>; corpo markdown obrigatório (issues.ts:126-131).</li>
+          <li>Resolve o McpServer “GitHub” com cache de 60 s (github-tools.service.ts:54-66).</li>
+          <li>Confere escopo: POST exige <i>github:write</i>; GH.create marca escrita (shared.ts:22; github-tools.service.ts:132-135).</li>
+          <li>Monta POST <i>/repos/{owner}/{repo}/issues/{issue_number}/comments</i> com {body} (issues.ts:133-141).</li>
+          <li>Envia JSON com timeout de 15 s (github-tools.service.ts:237-249).</li>
+          <li>Devolve JSON do comentário criado via <i>jsonContent</i> (shared.ts:39-54).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>github_list_issue_comments</i> (issues.ts:167-190) para listar após adicionar.</li>
+          <li><i>github_update_issue_comment</i> (issues.ts:144-165) para corrigir o corpo depois.</li>
+          <li><i>github_get_issue</i> (issues.ts:38-53) para validar o número alvo.</li>
+          <li><i>github_create_pull_request_review</i> (pulls.ts:213-243) quando o comentário é review formal de PR.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Serve para issue e PR; o número pode ser de PR (issues.ts:129).</li>
+          <li><i>body</i> vazio falha no zod; markdown é aceito (issues.ts:130).</li>
+          <li>Sem <i>github:write</i> a tool some do catálogo (shared.ts:96-102).</li>
+          <li>Issue/PR inexistente vira 404 GITHUB_API_ERROR (github-tools.service.ts:259-262).</li>
+        </ul>
+      </div>
+
+    <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
           <h3>Glossario</h3>
@@ -5768,7 +5809,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+                            <li><b>body markdown</b> — corpo do comentário com markdown (issues.ts:130).</li>
+                    <li><b>GH.create</b> — criação com <i>github:write</i> (shared.ts:22).</li>
+                    <li><b>/issues/{n}/comments</b> — endpoint único para issues e PRs (issues.ts:138).</li>
+                    <li><b>jsonContent</b> — sucesso com JSON do comentário (shared.ts:48).</li>
+</ul>
       </div>
 
 </div>

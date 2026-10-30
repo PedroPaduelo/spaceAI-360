@@ -5750,6 +5750,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Validar entrada:<\/b> <i>thread_id<\/i> como string zod (notifications.ts:59-61).<\/li>
+          <li><b>2. Resolver MCP e escopo:<\/b> <i>gh<\/i> resolve o McpServer (shared.ts:39-48); PATCH exige <i>github:write<\/i> (github-tools.service.ts:132-135,141-153).<\/li>
+          <li><b>3. Montar URL:<\/b> PATCH <i>\/notifications\/threads\/{thread_id}<\/i>, sem corpo nem query (notifications.ts:63-64).<\/li>
+          <li><b>4. Chamar:<\/b> headers vnd.github+json e prazo 15 s (github-tools.service.ts:219-224,234-249) com path validado (github-tools.service.ts:117-130).<\/li>
+          <li><b>5. Responder:<\/b> retorno da API via <i>jsonContent<\/i>; não-JSON vira <i>{status, location, text}<\/i> (shared.ts:48; github-tools.service.ts:268-275).<\/li>
+          <li><b>6. Falha prevista:<\/b> thread inexistente vira <i>GITHUB_API_ERROR<\/i>; sem escopo recusa antes do token (github-tools.service.ts:259-262,141-153).<\/li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>github_get_notification<\/b> (notifications.ts:41-52) — detalha a thread antes de marcar.<\/li>
+          <li><b>github_list_notifications<\/b> (notifications.ts:7-39) — lista threads para escolher o <i>thread_id<\/i>.<\/li>
+          <li><b>github_mark_all_notifications_read<\/b> (notifications.ts:67-87) — marca todas com PUT <i>\/notifications<\/i> em vez de uma.<\/li>
+          <li><b>github_update_gist<\/b> (gists.ts:66-88) — outro PATCH com <i>github:write<\/i> para comparar.<\/li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Escrita:<\/b> <i>GH.link<\/i> tem <i>readOnlyHint<\/i> falso e exige <i>github:write<\/i> (shared.ts:23,96-102; github-tools.service.ts:132-135).<\/li>
+          <li><b>Sem corpo:<\/b> PATCH sem body; só o path marca como lida (notifications.ts:63-64).<\/li>
+          <li><b>Idempotente:<\/b> repetir na thread já lida não muda nada.<\/li>
+          <li><b>Thread errada:<\/b> 404 vira <i>GITHUB_API_ERROR<\/i> (github-tools.service.ts:259-262).<\/li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5768,6 +5809,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>GH.link<\/b> — escrita idempotente; exige <i>github:write<\/i> (shared.ts:23,96-102).<\/li>
+          <li><b>PATCH \/notifications\/threads\/{id}<\/b> — marca uma thread como lida (notifications.ts:64).<\/li>
+          <li><b>scopeForMethod<\/b> — PATCH pede <i>github:write<\/i> (github-tools.service.ts:132-135).<\/li>
+          <li><b>Resposta não-JSON<\/b> — vira <i>{status, location, text}<\/i> (github-tools.service.ts:268-275).<\/li>
         </ul>
       </div>
 

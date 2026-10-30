@@ -5750,6 +5750,45 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <code>github_get_project</code> com <code>project_id</code> numérico obrigatório, validado por Zod (projects.ts:31-33).</li>
+          <li>Wrapper <code>gh</code> resolve o McpServer “GitHub” e padroniza o retorno (shared.ts:39-48).</li>
+          <li>Escopo duplo: <code>GH.read</code> no catálogo (shared.ts:20-21,96-101) e <code>read</code> para GET em <code>callGitHubApi</code> (github-tools.service.ts:132-135,141-153).</li>
+          <li>Serviço faz <code>GET /projects/{project_id}</code> sem query nem body; segmento é codificado contra traversal (projects.ts:35-36; github-tools.service.ts:117-130).</li>
+          <li>JSON do projeto volta via <code>jsonContent</code>; falha prevista vira <code>errorContent</code> (shared.ts:48-53).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>360-gh-list-projects.html</b> — ponto de partida: lista os Projects V2 do usuário para obter o <code>project_id</code> (projects.ts:17-23).</li>
+          <li><b>360-gh-list-project-items.html</b> — próximo passo: lista os itens do projeto recém-obtido (<code>GET /projects/{id}/items</code>, projects.ts:50-56).</li>
+          <li><b>360-gh-add-project-item.html</b> — escrita complementar: adiciona issue/PR ao projeto (<code>POST</code>, projects.ts:73-78).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Exige ID numérico do Project V2; não aceita <code>owner/repo</code> nem slug (projects.ts:32).</li>
+          <li>Sem paginação nesta tool — <code>per_page/page</code> só existem nas listagens (projects.ts:31-36).</li>
+          <li>ID inexistente retorna erro da API como <code>GITHUB_API_ERROR</code> (502) com corpo cortado em 500 caracteres (github-tools.service.ts:259-262).</li>
+          <li>Fora de um <code>tools/call</code> o token nem é tocado (<code>authorizeTokenUse</code>, github-tools.service.ts:141-143).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5768,6 +5807,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Project ID</b> — número do Project V2 no path <code>/projects/{project_id}</code> (projects.ts:32,36).</li>
+          <li><b>Handler magro</b> — só decide path/método; URL e parsing vivem no serviço (github-tools.service.ts:155-176).</li>
+          <li><b>safeGitHubApiPath</b> — valida e codifica cada segmento contra <code>..</code> e traversal (github-tools.service.ts:117-130).</li>
+          <li><b>McpServer GitHub</b> — linha “GitHub” com segredo AES-256-GCM e cache de 60 s (github-tools.service.ts:42-66).</li>
         </ul>
       </div>
 

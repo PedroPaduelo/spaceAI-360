@@ -5750,6 +5750,44 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <code>github_list_project_items</code> com <code>project_id</code> obrigatório e <code>per_page/page</code> opcionais (projects.ts:44-48).</li>
+          <li>Wrapper <code>gh</code> resolve o id do McpServer “GitHub” com cache de 60 s (shared.ts:39-48; github-tools.service.ts:54-66).</li>
+          <li>Escopo <code>read</code>: <code>GH.read</code> no catálogo e rechecagem para GET (shared.ts:20-21,96-101; github-tools.service.ts:132-135,141-153).</li>
+          <li>Serviço faz <code>GET /projects/{project_id}/items</code> com query de paginação; <code>undefined</code> é omitido (projects.ts:50-56; github-tools.service.ts:213-216).</li>
+          <li>Lista de itens (issues/PRs/drafts) volta via <code>jsonContent</code> (projects.ts:43; shared.ts:48).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>360-gh-list-projects.html</b> — antes: descobre o <code>project_id</code> do usuário (<code>GET /user/projects</code>, projects.ts:17-23).</li>
+          <li><b>360-gh-get-project.html</b> — detalhe do projeto cujo conteúdo aqui é listado (projects.ts:35-36).</li>
+          <li><b>360-gh-add-project-item.html</b> — escrita: adiciona issue/PR/DraftIssue ao mesmo <code>/items</code> via POST (projects.ts:73-78).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><code>per_page</code> até 100, sem padrão no código; varrer tudo exige loop de <code>page</code> (projects.ts:46-47).</li>
+          <li>Itens incluem DraftIssue, que não tem <code>content_id</code> na criação — não confundir leitura com escrita (projects.ts:63-70).</li>
+          <li>Projeto inexistente vira <code>GITHUB_API_ERROR</code> (502); corpo limitado a 500 caracteres (github-tools.service.ts:259-262).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5768,6 +5806,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Item de projeto</b> — issue/PR/draft listado em <code>GET /projects/{id}/items</code> (projects.ts:43,52).</li>
+          <li><b>DraftIssue</b> — rascunho sem <code>content_id</code> na criação (projects.ts:63-70).</li>
+          <li><b>Querystring</b> — <code>per_page/page</code> serializados; <code>undefined</code> é omitido (github-tools.service.ts:213-216,280-287).</li>
+          <li><b>Cache 60 s</b> — id do McpServer GitHub guardado em memória (github-tools.service.ts:54-66).</li>
         </ul>
       </div>
 

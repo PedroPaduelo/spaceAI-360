@@ -5793,7 +5793,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
-      <div class="card" id="card-glossario">
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida <i>owner/repo/issue_number</i> e <i>lock_reason</i> opcional (issues.ts:283-291).</li>
+          <li>Resolve o McpServer “GitHub” com cache de 60 s (github-tools.service.ts:54-66).</li>
+          <li>Confere escopo: PUT exige <i>github:write</i>; GH.update marca escrita (shared.ts:24; github-tools.service.ts:132-135).</li>
+          <li>Monta PUT <i>/repos/{owner}/{repo}/issues/{issue_number}/lock</i> com {lock_reason} (issues.ts:293-301).</li>
+          <li><i>lock_reason</i> restrito a off-topic/too heated/resolved/spam (issues.ts:287-290).</li>
+          <li>Envia JSON com timeout de 15 s (github-tools.service.ts:237-249).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>github_get_issue</i> (issues.ts:38-53) para validar o alvo antes de travar.</li>
+          <li><i>github_update_issue</i> (issues.ts:83-119) para fechar em vez de travar.</li>
+          <li><i>github_add_issue_comment</i> (issues.ts:121-142) para avisar o motivo antes do lock.</li>
+          <li><i>github_list_issue_comments</i> (issues.ts:167-190) para revisar a conversa travada.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Trava conversa de issue e de PR pelo mesmo endpoint (issues.ts:282).</li>
+          <li><i>lock_reason</i> fora do enum falha no zod antes do HTTP (issues.ts:287-290).</li>
+          <li>Desbloquear não tem tool aqui; use a API DELETE manualmente.</li>
+          <li>Sem permissão de push/triage vira 403 GITHUB_API_ERROR (github-tools.service.ts:259-262).</li>
+        </ul>
+      </div>
+
+    <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
           <h3>Glossario</h3>
@@ -5811,7 +5852,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+                            <li><b>lock_reason</b> — motivo: <i>off-topic/too heated/resolved/spam</i> (issues.ts:287-290).</li>
+                    <li><b>lock</b> — trava a conversa; novos comentários são bloqueados.</li>
+                    <li><b>GH.update</b> — atualização com <i>github:write</i> mesmo usando PUT (shared.ts:24).</li>
+                    <li><b>/lock</b> — sub-recurso de travamento da issue/PR (issues.ts:298).</li>
+</ul>
       </div>
 
 </div>

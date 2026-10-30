@@ -5750,6 +5750,44 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <code>github_get_workflow_run</code> com <code>owner/repo/run_id</code> numérico (repos.ts:332-336).</li>
+          <li>Wrapper <code>gh</code> resolve o McpServer “GitHub” (shared.ts:39-48); <code>GH.read</code> marca leitura (repos.ts:337).</li>
+          <li>Escopo <code>read</code> duplo: catálogo (shared.ts:96-101) e GET em <code>callGitHubApi</code> (github-tools.service.ts:132-153).</li>
+          <li>Serviço faz <code>GET /repos/{owner}/{repo}/actions/runs/{run_id}</code> sem query/body (repos.ts:339-341).</li>
+          <li>Run único volta via <code>jsonContent</code>; resposta não-JSON viraria <code>{status, location, text}</code> (shared.ts:48; github-tools.service.ts:264-275).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>360-gh-list-workflow-runs.html</b> — lista de onde sai o <code>run_id</code> (repos.ts:311-324).</li>
+          <li><b>360-gh-list-workflow-jobs.html</b> — jobs (steps) desse run (repos.ts:359-366).</li>
+          <li><b>360-gh-download-workflow-logs.html</b> — logs do mesmo <code>run_id</code> (repos.ts:383-388).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><code>run_id</code> é o ID do run, não do workflow — não confundir com <code>workflow_id</code> (repos.ts:335,300).</li>
+          <li>Sem paginação ou filtro; para histórico volte à listagem com <code>branch/status</code> (repos.ts:302-307).</li>
+          <li>Run inexistente vira <code>GITHUB_API_ERROR</code> com corpo cortado em 500 caracteres (github-tools.service.ts:259-262).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5768,6 +5806,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>run_id</b> — ID numérico do run em <code>GET .../actions/runs/{run_id}</code> (repos.ts:335,340).</li>
+          <li><b>Sem query</b> — detalhe único, sem <code>per_page/page</code> (repos.ts:338-341).</li>
+          <li><b>Não-JSON</b> — se a API não for JSON, volta <code>{status, location, text}</code> (github-tools.service.ts:264-275).</li>
+          <li><b>errorContent</b> — <code>AppError</code> vira erro legível com código (shared.ts:49-53).</li>
         </ul>
       </div>
 

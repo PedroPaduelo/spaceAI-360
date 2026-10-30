@@ -5692,7 +5692,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
-      <div class="card" id="card-glossario">
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida <i>owner/repo</i> e opcionais <i>state/head/base/per_page/page</i> (pulls.ts:12-20).</li>
+          <li>Resolve o McpServer “GitHub” com cache de 60 s (github-tools.service.ts:54-66).</li>
+          <li>Confere escopo: GET exige <i>read</i>; GH.read marca leitura (shared.ts:21; github-tools.service.ts:132-135).</li>
+          <li>Monta GET <i>/repos/{owner}/{repo}/pulls</i> com query de filtros (pulls.ts:22-31).</li>
+          <li>Query omite <i>undefined</i>; path higienizado (github-tools.service.ts:213-216,280-287; 117-130).</li>
+          <li>Lista paginada com timeout de 15 s (github-tools.service.ts:233-249).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>github_get_pull_request</i> (pulls.ts:34-49) para detalhar um número listado.</li>
+          <li><i>github_create_pull_request</i> (pulls.ts:51-76) para abrir novo PR.</li>
+          <li><i>github_list_pull_request_files</i> (pulls.ts:145-168) para arquivos de um PR da lista.</li>
+          <li><i>github_list_issues</i> (issues.ts:7-36) porque PRs também aparecem como issues com <i>state=all</i>.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><i>state</i> open/closed/all; <i>head</i> como “user:branch” para forks (pulls.ts:15-17).</li>
+          <li><i>per_page</i> até 100; sem <i>page</i> só primeira página (pulls.ts:18-19).</li>
+          <li><i>base</i> filtra pela branch alvo (pulls.ts:17).</li>
+          <li>Repo sem PR retorna lista vazia, não erro.</li>
+        </ul>
+      </div>
+
+    <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
           <h3>Glossario</h3>
@@ -5710,7 +5751,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+                            <li><b>state/head/base</b> — filtros; <i>head</i> “user:branch” para fork (pulls.ts:15-17).</li>
+                    <li><b>per_page/page</b> — paginação; máx 100 (pulls.ts:18-19).</li>
+                    <li><b>pull_number</b> — número do PR, mesma sequência das issues.</li>
+                    <li><b>GH.read</b> — leitura com <i>read</i> (shared.ts:21).</li>
+</ul>
       </div>
 
 </div>

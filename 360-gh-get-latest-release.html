@@ -5676,7 +5676,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
-      <div class="card" id="card-glossario">
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida <i>owner/repo</i> obrigatórios, sem paginação (repos.ts:238-241).</li>
+          <li>Resolve o McpServer “GitHub” com cache de 60 s (github-tools.service.ts:54-66).</li>
+          <li>Confere escopo: GET exige <i>read</i>; GH.read marca leitura (shared.ts:21; github-tools.service.ts:132-135).</li>
+          <li>Monta GET <i>/repos/{owner}/{repo}/releases/latest</i> (repos.ts:243-244).</li>
+          <li>Chama <i>fetch</i> com headers versionados e timeout de 15 s (github-tools.service.ts:219-224,233-249).</li>
+          <li>Devolve a última publicada, excluindo drafts e prereleases (repos.ts:237; shared.ts:39-54).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>github_list_releases</i> (repos.ts:195-214) para ver todas incluindo drafts.</li>
+          <li><i>github_get_release</i> (repos.ts:216-231) para fixar por <i>release_id</i> em vez do “latest” móvel.</li>
+          <li><i>github_list_tags</i> (repos.ts:157-176) para a tag que originou a latest.</li>
+          <li><i>github_get_repository</i> (repos.ts:7-18) para metadados do repo.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Sem release estável retorna 404 GITHUB_API_ERROR; só drafts também dá 404 (repos.ts:237; github-tools.service.ts:259-262).</li>
+          <li>“Latest” é móvel: pode mudar entre chamadas; fixe <i>release_id</i> para auditoria (repos.ts:233-245).</li>
+          <li>Sem paginação e sem query (repos.ts:238-244).</li>
+          <li>Timeout de 15 s vira GITHUB_TIMEOUT (github-tools.service.ts:248-249).</li>
+        </ul>
+      </div>
+
+    <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
           <h3>Glossario</h3>
@@ -5694,7 +5735,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+                            <li><b>latest</b> — atalho da última publicada, sem drafts nem prereleases (repos.ts:237).</li>
+                    <li><b>draft</b> — rascunho não publicado, invisível para o latest.</li>
+                    <li><b>prerelease</b> — pré-lançamento instável, também excluído do latest.</li>
+                    <li><b>GH.read</b> — leitura com escopo <i>read</i> (shared.ts:21).</li>
+</ul>
       </div>
 
 </div>

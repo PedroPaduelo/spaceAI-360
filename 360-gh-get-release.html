@@ -5706,7 +5706,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
-      <div class="card" id="card-glossario">
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida <i>owner/repo/release_id</i>; <i>release_id</i> numérico (repos.ts:221-225).</li>
+          <li>Resolve o McpServer “GitHub” com cache de 60 s (github-tools.service.ts:54-66).</li>
+          <li>Confere escopo: GET exige <i>read</i>; GH.read marca leitura (shared.ts:21; github-tools.service.ts:132-135).</li>
+          <li>Monta GET <i>/repos/{owner}/{repo}/releases/{release_id}</i> (repos.ts:227-230).</li>
+          <li>Higieniza segmentos e chama <i>fetch</i> com timeout de 15 s (github-tools.service.ts:117-130,233-249).</li>
+          <li>Devolve JSON da release via <i>jsonContent</i> (shared.ts:39-54).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>github_list_releases</i> (repos.ts:195-214) para descobrir o <i>release_id</i>.</li>
+          <li><i>github_get_latest_release</i> (repos.ts:233-245) quando basta a última estável.</li>
+          <li><i>github_get_tag</i> (repos.ts:178-193) para a tag de origem da release.</li>
+          <li><i>github_get_repository</i> (repos.ts:7-18) para contexto do repositório dono.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Exige ID numérico; <i>tag_name</i> não serve aqui, use o latest ou a lista (repos.ts:224).</li>
+          <li>ID inexistente vira 404 GITHUB_API_ERROR (github-tools.service.ts:259-262).</li>
+          <li>Sem paginação; cada chamada retorna um objeto (repos.ts:216-231).</li>
+          <li>Fora de <i>tools/call</i> o token nem é tocado (github-tools.service.ts:141-143).</li>
+        </ul>
+      </div>
+
+    <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
           <h3>Glossario</h3>
@@ -5724,7 +5765,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+                            <li><b>release_id</b> — ID numérico da release, diferente do nome da tag (repos.ts:224).</li>
+                    <li><b>draft/prerelease</b> — rascunho e pré-lançamento; o GET por ID os retorna, o latest não (repos.ts:237).</li>
+                    <li><b>GH.read</b> — leitura pura (shared.ts:21).</li>
+                    <li><b>errorContent</b> — envelope de erro com <i>code</i> para o agente (shared.ts:49-53).</li>
+</ul>
       </div>
 
 </div>

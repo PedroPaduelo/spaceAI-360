@@ -5750,6 +5750,45 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <code>github_add_project_item</code> com <code>project_id</code>, <code>content_type</code> (Issue/PullRequest/DraftIssue) e <code>content_id</code> (projects.ts:64-70).</li>
+          <li>Wrapper <code>gh</code> resolve o McpServer “GitHub” e converte falha prevista em <code>errorContent</code> (shared.ts:39-53).</li>
+          <li>Escopo de escrita: <code>GH.create</code> exige <code>github:write</code> no catálogo e no <code>callGitHubApi</code> para POST (shared.ts:22,96-102; github-tools.service.ts:132-153).</li>
+          <li>Serviço faz <code>POST /projects/{project_id}/items</code> com corpo <code>{content_type, content_id}</code> serializado em JSON (projects.ts:73-78; github-tools.service.ts:237-241).</li>
+          <li>Item criado volta via <code>jsonContent</code>; cada uso do token é auditado em log (shared.ts:48; github-tools.service.ts:229-231).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>360-gh-list-projects.html</b> — origem do <code>project_id</code> usado no path (projects.ts:17-23).</li>
+          <li><b>360-gh-list-project-items.html</b> — leitura do mesmo <code>/items</code> para conferir o item adicionado (projects.ts:50-56).</li>
+          <li><b>360-gh-get-project.html</b> — valida que o projeto existe antes do POST (projects.ts:35-36).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Sem token com <code>github:write</code> a tool some da lista e <code>tools/call</code> responde FORBIDDEN (shared.ts:96-102).</li>
+          <li><code>content_id</code> tem doc “omit for DraftIssue”, mas o Zod o declara obrigatório — DraftIssue pode falhar na validação (projects.ts:69).</li>
+          <li>POST repete criação se chamado duas vezes; não é idempotente como os GETs (shared.ts:22; github-tools.service.ts:132-135).</li>
+          <li>Path com <code>project_id</code> inválido é barrado por <code>safeGitHubApiPath</code> antes do fetch (github-tools.service.ts:117-130).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5768,6 +5807,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>content_type</b> — enum <code>Issue/PullRequest/DraftIssue</code> no corpo do POST (projects.ts:66-68).</li>
+          <li><b>github:write</b> — escopo de escrita exigido para POST; GET pede só <code>read</code> (github-tools.service.ts:132-135).</li>
+          <li><b>Corpo JSON</b> — <code>{content_type, content_id}</code> com <code>Content-Type: application/json</code> (projects.ts:74-77; github-tools.service.ts:237-241).</li>
+          <li><b>Auditoria do token</b> — cada uso logado em info com tool, actor e método (github-tools.service.ts:229-231).</li>
         </ul>
       </div>
 

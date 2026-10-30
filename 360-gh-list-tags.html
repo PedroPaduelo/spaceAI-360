@@ -5677,7 +5677,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
-      <div class="card" id="card-glossario">
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida <i>owner/repo</i> obrigatórios e <i>per_page/page</i> opcionais (repos.ts:162-167).</li>
+          <li>Resolve o McpServer “GitHub” com cache de 60 s (github-tools.service.ts:54-66).</li>
+          <li>Confere escopo: GET exige <i>read</i>; GH.read marca leitura (shared.ts:21; github-tools.service.ts:132-135).</li>
+          <li>Monta GET <i>/repos/{owner}/{repo}/tags</i> com query <i>per_page/page</i> (repos.ts:169-175).</li>
+          <li>Query omite <i>undefined</i>; path higienizado por segmento (github-tools.service.ts:213-216,280-287; 117-130).</li>
+          <li>Busca paginada com timeout de 15 s; JSON via <i>jsonContent</i> (github-tools.service.ts:233-249; shared.ts:39-54).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>github_get_tag</i> (repos.ts:178-193) para detalhar a ref de uma tag listada.</li>
+          <li><i>github_list_branches</i> (repos.ts:98-117) para comparar tags imutáveis com branches móveis.</li>
+          <li><i>github_list_releases</i> (repos.ts:195-214) porque releases costumam apontar para tags.</li>
+          <li><i>github_get_commit</i> (repos.ts:81-96) para ler o commit por trás da tag.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><i>per_page</i> até 100; sem paginar pode faltar item em repo com muitas tags (repos.ts:165-166).</li>
+          <li>Retorna tags leves e anotadas do mesmo jeito; detalhe da anotação exige leitura da ref (repos.ts:182).</li>
+          <li>Repo inexistente vira GITHUB_API_ERROR 404 (github-tools.service.ts:259-262).</li>
+          <li>Timeout de 15 s vira GITHUB_TIMEOUT (github-tools.service.ts:248-249).</li>
+        </ul>
+      </div>
+
+    <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
           <h3>Glossario</h3>
@@ -5695,7 +5736,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+                            <li><b>tag</b> — rótulo imutável que aponta para um commit; input sem <i>refs/tags/</i> (repos.ts:186).</li>
+                    <li><b>per_page/page</b> — paginação da listagem; máx 100 por página (repos.ts:165-166).</li>
+                    <li><b>GH.read</b> — leitura pura com escopo <i>read</i> (shared.ts:21).</li>
+                    <li><b>buildQueryString</b> — monta query codificando chave e valor (github-tools.service.ts:280-287).</li>
+</ul>
       </div>
 
 </div>

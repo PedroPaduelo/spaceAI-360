@@ -5771,7 +5771,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
-      <div class="card" id="card-glossario">
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida <i>owner/repo/pull_number</i>; número é <i>number</i> (pulls.ts:38-43).</li>
+          <li>Resolve o McpServer “GitHub” com cache de 60 s (github-tools.service.ts:54-66).</li>
+          <li>Confere escopo: GET exige <i>read</i>; GH.read marca leitura (shared.ts:21; github-tools.service.ts:132-135).</li>
+          <li>Monta GET <i>/repos/{owner}/{repo}/pulls/{pull_number}</i> (pulls.ts:45-48).</li>
+          <li>Higieniza segmentos e chama <i>fetch</i> com timeout de 15 s (github-tools.service.ts:117-130,233-249).</li>
+          <li>Devolve JSON do PR via <i>jsonContent</i> (shared.ts:39-54).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>github_get_pull_request_diff</i> (pulls.ts:170-186) usa o mesmo GET; não retorna diff cru.</li>
+          <li><i>github_list_pull_request_files</i> (pulls.ts:145-168) para arquivos do PR.</li>
+          <li><i>github_list_pull_request_reviews</i> (pulls.ts:188-211) para reviews do PR.</li>
+          <li><i>github_merge_pull_request</i> (pulls.ts:113-143) para fundir após revisar.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>PR inexistente vira 404 GITHUB_API_ERROR (github-tools.service.ts:259-262).</li>
+          <li>Sem paginação; um objeto por chamada (pulls.ts:34-49).</li>
+          <li><i>pull_number</i> como string falha no zod (pulls.ts:42).</li>
+          <li>Diff cru exige Accept custom; o helper não suporta (pulls.ts:174-175).</li>
+        </ul>
+      </div>
+
+    <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
           <h3>Glossario</h3>
@@ -5789,7 +5830,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+                            <li><b>pull_number</b> — número do PR (pulls.ts:42).</li>
+                    <li><b>JSON do PR</b> — metadados, branches, estado de merge e contadores.</li>
+                    <li><b>GH.read</b> — leitura pura (shared.ts:21).</li>
+                    <li><b>Accept custom ausente</b> — helper só pede JSON, sem diff cru (pulls.ts:174-175).</li>
+</ul>
       </div>
 
 </div>

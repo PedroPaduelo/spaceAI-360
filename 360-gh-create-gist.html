@@ -5751,6 +5751,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Validar entrada:<\/b> <i>files<\/i> como string JSON obrigatória; <i>description<\/i> e <i>public<\/i> opcionais (gists.ts:47-51).<\/li>
+          <li><b>2. Parsear arquivos:<\/b> <i>parseJsonField<\/i> converte <i>files<\/i>; inválido vira 422 <i>VALIDATION_ERROR<\/i> (shared.ts:79-86; gists.ts:56).<\/li>
+          <li><b>3. Resolver MCP e escopo:<\/b> <i>gh<\/i> resolve o McpServer (shared.ts:39-48); POST exige <i>github:write<\/i> (github-tools.service.ts:132-135,141-153).<\/li>
+          <li><b>4. Montar URL e corpo:<\/b> POST <i>\/gists<\/i> com <i>{files, description?, public?}<\/i> (gists.ts:56-62).<\/li>
+          <li><b>5. Chamar e responder:<\/b> headers vnd.github+json e prazo 15 s (github-tools.service.ts:219-224,234-249); JSON via <i>jsonContent<\/i> (shared.ts:48).<\/li>
+          <li><b>6. Falha prevista:<\/b> HTTP não-ok vira <i>GITHUB_API_ERROR<\/i> (github-tools.service.ts:259-262).<\/li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>github_list_gists<\/b> (gists.ts:7-26) — confirma o gist criado.<\/li>
+          <li><b>github_get_gist<\/b> (gists.ts:28-38) — detalha o gist criado.<\/li>
+          <li><b>github_update_gist<\/b> (gists.ts:66-88) — altera arquivos do gist criado.<\/li>
+          <li><b>github_delete_gist<\/b> (gists.ts:90-100) — remove o gist criado.<\/li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Escrita:<\/b> <i>GH.create<\/i> exige <i>github:write<\/i> (shared.ts:22,96-102).<\/li>
+          <li><b>files é JSON textual:<\/b> formato <i>{nome:{content}}<\/i>; JSON inválido vira 422 antes do HTTP (gists.ts:49-51; shared.ts:79-86).<\/li>
+          <li><b>Secreto por padrão:<\/b> sem <i>public<\/i> o gist nasce secreto (gists.ts:48).<\/li>
+          <li><b>Sem idempotência:<\/b> repetir cria outro gist (gists.ts:54-63).<\/li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5769,6 +5810,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>files<\/b> — mapa JSON <i>{arquivo:{content}}<\/i> como string (gists.ts:49-51).<\/li>
+          <li><b>parseJsonField<\/b> — valida o JSON com erro 422 descritivo (shared.ts:79-86).<\/li>
+          <li><b>GH.create<\/b> — escrita com <i>github:write<\/i> (shared.ts:22).<\/li>
+          <li><b>public<\/b> — opcional; ausente significa gist secreto (gists.ts:48).<\/li>
         </ul>
       </div>
 

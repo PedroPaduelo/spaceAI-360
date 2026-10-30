@@ -5752,7 +5752,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
-      <div class="card" id="card-glossario">
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida <i>owner/repo/pull_number/event</i> e opcionais <i>body/comments</i> JSON (pulls.ts:218-227).</li>
+          <li>Resolve o McpServer “GitHub” com cache de 60 s (github-tools.service.ts:54-66).</li>
+          <li>Confere escopo: POST exige <i>github:write</i>; GH.create marca escrita (shared.ts:22; github-tools.service.ts:132-135).</li>
+          <li>Converte <i>comments</i> de string JSON via <i>parseJsonField</i> (pulls.ts:234; shared.ts:79-86).</li>
+          <li>Monta POST <i>/repos/{owner}/{repo}/pulls/{pull_number}/reviews</i> com {event, body, comments} (pulls.ts:230-242).</li>
+          <li>Envia JSON com timeout de 15 s (github-tools.service.ts:237-249).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>github_list_pull_request_reviews</i> (pulls.ts:188-211) para ver a review criada.</li>
+          <li><i>github_request_copilot_review</i> (pulls.ts:245-265) alternativa automática com bot fixo.</li>
+          <li><i>github_get_pull_request</i> (pulls.ts:34-49) para validar o alvo.</li>
+          <li><i>github_merge_pull_request</i> (pulls.ts:113-143) para fundir após APPROVE.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><i>event</i> só APPROVE/REQUEST_CHANGES/COMMENT; outro valor falha no zod (pulls.ts:223).</li>
+          <li><i>comments</i> precisa ser JSON válido ex. '[{“path”:“x”,“position”:1,“body”:“y”}]' (shared.ts:70-76; pulls.ts:224-226).</li>
+          <li>JSON inválido vira VALIDATION_ERROR antes do HTTP (shared.ts:79-86).</li>
+          <li>Sem <i>github:write</i> a tool some do catálogo (shared.ts:96-102).</li>
+        </ul>
+      </div>
+
+    <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
           <h3>Glossario</h3>
@@ -5770,7 +5811,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+                            <li><b>event</b> — ação: APPROVE, REQUEST_CHANGES ou COMMENT (pulls.ts:223).</li>
+                    <li><b>jsonString/parseJsonField</b> — <i>comments</i> como string JSON validada (shared.ts:70-86).</li>
+                    <li><b>inline comments</b> — itens {path, position, body} para comentar no código.</li>
+                    <li><b>GH.create</b> — criação com <i>github:write</i> (shared.ts:22).</li>
+</ul>
       </div>
 
 </div>

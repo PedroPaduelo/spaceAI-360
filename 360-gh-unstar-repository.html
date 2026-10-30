@@ -5728,7 +5728,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
-      <div class="card" id="card-glossario">
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida <i>owner/repo</i> obrigatórios (repos.ts:432-436).</li>
+          <li>Resolve o McpServer “GitHub” com cache de 60 s (github-tools.service.ts:54-66).</li>
+          <li>Confere escopo: DELETE exige <i>github:write</i>; GH.remove marca remoção (shared.ts:25; github-tools.service.ts:132-135).</li>
+          <li>Monta DELETE <i>/user/starred/{owner}/{repo}</i> sem corpo (repos.ts:438-439).</li>
+          <li>DELETE não envia <i>Content-Type</i> nem corpo mesmo com payload (github-tools.service.ts:237-241).</li>
+          <li>204 sem corpo vira {status, location, text} via ramo não-JSON (github-tools.service.ts:264-275).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>github_star_repository</i> (repos.ts:414-426) operação inversa.</li>
+          <li><i>github_list_starred</i> (repos.ts:391-412) para confirmar a saída da lista.</li>
+          <li><i>github_get_repository</i> (repos.ts:7-18) para validar o alvo.</li>
+          <li><i>github_search_repositories</i> (repos.ts:21-48) para redescobrir após remover.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Remover sem ter favoritado ainda retorna 204; é idempotente (repos.ts:428-440).</li>
+          <li>Sem <i>github:write</i> a tool é escondida e recusada (shared.ts:96-102).</li>
+          <li>DELETE nunca leva corpo nesta implementação (github-tools.service.ts:237-241).</li>
+          <li>Repo inexistente vira 404 GITHUB_API_ERROR (github-tools.service.ts:259-262).</li>
+        </ul>
+      </div>
+
+    <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
           <h3>Glossario</h3>
@@ -5746,7 +5787,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+                            <li><b>GH.remove</b> — remoção; exige <i>github:write</i> (shared.ts:25).</li>
+                    <li><b>DELETE sem corpo</b> — corpo é ignorado para DELETE (github-tools.service.ts:237-241).</li>
+                    <li><b>204 No Content</b> — sucesso sem JSON (github-tools.service.ts:264-275).</li>
+                    <li><b>/user/starred/{owner}/{repo}</b> — star e unstar usam o mesmo path, muda o método (repos.ts:425,439).</li>
+</ul>
       </div>
 
 </div>

@@ -5720,7 +5720,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
-      <div class="card" id="card-glossario">
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida <i>owner/repo/tag</i>; tag sem <i>refs/tags/</i> (repos.ts:182-187).</li>
+          <li>Resolve o McpServer “GitHub” com cache de 60 s (github-tools.service.ts:54-66).</li>
+          <li>Confere escopo: GET exige <i>read</i>; GH.read marca leitura (shared.ts:21; github-tools.service.ts:132-135).</li>
+          <li>Monta GET <i>/repos/{owner}/{repo}/git/refs/tags/{tag}</i> (repos.ts:189-192).</li>
+          <li>Higieniza segmentos e chama <i>fetch</i> com timeout de 15 s (github-tools.service.ts:117-130,233-249).</li>
+          <li>Devolve o objeto ref, não a tag anotada (repos.ts:182; shared.ts:39-54).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>github_list_tags</i> (repos.ts:157-176) para descobrir o nome exato da tag.</li>
+          <li><i>github_get_commit</i> (repos.ts:81-96) para ler o objeto apontado por <i>object.sha</i> da ref.</li>
+          <li><i>github_get_release</i> (repos.ts:216-231) quando a tag tem release associada.</li>
+          <li><i>github_list_branches</i> (repos.ts:98-117) para contrastar ref fixa da tag com branch móvel.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Retorna só <i>ref</i> e <i>object.sha</i>; mensagem da tag anotada não vem aqui (repos.ts:182).</li>
+          <li>Tag inexistente vira 404 GITHUB_API_ERROR (github-tools.service.ts:259-262).</li>
+          <li>Tag com “/” é codificada por segmento; “..” é recusada (github-tools.service.ts:117-130).</li>
+          <li>Sem <i>read</i> a tool é escondida e recusada (shared.ts:96-102).</li>
+        </ul>
+      </div>
+
+    <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
           <h3>Glossario</h3>
@@ -5738,7 +5779,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+                            <li><b>git/refs/tags/</b> — namespace de refs de tag na API git (repos.ts:191).</li>
+                    <li><b>objeto ref</b> — envelope com <i>ref</i> e <i>object.sha</i>, sem mensagem da anotação (repos.ts:182).</li>
+                    <li><b>tag anotada vs leve</b> — anotada tem objeto próprio; esta tool mostra só a ref.</li>
+                    <li><b>safeGitHubApiPath</b> — barra invertida, “?” e controle invalidam o segmento (github-tools.service.ts:117-130).</li>
+</ul>
       </div>
 
 </div>

@@ -5692,6 +5692,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Validar entrada:<\/b> só <i>per_page<\/i> e <i>page<\/i> opcionais (users.ts:140-143).<\/li>
+          <li><b>2. Resolver MCP:<\/b> <i>gh<\/i> resolve o McpServer “GitHub” (shared.ts:39-48) com cache de 60 s (github-tools.service.ts:54-66).<\/li>
+          <li><b>3. Checar escopo:<\/b> GET exige <i>read<\/i> (github-tools.service.ts:132-135,141-153).<\/li>
+          <li><b>4. Montar URL:<\/b> GET <i>\/user\/following<\/i> do autenticado (users.ts:145-150); query omite <i>undefined<\/i> (github-tools.service.ts:280-287).<\/li>
+          <li><b>5. Chamar e responder:<\/b> headers vnd.github+json e prazo 15 s (github-tools.service.ts:219-224,234-249); JSON via <i>jsonContent<\/i> (shared.ts:48).<\/li>
+          <li><b>6. Falha prevista:<\/b> HTTP não-ok vira <i>GITHUB_API_ERROR<\/i> (github-tools.service.ts:259-262).<\/li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>github_list_followers<\/b> (users.ts:116-133) — par simétrico: quem segue o autenticado.<\/li>
+          <li><b>github_get_user<\/b> (users.ts:17-27) — detalha cada perfil seguido.<\/li>
+          <li><b>github_get_user_orgs<\/b> (users.ts:29-47) — orgs de cada perfil seguido.<\/li>
+          <li><b>github_search_users<\/b> (users.ts:81-96) — acha novos perfis para seguir.<\/li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Do autenticado:<\/b> lista quem o dono do token segue, sem login no path (users.ts:139,148).<\/li>
+          <li><b>Paginação:<\/b> <i>per_page<\/i> até 100; sem parâmetros usa padrão da API (users.ts:142-143).<\/li>
+          <li><b>Sem token:<\/b> 409 <i>GITHUB_NOT_CONFIGURED<\/i> (github-tools.service.ts:185-193).<\/li>
+          <li><b>Não-JSON:<\/b> resposta sem JSON vira <i>{status, location, text}<\/i> (github-tools.service.ts:268-275).<\/li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5710,6 +5751,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>\/user\/following<\/b> — quem o autenticado segue (users.ts:148).<\/li>
+          <li><b>GH.read<\/b> — leitura com escopo <i>read<\/i> (shared.ts:20-21).<\/li>
+          <li><b>authorizeTokenUse<\/b> — recusa fora de <i>tools\/call<\/i> e sem escopo (github-tools.service.ts:141-153).<\/li>
+          <li><b>Auditoria<\/b> — cada uso do token é logado sem query nem corpo (github-tools.service.ts:229-231).<\/li>
         </ul>
       </div>
 

@@ -5750,6 +5750,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Validar entrada:<\/b> <i>owner<\/i>, <i>repo<\/i> e <i>discussion_number<\/i> (number) obrigatórios (discussions.ts:33-37).<\/li>
+          <li><b>2. Resolver MCP:<\/b> <i>gh<\/i> resolve o McpServer “GitHub” (shared.ts:39-48) com cache de 60 s (github-tools.service.ts:54-66).<\/li>
+          <li><b>3. Checar escopo:<\/b> GET exige <i>read<\/i> antes de decifrar (github-tools.service.ts:132-135,141-153).<\/li>
+          <li><b>4. Montar URL:<\/b> GET <i>\/repos\/{owner}\/{repo}\/discussions\/{n}<\/i> (discussions.ts:39-46) com <i>safeGitHubApiPath<\/i> (github-tools.service.ts:117-130).<\/li>
+          <li><b>5. Chamar e responder:<\/b> headers vnd.github+json e prazo 15 s (github-tools.service.ts:219-224,234-249); JSON via <i>jsonContent<\/i> (shared.ts:48).<\/li>
+          <li><b>6. Falha prevista:<\/b> número inexistente vira <i>GITHUB_API_ERROR<\/i> (github-tools.service.ts:259-262).<\/li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>github_list_discussions<\/b> (discussions.ts:7-26) — lista para descobrir o <i>discussion_number<\/i>.<\/li>
+          <li><b>github_get_discussion_comments<\/b> (discussions.ts:65-88) — comentários da mesma discussion.<\/li>
+          <li><b>github_add_discussion_comment<\/b> (discussions.ts:113-134) — comenta na mesma discussion.<\/li>
+          <li><b>github_list_discussion_categories<\/b> (discussions.ts:49-63) — categorias do repo.<\/li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Sem paginação:<\/b> busca uma discussion pelo número, sem <i>per_page\/page<\/i> (discussions.ts:33-37).<\/li>
+          <li><b>Número errado:<\/b> 404 vira <i>GITHUB_API_ERROR<\/i> com trecho de 500 caracteres (github-tools.service.ts:259-262).<\/li>
+          <li><b>Tipo:<\/b> <i>discussion_number<\/i> é number; string vira erro zod antes do HTTP (discussions.ts:36).<\/li>
+          <li><b>Escopo:<\/b> GET pede só <i>read<\/i> (github-tools.service.ts:132-135).<\/li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5768,6 +5809,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>discussion_number<\/b> — número da discussion no repo (discussions.ts:36,44).<\/li>
+          <li><b>GH.read<\/b> — leitura com escopo <i>read<\/i> (shared.ts:20-21).<\/li>
+          <li><b>safeGitHubApiPath<\/b> — valida segmentos contra traversal (github-tools.service.ts:117-130).<\/li>
+          <li><b>errorContent<\/b> — envelope de falha prevista com <i>code<\/i> (shared.ts:49-54).<\/li>
         </ul>
       </div>
 

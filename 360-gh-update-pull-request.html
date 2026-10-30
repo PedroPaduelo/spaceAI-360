@@ -5793,7 +5793,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
-      <div class="card" id="card-glossario">
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida <i>owner/repo/pull_number</i> e opcionais <i>title/body/state/base</i> (pulls.ts:83-91).</li>
+          <li>Resolve o McpServer “GitHub” com cache de 60 s (github-tools.service.ts:54-66).</li>
+          <li>Confere escopo: PATCH exige <i>github:write</i>; GH.update marca atualização (shared.ts:24; github-tools.service.ts:132-135).</li>
+          <li>Monta payload só com definidos (pulls.ts:94-103).</li>
+          <li>Monta PATCH <i>/repos/{owner}/{repo}/pulls/{pull_number}</i> (pulls.ts:104-110).</li>
+          <li>Envia JSON com timeout de 15 s (github-tools.service.ts:237-249).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>github_get_pull_request</i> (pulls.ts:34-49) para ler antes e depois.</li>
+          <li><i>github_create_pull_request</i> (pulls.ts:51-76) para o fluxo de abertura.</li>
+          <li><i>github_merge_pull_request</i> (pulls.ts:113-143) para fundir após ajustar.</li>
+          <li><i>github_create_pull_request_review</i> (pulls.ts:213-243) para revisar em vez de editar.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><i>state</i> só open/closed; fechar aqui não é merge (pulls.ts:89).</li>
+          <li>Payload parcial: omitido preserva, sem limpeza por string vazia como em issues (pulls.ts:100-103).</li>
+          <li>PR já fundido pode recusar troca de <i>base</i> com 422 (github-tools.service.ts:259-262).</li>
+          <li>Sem <i>github:write</i> a tool é recusada (shared.ts:96-102).</li>
+        </ul>
+      </div>
+
+    <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
           <h3>Glossario</h3>
@@ -5811,7 +5852,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+                            <li><b>PATCH parcial do PR</b> — só definidos entram no corpo (pulls.ts:100-103).</li>
+                    <li><b>state open/closed</b> — fechar não funde; merge é outra tool (pulls.ts:89,113-143).</li>
+                    <li><b>GH.update</b> — atualização com <i>github:write</i> (shared.ts:24).</li>
+                    <li><b>base</b> — nova branch alvo do PR (pulls.ts:90).</li>
+</ul>
       </div>
 
 </div>

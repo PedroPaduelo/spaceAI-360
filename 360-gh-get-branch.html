@@ -5692,7 +5692,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
-      <div class="card" id="card-glossario">
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida <i>owner/repo/branch</i> como strings; branch sem <i>refs/heads/</i> (repos.ts:124-128).</li>
+          <li>Resolve o McpServer “GitHub” com cache de 60 s (github-tools.service.ts:54-66).</li>
+          <li>Confere escopo: GET exige <i>read</i>; GH.read marca leitura (shared.ts:21; github-tools.service.ts:132-135).</li>
+          <li>Monta GET <i>/repos/{owner}/{repo}/branches/{branch}</i> (repos.ts:130-133).</li>
+          <li>Higieniza cada segmento e chama <i>fetch</i> com timeout de 15 s (github-tools.service.ts:117-130,233-249).</li>
+          <li>Devolve JSON da branch via <i>jsonContent</i> ou <i>errorContent</i> (shared.ts:39-54).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>github_list_branches</i> (repos.ts:98-117) para listar antes de buscar o nome exato.</li>
+          <li><i>github_create_branch</i> (repos.ts:136-155) para criar a branch quando o GET dá 404.</li>
+          <li><i>github_get_commit</i> (repos.ts:81-96) para ler o SHA apontado pela branch.</li>
+          <li><i>github_list_pull_requests</i> (pulls.ts:7-32) com <i>head/base</i> para PRs da branch.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Sem paginação: um objeto por chamada; branch inexistente vira 404 GITHUB_API_ERROR (github-tools.service.ts:259-262).</li>
+          <li>Nome com barra ou acento é codificado por segmento; “.” e “..” são recusados (github-tools.service.ts:117-130).</li>
+          <li>Sem escopo <i>read</i> a tool é escondida e recusada (shared.ts:96-102).</li>
+          <li>Resposta não-JSON vira {status, location, text} (github-tools.service.ts:264-275).</li>
+        </ul>
+      </div>
+
+    <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
           <h3>Glossario</h3>
@@ -5710,7 +5751,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+                            <li><b>refs/heads/</b> — prefixo git que a tool já adiciona; o input traz só o nome (repos.ts:127,151).</li>
+                    <li><b>branch</b> — ref móvel que aponta para um SHA (repos.ts:119-134).</li>
+                    <li><b>scopeForMethod</b> — GET mapeia para <i>read</i>; demais métodos para <i>github:write</i> (github-tools.service.ts:132-135).</li>
+                    <li><b>authorizeTokenUse</b> — exige <i>tools/call</i> e escopo antes de decifrar o token (github-tools.service.ts:141-153).</li>
+</ul>
       </div>
 
 </div>

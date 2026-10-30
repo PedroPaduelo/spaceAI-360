@@ -5758,7 +5758,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
-      <div class="card" id="card-glossario">
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida <i>query</i> obrigatória como string (issues.ts:198-200).</li>
+          <li>Resolve o McpServer “GitHub” com cache de 60 s (github-tools.service.ts:54-66).</li>
+          <li>Confere escopo: GET exige <i>read</i>; GH.read marca leitura (shared.ts:21; github-tools.service.ts:132-135).</li>
+          <li>Monta GET <i>/search/issues</i> com <i>q=query</i> (issues.ts:202-207).</li>
+          <li>Sem paginação nesta tool; só <i>q</i> vai na query (issues.ts:199,204-206).</li>
+          <li>Busca com timeout de 15 s; JSON via <i>jsonContent</i> (github-tools.service.ts:233-249).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>github_list_issues</i> (issues.ts:7-36) para listar dentro de um repo após achar o alvo.</li>
+          <li><i>github_get_issue</i> (issues.ts:38-53) para detalhar um item do resultado.</li>
+          <li><i>github_search_repositories</i> (repos.ts:21-48) busca irmã para repositórios.</li>
+          <li><i>github_search_code</i> (repos.ts:467-483) para buscar no código em vez de issues.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Sintaxe “is:issue label:bug repo:owner/name”; <i>q</i> inválida dá 422 (issues.ts:196-197).</li>
+          <li>Retorna <i>total_count/items</i>; sem <i>per_page/page</i> só vem a primeira página (issues.ts:192-208).</li>
+          <li><i>Rate limit</i> de search é mais baixo na API pública.</li>
+          <li>Busca global exige token com <i>read</i> (shared.ts:96-102).</li>
+        </ul>
+      </div>
+
+    <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
           <h3>Glossario</h3>
@@ -5776,7 +5817,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+                            <li><b>q issues</b> — ex. <i>is:issue label:bug repo:owner/name</i> (issues.ts:196-197).</li>
+                    <li><b>is:issue / is:pr</b> — qualificadores para separar issues de PRs.</li>
+                    <li><b>total_count/items</b> — envelope da busca global.</li>
+                    <li><b>/search/issues</b> — endpoint único com só <i>q</i> nesta tool (issues.ts:204).</li>
+</ul>
       </div>
 
 </div>

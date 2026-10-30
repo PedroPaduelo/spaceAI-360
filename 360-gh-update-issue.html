@@ -5752,7 +5752,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
-      <div class="card" id="card-glossario">
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida <i>owner/repo/issue_number</i> e opcionais <i>title/body/state/labels/assignees</i> (issues.ts:88-97).</li>
+          <li>Resolve o McpServer “GitHub” com cache de 60 s (github-tools.service.ts:54-66).</li>
+          <li>Confere escopo: PATCH exige <i>github:write</i>; GH.update marca atualização (shared.ts:24; github-tools.service.ts:132-135).</li>
+          <li>Monta payload só com campos definidos; <i>labels/assignees</i> via <i>csv()</i> (issues.ts:100-111; shared.ts:60-66).</li>
+          <li>Monta PATCH <i>/repos/{owner}/{repo}/issues/{issue_number}</i> (issues.ts:112-117).</li>
+          <li>Envia JSON com timeout de 15 s (github-tools.service.ts:237-249).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>github_get_issue</i> (issues.ts:38-53) para ler antes e depois de atualizar.</li>
+          <li><i>github_create_issue</i> (issues.ts:55-81) para o fluxo inverso de abertura.</li>
+          <li><i>github_assign_issue</i> (issues.ts:210-231) quando o foco é só trocar responsáveis.</li>
+          <li><i>github_lock_issue</i> (issues.ts:278-302) para travar em vez de fechar.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>String vazia em <i>labels/assignees</i> limpa a lista (vira []), diferente de omitir (shared.ts:57-66).</li>
+          <li><i>state</i> só aceita open/closed (issues.ts:94).</li>
+          <li>Payload parcial: só definidos entram no corpo (issues.ts:107-111).</li>
+          <li>Sem <i>github:write</i> a tool é recusada (shared.ts:96-102).</li>
+        </ul>
+      </div>
+
+    <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
           <h3>Glossario</h3>
@@ -5770,7 +5811,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+                            <li><b>PATCH parcial</b> — só campos definidos entram no payload (issues.ts:107-111).</li>
+                    <li><b>limpar com string vazia</b> — “” vira [] e apaga labels/assignees; omitir preserva (shared.ts:57-66).</li>
+                    <li><b>GH.update</b> — preset de atualização; exige <i>github:write</i> (shared.ts:24).</li>
+                    <li><b>state open/closed</b> — estados permitidos no update (issues.ts:94).</li>
+</ul>
       </div>
 
 </div>

@@ -5750,6 +5750,44 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <code>github_list_workflows</code> com <code>owner/repo</code> e <code>per_page/page</code> opcionais (repos.ts:252-257).</li>
+          <li>Wrapper <code>gh</code> resolve o McpServer “GitHub” (shared.ts:39-48); <code>GH.read</code> marca leitura (repos.ts:258).</li>
+          <li>Escopo <code>read</code> duplo: catálogo (shared.ts:96-101) e GET em <code>callGitHubApi</code> (github-tools.service.ts:132-153).</li>
+          <li>Serviço faz <code>GET /repos/{owner}/{repo}/actions/workflows</code> com paginação; <code>undefined</code> omitido (repos.ts:260-268; github-tools.service.ts:213-216).</li>
+          <li>Lista de workflows volta via <code>jsonContent</code> (shared.ts:48).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>360-gh-get-workflow.html</b> — detalha um workflow listado aqui por ID ou <code>ci.yml</code> (repos.ts:283-289).</li>
+          <li><b>360-gh-list-workflow-runs.html</b> — runs do workflow escolhido (repos.ts:312-324).</li>
+          <li><b>360-gh-list-workflow-jobs.html</b> — jobs de um run, dois níveis abaixo (repos.ts:359-366).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Lista definições (<code>.yml</code>), não execuções — para runs use a tool de runs (repos.ts:251,296).</li>
+          <li><code>per_page</code> até 100 sem padrão; repositórios com muitos workflows exigem <code>page</code> (repos.ts:255-256).</li>
+          <li>Repo sem Actions retorna lista vazia, não erro; erro real vira <code>GITHUB_API_ERROR</code> com 500 chars (github-tools.service.ts:259-262).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5768,6 +5806,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Actions workflow</b> — definição em <code>GET /repos/{o}/{r}/actions/workflows</code> (repos.ts:251,264).</li>
+          <li><b>Definição vs run</b> — lista workflows, não execuções (runs ficam em <code>/workflows/{id}/runs</code>) (repos.ts:251,296).</li>
+          <li><b>Paginação</b> — <code>per_page</code> até 100 e <code>page</code>; <code>undefined</code> omitido (repos.ts:255-256; github-tools.service.ts:213-216).</li>
+          <li><b>read</b> — GET exige só leitura, validado duas vezes (github-tools.service.ts:132-153).</li>
         </ul>
       </div>
 

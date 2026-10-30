@@ -5749,6 +5749,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Validar entrada:<\/b> <i>gist_id<\/i> como string zod (gists.ts:33-34).<\/li>
+          <li><b>2. Resolver MCP:<\/b> <i>gh<\/i> resolve o McpServer “GitHub” (shared.ts:39-48) com cache de 60 s (github-tools.service.ts:54-66).<\/li>
+          <li><b>3. Checar escopo:<\/b> GET exige <i>read<\/i> (github-tools.service.ts:132-135,141-153).<\/li>
+          <li><b>4. Montar URL:<\/b> GET <i>\/gists\/{gist_id}<\/i> (gists.ts:37) com <i>safeGitHubApiPath<\/i> (github-tools.service.ts:117-130).<\/li>
+          <li><b>5. Chamar e responder:<\/b> headers vnd.github+json e prazo 15 s (github-tools.service.ts:219-224,234-249); JSON via <i>jsonContent<\/i> (shared.ts:48).<\/li>
+          <li><b>6. Falha prevista:<\/b> id inexistente vira <i>GITHUB_API_ERROR<\/i> (github-tools.service.ts:259-262).<\/li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>github_list_gists<\/b> (gists.ts:7-26) — descobre o <i>gist_id<\/i> para detalhar.<\/li>
+          <li><b>github_update_gist<\/b> (gists.ts:66-88) — altera o gist detalhado aqui.<\/li>
+          <li><b>github_delete_gist<\/b> (gists.ts:90-100) — remove o gist detalhado aqui.<\/li>
+          <li><b>github_create_gist<\/b> (gists.ts:40-64) — cria novo gist com arquivos JSON.<\/li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Sem paginação:<\/b> detalha um gist, sem <i>per_page\/page<\/i> (gists.ts:33-34).<\/li>
+          <li><b>Privado sem acesso:<\/b> 404 vira <i>GITHUB_API_ERROR<\/i> com 500 caracteres (github-tools.service.ts:259-262).<\/li>
+          <li><b>id opaco:<\/b> <i>gist_id<\/i> é hash; valor errado não é erro zod, só 404 da API (gists.ts:34).<\/li>
+          <li><b>Traversal:<\/b> id com <i>..\/<\/i> ou <i>?\/\#<\/i> é rejeitado (github-tools.service.ts:117-130).<\/li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5767,6 +5808,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>gist_id<\/b> — identificador opaco do gist (gists.ts:34,37).<\/li>
+          <li><b>GH.read<\/b> — leitura com escopo <i>read<\/i> (shared.ts:20-21).<\/li>
+          <li><b>safeGitHubApiPath<\/b> — valida o id no path (github-tools.service.ts:117-130).<\/li>
+          <li><b>jsonContent<\/b> — envelope de sucesso (shared.ts:48).<\/li>
         </ul>
       </div>
 

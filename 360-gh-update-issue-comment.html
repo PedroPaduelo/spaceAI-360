@@ -5793,7 +5793,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
-      <div class="card" id="card-glossario">
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida <i>owner/repo/comment_id/body</i>; <i>comment_id</i> numérico (issues.ts:149-154).</li>
+          <li>Resolve o McpServer “GitHub” com cache de 60 s (github-tools.service.ts:54-66).</li>
+          <li>Confere escopo: PATCH exige <i>github:write</i>; GH.update marca atualização (shared.ts:24; github-tools.service.ts:132-135).</li>
+          <li>Monta PATCH <i>/repos/{owner}/{repo}/issues/comments/{comment_id}</i> com {body} (issues.ts:156-164).</li>
+          <li>Usa <i>comment_id</i> no path, não <i>issue_number</i> (issues.ts:161).</li>
+          <li>Envia JSON com timeout de 15 s (github-tools.service.ts:237-249).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>github_list_issue_comments</i> (issues.ts:167-190) para achar o <i>comment_id</i>.</li>
+          <li><i>github_add_issue_comment</i> (issues.ts:121-142) para o fluxo de criação.</li>
+          <li><i>github_get_issue</i> (issues.ts:38-53) para contexto da issue dona.</li>
+          <li><i>github_update_issue</i> (issues.ts:83-119) quando o alvo é a issue, não o comentário.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Confunda <i>comment_id</i> com <i>issue_number</i> e o PATCH dá 404 (issues.ts:152,161).</li>
+          <li>Só o autor ou com permissão edita; sem direito vira 403 GITHUB_API_ERROR (github-tools.service.ts:259-262).</li>
+          <li>Sem <i>github:write</i> a tool é recusada (shared.ts:96-102).</li>
+          <li>Corpo substitui integralmente; envie o texto final (issues.ts:162).</li>
+        </ul>
+      </div>
+
+    <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
           <h3>Glossario</h3>
@@ -5811,7 +5852,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+                            <li><b>comment_id</b> — ID numérico do comentário no path, não o número da issue (issues.ts:152,161).</li>
+                    <li><b>GH.update</b> — atualização com <i>github:write</i> (shared.ts:24).</li>
+                    <li><b>/issues/comments/{id}</b> — path por ID global do comentário (issues.ts:161).</li>
+                    <li><b>body substituto</b> — novo texto integral do comentário (issues.ts:153).</li>
+</ul>
       </div>
 
 </div>

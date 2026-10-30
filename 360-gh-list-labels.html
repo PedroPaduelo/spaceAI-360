@@ -5692,6 +5692,44 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <code>github_list_labels</code> com <code>owner/repo</code> e <code>per_page/page</code> opcionais (labels.ts:12-17).</li>
+          <li>Wrapper <code>gh</code> resolve o McpServer “GitHub” (shared.ts:39-48); <code>GH.read</code> marca leitura (labels.ts:18).</li>
+          <li>Escopo <code>read</code> duplo: catálogo (shared.ts:96-101) e GET em <code>callGitHubApi</code> (github-tools.service.ts:132-153).</li>
+          <li>Serviço faz <code>GET /repos/{owner}/{repo}/labels</code> com paginação; <code>undefined</code> omitido (labels.ts:20-25; github-tools.service.ts:213-216).</li>
+          <li>Lista de labels volta via <code>jsonContent</code> (shared.ts:48).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>360-gh-add-labels.html</b> — escrita: aplica essas labels numa issue via POST (issues.ts:247-253).</li>
+          <li><b>360-gh-remove-label.html</b> — escrita: remove uma label da issue via DELETE (issues.ts:268-275).</li>
+          <li><b>360-gh-list-milestones.html</b> — outra taxonomia do repo, com filtro <code>state</code> (labels.ts:36-47).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Lista o catálogo de labels do repo, não as labels de uma issue — para isso use a issue ou o POST de labels (labels.ts:11; issues.ts:237).</li>
+          <li><code>per_page</code> até 100 sem padrão; repositórios com muitas labels exigem loop de <code>page</code> (labels.ts:15-16).</li>
+          <li>Repo inexistente ou sem acesso vira <code>GITHUB_API_ERROR</code> com corpo cortado em 500 chars (github-tools.service.ts:259-262).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5710,6 +5748,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Label</b> — etiqueta do repo em <code>GET /repos/{o}/{r}/labels</code> (labels.ts:11,21).</li>
+          <li><b>Catálogo</b> — lista config do repo, não labels de uma issue (labels.ts:11; issues.ts:237).</li>
+          <li><b>Paginação</b> — <code>per_page</code> até 100 e <code>page</code>; <code>undefined</code> omitido (labels.ts:15-16; github-tools.service.ts:213-216).</li>
+          <li><b>Traversal</b> — <code>owner/repo</code> validados e codificados por segmento (github-tools.service.ts:117-130).</li>
         </ul>
       </div>
 

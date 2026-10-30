@@ -5750,7 +5750,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
-      <div class="card" id="card-glossario">
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida <i>owner/repo/pull_number</i> e <i>per_page/page</i> opcionais (pulls.ts:193-199).</li>
+          <li>Resolve o McpServer “GitHub” com cache de 60 s (github-tools.service.ts:54-66).</li>
+          <li>Confere escopo: GET exige <i>read</i>; GH.read marca leitura (shared.ts:21; github-tools.service.ts:132-135).</li>
+          <li>Monta GET <i>/repos/{owner}/{repo}/pulls/{pull_number}/reviews</i> (pulls.ts:201-210).</li>
+          <li>Query de paginação omitindo <i>undefined</i> (github-tools.service.ts:213-216,280-287).</li>
+          <li>Lista paginada com timeout de 15 s (github-tools.service.ts:233-249).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>github_create_pull_request_review</i> (pulls.ts:213-243) para submeter nova review.</li>
+          <li><i>github_request_copilot_review</i> (pulls.ts:245-265) para pedir review do Copilot.</li>
+          <li><i>github_get_pull_request</i> (pulls.ts:34-49) para estado do PR.</li>
+          <li><i>github_list_pull_request_files</i> (pulls.ts:145-168) para arquivos alvos dos comentários.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><i>per_page</i> até 100; PR com muitas reviews exige paginar (pulls.ts:197-198).</li>
+          <li>Lista inclui APPROVED, CHANGES_REQUESTED e COMMENTED; filtre por <i>state</i> na resposta.</li>
+          <li>PR inexistente vira 404 GITHUB_API_ERROR (github-tools.service.ts:259-262).</li>
+          <li>Reviews pendentes podem não aparecer até submissão.</li>
+        </ul>
+      </div>
+
+    <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
           <h3>Glossario</h3>
@@ -5768,7 +5809,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+                            <li><b>review state</b> — APPROVED, CHANGES_REQUESTED, COMMENTED, DISMISSED.</li>
+                    <li><b>per_page/page</b> — paginação das reviews (pulls.ts:197-198).</li>
+                    <li><b>/reviews</b> — sub-recurso de revisões do PR (pulls.ts:206).</li>
+                    <li><b>GH.read</b> — leitura com <i>read</i> (shared.ts:21).</li>
+</ul>
       </div>
 
 </div>

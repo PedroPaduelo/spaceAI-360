@@ -5701,7 +5701,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
-      <div class="card" id="card-glossario">
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida <i>owner/repo/issue_number</i> e <i>per_page/page</i> opcionais (issues.ts:171-178).</li>
+          <li>Resolve o McpServer “GitHub” com cache de 60 s (github-tools.service.ts:54-66).</li>
+          <li>Confere escopo: GET exige <i>read</i>; GH.read marca leitura (shared.ts:21; github-tools.service.ts:132-135).</li>
+          <li>Monta GET <i>/repos/{owner}/{repo}/issues/{issue_number}/comments</i> (issues.ts:180-189).</li>
+          <li>Query com <i>per_page/page</i> omitindo <i>undefined</i> (github-tools.service.ts:213-216,280-287).</li>
+          <li>Lista paginada com timeout de 15 s; JSON via <i>jsonContent</i> (github-tools.service.ts:233-249).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>github_add_issue_comment</i> (issues.ts:121-142) para adicionar à lista.</li>
+          <li><i>github_update_issue_comment</i> (issues.ts:144-165) para editar por <i>comment_id</i>.</li>
+          <li><i>github_get_issue</i> (issues.ts:38-53) para contexto da issue dona dos comentários.</li>
+          <li><i>github_list_pull_request_reviews</i> (pulls.ts:188-211) para reviews quando o número é PR.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Vale para issues e PRs; o path usa <i>issue_number</i> mesmo para PR (issues.ts:175,185).</li>
+          <li><i>per_page</i> até 100; sem paginar pode truncar conversa longa (issues.ts:176-177).</li>
+          <li>Issue inexistente vira 404 GITHUB_API_ERROR (github-tools.service.ts:259-262).</li>
+          <li>Lista vazia quando ainda não há comentários, não erro.</li>
+        </ul>
+      </div>
+
+    <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
           <h3>Glossario</h3>
@@ -5719,7 +5760,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+                            <li><b>issue_number como PR</b> — comentários de PR usam o mesmo endpoint de issue (issues.ts:171-190).</li>
+                    <li><b>comment_id</b> — ID numérico do comentário, usado no update (issues.ts:152).</li>
+                    <li><b>per_page/page</b> — paginação da conversa (issues.ts:176-177).</li>
+                    <li><b>GH.read</b> — leitura com escopo <i>read</i> (shared.ts:21).</li>
+</ul>
       </div>
 
 </div>

@@ -5751,7 +5751,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
-      <div class="card" id="card-glossario">
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida <i>owner/repo/title/head/base</i> obrigatórios e <i>body/draft</i> opcionais (pulls.ts:56-64).</li>
+          <li>Resolve o McpServer “GitHub” com cache de 60 s (github-tools.service.ts:54-66).</li>
+          <li>Confere escopo: POST exige <i>github:write</i>; GH.create marca escrita (shared.ts:22; github-tools.service.ts:132-135).</li>
+          <li>Monta POST <i>/repos/{owner}/{repo}/pulls</i> com {title, head, base, body, draft} (pulls.ts:66-75).</li>
+          <li>Envia JSON com timeout de 15 s (github-tools.service.ts:237-249).</li>
+          <li>Devolve JSON do PR aberto via <i>jsonContent</i> (shared.ts:39-54).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>github_create_branch</i> (repos.ts:136-155) para preparar o <i>head</i> antes.</li>
+          <li><i>github_update_pull_request</i> (pulls.ts:78-111) para ajustar título, corpo ou base depois.</li>
+          <li><i>github_list_pull_request_files</i> (pulls.ts:145-168) para conferir o escopo do PR criado.</li>
+          <li><i>github_request_copilot_review</i> (pulls.ts:245-265) para pedir revisão automática.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><i>head</i> inexistente ou igual a <i>base</i> sem diff vira 422 GITHUB_API_ERROR (pulls.ts:60-61; github-tools.service.ts:259-262).</li>
+          <li>Para fork use “user:branch” no <i>head</i> (pulls.ts:60).</li>
+          <li><i>draft</i> abre como rascunho (pulls.ts:63).</li>
+          <li>Sem <i>github:write</i> a tool some do catálogo (shared.ts:96-102).</li>
+        </ul>
+      </div>
+
+    <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
           <h3>Glossario</h3>
@@ -5769,7 +5810,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+                            <li><b>head/base</b> — branch de origem e de destino do PR (pulls.ts:60-61).</li>
+                    <li><b>draft</b> — rascunho; PR não pronto para merge (pulls.ts:63).</li>
+                    <li><b>GH.create</b> — criação com <i>github:write</i> (shared.ts:22).</li>
+                    <li><b>/pulls</b> — endpoint de abertura de PRs (pulls.ts:68).</li>
+</ul>
       </div>
 
 </div>

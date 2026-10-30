@@ -5750,7 +5750,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
-      <div class="card" id="card-glossario">
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida <i>owner/repo/title</i> obrigatórios e <i>body/labels/assignees</i> opcionais (issues.ts:60-70).</li>
+          <li>Resolve o McpServer “GitHub” com cache de 60 s (github-tools.service.ts:54-66).</li>
+          <li>Confere escopo: POST exige <i>github:write</i>; GH.create marca escrita (shared.ts:22; github-tools.service.ts:132-135).</li>
+          <li>Converte <i>labels/assignees</i> CSV em arrays via <i>csv()</i> (issues.ts:77-78; shared.ts:60-66).</li>
+          <li>Monta POST <i>/repos/{owner}/{repo}/issues</i> com {title, body, labels, assignees} (issues.ts:72-80).</li>
+          <li>Envia JSON com timeout de 15 s; resposta via <i>jsonContent</i> (github-tools.service.ts:237-249).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>github_update_issue</i> (issues.ts:83-119) para editar após criar.</li>
+          <li><i>github_get_issue</i> (issues.ts:38-53) para ler a issue criada.</li>
+          <li><i>github_add_issue_comment</i> (issues.ts:121-142) para comentar logo após criar.</li>
+          <li><i>github_assign_issue</i> (issues.ts:210-231) para trocar responsáveis depois.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><i>labels/assignees</i> são CSV “bug,urgent” e “alice,bob”; string vazia vira [] (shared.ts:60-66; issues.ts:65-69).</li>
+          <li>Sem <i>github:write</i> a tool some do catálogo (shared.ts:96-102).</li>
+          <li>Título vazio ou ausente falha no zod antes do HTTP (issues.ts:63).</li>
+          <li>Timeout de 15 s vira GITHUB_TIMEOUT (github-tools.service.ts:248-249).</li>
+        </ul>
+      </div>
+
+    <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
           <h3>Glossario</h3>
@@ -5768,7 +5809,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+                            <li><b>csv()</b> — converte “a,b” em array; string vazia vira [] e <i>undefined</i> vira <i>undefined</i> (shared.ts:60-66).</li>
+                    <li><b>labels/assignees</b> — rótulos e responsáveis em CSV no input, arrays no corpo (issues.ts:65-69,77-78).</li>
+                    <li><b>GH.create</b> — escrita de criação (shared.ts:22).</li>
+                    <li><b>title/body markdown</b> — título obrigatório; corpo aceita markdown (issues.ts:63-64).</li>
+</ul>
       </div>
 
 </div>

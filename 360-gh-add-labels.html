@@ -5751,6 +5751,44 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <code>github_add_labels</code> com <code>owner/repo/issue_number/labels</code> (CSV como “bug,urgent”) (issues.ts:238-243).</li>
+          <li>Wrapper <code>gh</code> resolve o McpServer “GitHub” (shared.ts:39-48); <code>GH.link</code> marca escrita (issues.ts:244; shared.ts:23).</li>
+          <li>Escopo <code>github:write</code> duplo: catálogo (shared.ts:96-102) e POST em <code>callGitHubApi</code> (github-tools.service.ts:132-153).</li>
+          <li>Serviço faz <code>POST /repos/{owner}/{repo}/issues/{issue_number}/labels</code> com corpo <code>{labels: csv(...) ?? []}</code>; CSV é quebrado por vírgula e aparado (issues.ts:247-253; shared.ts:60-66).</li>
+          <li>Labels somadas (sem substituir) voltam via <code>jsonContent</code> (issues.ts:237; shared.ts:48).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>360-gh-remove-label.html</b> — operação inversa via DELETE da mesma label (issues.ts:268-275).</li>
+          <li><b>360-gh-list-labels.html</b> — catálogo de labels disponíveis no repo (labels.ts:20-25).</li>
+          <li><b>360-gh-list-milestones.html</b> — outra forma de agrupar a mesma issue (labels.ts:42-48).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Soma sem substituir — para trocar o conjunto use update de issue, não este POST (issues.ts:237).</li>
+          <li>CSV vazio vira <code>[]</code> após <code>csv()</code>; string com espaços é aparada e vazios descartados (shared.ts:60-66).</li>
+          <li>Sem <code>github:write</code> a tool some do catálogo; fora de <code>tools/call</code> o token nem é usado (shared.ts:96-102; github-tools.service.ts:141-143).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5769,6 +5807,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>csv()</b> — quebra por vírgula, apara e descarta vazios; string vazia vira <code>[]</code> (shared.ts:60-66).</li>
+          <li><b>Soma, não substitui</b> — POST adiciona labels sem remover as existentes (issues.ts:237).</li>
+          <li><b>GH.link</b> — anotação de escrita para vincular recurso (shared.ts:23; issues.ts:244).</li>
+          <li><b>FORBIDDEN</b> — sem <code>github:write</code> a tool some da lista e o call é recusado (shared.ts:96-102).</li>
         </ul>
       </div>
 

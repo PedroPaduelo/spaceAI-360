@@ -5750,6 +5750,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Validar entrada:<\/b> tudo opcional: <i>all<\/i>, <i>participating<\/i>, <i>since<\/i>, <i>before<\/i>, <i>per_page<\/i> e <i>page<\/i> (notifications.ts:13-21).<\/li>
+          <li><b>2. Converter booleanos:<\/b> <i>all<\/i> e <i>participating<\/i> viram <i>“true”\/“false”<\/i> na query (notifications.ts:26-36).<\/li>
+          <li><b>3. Resolver MCP e escopo:<\/b> <i>gh<\/i> resolve o McpServer (shared.ts:39-48); GET exige <i>read<\/i> (github-tools.service.ts:132-135,141-153).<\/li>
+          <li><b>4. Montar URL:<\/b> GET <i>\/notifications<\/i> com query só dos definidos (notifications.ts:28-36; github-tools.service.ts:280-287).<\/li>
+          <li><b>5. Chamar e responder:<\/b> headers vnd.github+json e prazo 15 s (github-tools.service.ts:219-224,234-249); JSON via <i>jsonContent<\/i> (shared.ts:48).<\/li>
+          <li><b>6. Falha prevista:<\/b> HTTP não-ok vira <i>GITHUB_API_ERROR<\/i> (github-tools.service.ts:259-262).<\/li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>github_get_notification<\/b> (notifications.ts:41-52) — detalha uma thread listada pelo <i>thread_id<\/i>.<\/li>
+          <li><b>github_mark_notification_read<\/b> (notifications.ts:54-65) — marca como lida uma thread listada aqui.<\/li>
+          <li><b>github_mark_all_notifications_read<\/b> (notifications.ts:67-87) — zera a caixa com <i>last_read_at<\/i>.<\/li>
+          <li><b>github_list_gists<\/b> (gists.ts:7-26) — outro GET paginado do autenticado para comparar padrão.<\/li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Padrão não-lidas:<\/b> sem <i>all<\/i> só não-lidas retornam (notifications.ts:13).<\/li>
+          <li><b>Booleanos como texto:<\/b> <i>all\/participating<\/i> viajam como string na query por exigência da API (notifications.ts:26-36).<\/li>
+          <li><b>Janela temporal:<\/b> <i>since\/before<\/i> em ISO 8601 delimitam atualização (notifications.ts:18-19).<\/li>
+          <li><b>Paginação:<\/b> <i>per_page<\/i> até 100; <i>undefined<\/i> é omitido (github-tools.service.ts:280-287).<\/li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5768,6 +5809,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>all \/ participating<\/b> — filtros viram <i>“true”\/“false”<\/i> na query (notifications.ts:13-17,26-36).<\/li>
+          <li><b>since \/ before<\/b> — janela ISO 8601 de atualização (notifications.ts:18-19).<\/li>
+          <li><b>\/notifications<\/b> — caixa do autenticado (notifications.ts:29).<\/li>
+          <li><b>GH.read<\/b> — leitura com escopo <i>read<\/i> (shared.ts:20-21).<\/li>
         </ul>
       </div>
 

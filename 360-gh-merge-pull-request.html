@@ -5750,7 +5750,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
-      <div class="card" id="card-glossario">
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida <i>owner/repo/pull_number</i> e opcionais <i>commit_message/merge_method</i> (pulls.ts:118-127).</li>
+          <li>Resolve o McpServer “GitHub” com cache de 60 s (github-tools.service.ts:54-66).</li>
+          <li>Confere escopo: PUT exige <i>github:write</i>; GH.merge marca merge irreversível (shared.ts:27; github-tools.service.ts:132-135).</li>
+          <li>Monta payload só com definidos (pulls.ts:129-135).</li>
+          <li>Monta PUT <i>/repos/{owner}/{repo}/pulls/{pull_number}/merge</i> (pulls.ts:136-142).</li>
+          <li>Envia JSON com timeout de 15 s (github-tools.service.ts:237-249).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>github_get_pull_request</i> (pulls.ts:34-49) para checar <i>mergeable</i> antes.</li>
+          <li><i>github_list_pull_request_reviews</i> (pulls.ts:188-211) para ver aprovações exigidas.</li>
+          <li><i>github_list_pull_request_files</i> (pulls.ts:145-168) para auditar o que será fundido.</li>
+          <li><i>github_create_pull_request_review</i> (pulls.ts:213-243) para aprovar antes do merge.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Irreversível e não repetível: segunda chamada falha (shared.ts:27; pulls.ts:117).</li>
+          <li><i>merge_method</i> só merge/squash/rebase; padrão merge (pulls.ts:123-126).</li>
+          <li>Conflito ou <i>branch protection</i> vira 405/409 GITHUB_API_ERROR (github-tools.service.ts:259-262).</li>
+          <li>Sem <i>github:write</i> a tool some do catálogo (shared.ts:96-102).</li>
+        </ul>
+      </div>
+
+    <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
           <h3>Glossario</h3>
@@ -5768,7 +5809,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+                            <li><b>merge_method</b> — <i>merge/squash/rebase</i>; padrão <i>merge</i> (pulls.ts:123-126).</li>
+                    <li><b>GH.merge</b> — irreversível e não idempotente; repetir falha (shared.ts:27).</li>
+                    <li><b>/merge</b> — sub-recurso de fusão do PR (pulls.ts:139).</li>
+                    <li><b>commit_message</b> — texto extra do commit de merge (pulls.ts:122).</li>
+</ul>
       </div>
 
 </div>

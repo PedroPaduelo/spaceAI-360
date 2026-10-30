@@ -5793,6 +5793,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Validar entrada:</b> o agente informa <i>username</i> como string zod (users.ts:22-24).</li>
+          <li><b>2. Resolver MCP:</b> o wrapper <i>gh</i> obtém o id do McpServer “GitHub” (shared.ts:39-48) com cache de 60 s (github-tools.service.ts:54-66); sem registro vira <i>GITHUB_NOT_CONFIGURED</i> (shared.ts:42-47).</li>
+          <li><b>3. Checar escopo:</b> <i>callGitHubApi</i> exige <i>read</i> para GET antes de decifrar o token (github-tools.service.ts:132-135,141-153; shared.ts:96-102).</li>
+          <li><b>4. Montar URL:</b> GET <i>/users\/{username}</i> sobre <i>https:\/\/api.github.com</i> com <i>safeGitHubApiPath</i> por segmento (users.ts:26; github-tools.service.ts:37,117-130).</li>
+          <li><b>5. Chamar e responder:</b> fetch com <i>Accept vnd.github+json</i>, versão 2022-11-28 e prazo de 15 s (github-tools.service.ts:219-224,234-249); JSON volta via <i>jsonContent</i> (shared.ts:48).</li>
+          <li><b>6. Falha prevista:</b> HTTP não-ok vira <i>GITHUB_API_ERROR</i> com até 500 caracteres (github-tools.service.ts:259-262); <i>AppError</i> vira <i>errorContent</i> (shared.ts:49-54).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>github_search_users</b> (users.ts:81-96) — descobre o <i>login</i> antes de detalhar com GET <i>\/users\/{username}</i>.</li>
+          <li><b>github_get_user_orgs</b> (users.ts:29-47) — lista as orgs públicas do mesmo <i>username</i>.</li>
+          <li><b>github_list_followers \/ following</b> (users.ts:116-152) — mapeia a rede do usuário autenticado.</li>
+          <li><b>github_get_org</b> (users.ts:49-59) — detalha cada org citada no perfil.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Sem paginação:</b> retorna um único perfil, sem <i>per_page\/page</i> (users.ts:22-26).</li>
+          <li><b>Login inexistente:</b> 404 da API vira <i>GITHUB_API_ERROR</i> com trecho cortado em 500 caracteres (github-tools.service.ts:259-262).</li>
+          <li><b>Sem MCP\/token:</b> 409 <i>GITHUB_NOT_CONFIGURED</i> quando falta McpServer ou segredo legível (github-tools.service.ts:185-193; shared.ts:42-47).</li>
+          <li><b>Traversal bloqueado:</b> segmentos com <i>..\/..</i>, barra invertida ou <i>?\/\#<\/i> são rejeitados por <i>safeGitHubApiPath</i> (github-tools.service.ts:117-130).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5811,6 +5852,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>username \/ login</b> — identificador público do usuário; entra no path como <i>\/users\/{username}</i> (users.ts:22-26).</li>
+          <li><b>GH.read</b> — preset de anotação só-leitura; pede escopo <i>read</i> no catálogo (shared.ts:20-21,96-102).</li>
+          <li><b>safeGitHubApiPath</b> — valida e codifica cada segmento do path contra traversal (github-tools.service.ts:117-130).</li>
+          <li><b>jsonContent \/ errorContent</b> — envelope de sucesso e de falha prevista do wrapper <i>gh</i> (shared.ts:48,52).</li>
         </ul>
       </div>
 

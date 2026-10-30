@@ -5706,6 +5706,44 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <code>github_download_workflow_logs</code> com <code>owner/repo/run_id</code> (repos.ts:375-379).</li>
+          <li>Wrapper <code>gh</code> resolve o McpServer “GitHub” (shared.ts:39-48); <code>GH.read</code> mesmo sendo download (repos.ts:380).</li>
+          <li>Escopo <code>read</code> duplo: catálogo e GET em <code>callGitHubApi</code> (shared.ts:96-101; github-tools.service.ts:132-153).</li>
+          <li>Serviço faz <code>GET /repos/{owner}/{repo}/actions/runs/{run_id}/logs</code> sem query/body (repos.ts:382-388).</li>
+          <li>Resposta não-JSON (redirect/zip) volta como <code>{status, location, text}</code> — chamador deve seguir o redirect (repos.ts:373-374; github-tools.service.ts:264-275).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>360-gh-get-workflow-run.html</b> — metadados do run cujo log é baixado (repos.ts:339-341).</li>
+          <li><b>360-gh-list-workflow-jobs.html</b> — jobs do run para saber qual step falhou antes de baixar (repos.ts:359-366).</li>
+          <li><b>360-gh-list-workflow-runs.html</b> — encontra o <code>run_id</code> por <code>branch/status</code> (repos.ts:311-324).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Não devolve o zip direto, e sim <code>location</code> para seguir — sem seguir o redirect não há log (repos.ts:373-374; github-tools.service.ts:270-275).</li>
+          <li>Logs expiram na API; run antigo retorna 410/404 como <code>GITHUB_API_ERROR</code> (github-tools.service.ts:259-262).</li>
+          <li>Apesar de GET, o token precisa de acesso a Actions; sem permissão o erro vem como API, não como escopo (github-tools.service.ts:132-153,259-262).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5724,6 +5762,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Redirect Location</b> — download devolve <code>location</code> para seguir, não o zip direto (repos.ts:373-374; github-tools.service.ts:270-275).</li>
+          <li><b>Zip de logs</b> — <code>GET .../runs/{id}/logs</code> retorna arquivo para o chamador (repos.ts:386).</li>
+          <li><b>Expiração</b> — log antigo some na API e vira 404/410 como <code>GITHUB_API_ERROR</code> (github-tools.service.ts:259-262).</li>
+          <li><b>status/location/text</b> — forma da resposta não-JSON do serviço (github-tools.service.ts:271-275).</li>
         </ul>
       </div>
 

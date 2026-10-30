@@ -5750,7 +5750,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
-      <div class="card" id="card-glossario">
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida <i>owner/repo</i> e filtros <i>state/labels/assignee/creator/since/per_page/page</i> (issues.ts:12-22).</li>
+          <li>Resolve o McpServer “GitHub” com cache de 60 s (github-tools.service.ts:54-66).</li>
+          <li>Confere escopo: GET exige <i>read</i>; GH.read marca leitura (shared.ts:21; github-tools.service.ts:132-135).</li>
+          <li>Monta GET <i>/repos/{owner}/{repo}/issues</i> com query de filtros (issues.ts:24-35).</li>
+          <li>Query omite <i>undefined</i>; path higienizado por segmento (github-tools.service.ts:213-216,280-287; 117-130).</li>
+          <li>Lista paginada com timeout de 15 s; JSON via <i>jsonContent</i> (github-tools.service.ts:233-249).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>github_get_issue</i> (issues.ts:38-53) para detalhar um número listado.</li>
+          <li><i>github_create_issue</i> (issues.ts:55-81) para abrir nova issue no mesmo repo.</li>
+          <li><i>github_search_issues</i> (issues.ts:192-208) para busca global com <i>is:issue repo:owner/name</i>.</li>
+          <li><i>github_list_issue_comments</i> (issues.ts:167-190) para comentários de uma issue da lista.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Só <i>state=all</i> inclui PRs; <i>open/closed</i> filtram (issues.ts:11,15).</li>
+          <li><i>labels</i> é CSV “bug,urgent”; <i>assignee</i> aceita login, “none” ou “*” (issues.ts:16-17).</li>
+          <li><i>per_page</i> até 100; sem <i>page</i> só vem a primeira página (issues.ts:20-21).</li>
+          <li><i>since</i> filtra por atualizadas depois do ISO 8601 (issues.ts:19).</li>
+        </ul>
+      </div>
+
+    <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
           <h3>Glossario</h3>
@@ -5768,7 +5809,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+                            <li><b>state open/closed/all</b> — filtro; só <i>all</i> traz PRs junto (issues.ts:11,15).</li>
+                    <li><b>labels CSV</b> — filtro por rótulos separados por vírgula (issues.ts:16).</li>
+                    <li><b>assignee/creator/since</b> — filtros por responsável, autor e data ISO 8601 (issues.ts:17-19).</li>
+                    <li><b>per_page/page</b> — paginação; máx 100 (issues.ts:20-21).</li>
+</ul>
       </div>
 
 </div>

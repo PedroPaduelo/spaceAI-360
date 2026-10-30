@@ -5692,6 +5692,45 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <code>github_list_projects</code> com <code>per_page</code> e <code>page</code> opcionais, validados por Zod (projects.ts:12-15).</li>
+          <li>Wrapper <code>gh</code> resolve o McpServer “GitHub” e padroniza o erro em <code>jsonContent/errorContent</code> (shared.ts:39-48).</li>
+          <li>Escopo conferido duas vezes: catálogo exige <code>read</code> via <code>GH.read</code> (shared.ts:20-21,96-101) e <code>callGitHubApi</code> exige <code>read</code> para GET (github-tools.service.ts:132-135,141-153).</li>
+          <li>Serviço faz <code>GET /user/projects</code> com query <code>per_page/page</code>; <code>undefined</code> é omitido da URL (projects.ts:17-23; github-tools.service.ts:213-216,280-287).</li>
+          <li>Resposta JSON volta via <code>jsonContent</code>; falha prevista vira <code>errorContent</code> com código (shared.ts:48-53).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>360-gh-get-project.html</b> — detalha um Project V2 pelo <code>project_id</code> numérico (<code>GET /projects/{id}</code>, projects.ts:31-36).</li>
+          <li><b>360-gh-list-project-items.html</b> — lista os itens (issues/PRs/drafts) de um projeto (<code>GET /projects/{id}/items</code>, projects.ts:50-56).</li>
+          <li><b>360-gh-add-project-item.html</b> — contraponto de escrita: <code>POST /projects/{id}/items</code> exige <code>github:write</code> (projects.ts:71-78).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Lista só os Projects V2 do usuário autenticado; sem filtro por <code>owner/repo</code> no path (projects.ts:19).</li>
+          <li><code>per_page</code> limitado a 100 na descrição, sem valor padrão no código — paginar manualmente com <code>page</code> (projects.ts:13-14).</li>
+          <li>Sem McpServer/token legível retorna <code>GITHUB_NOT_CONFIGURED</code> (409); HTTP com erro corta o corpo em 500 caracteres (github-tools.service.ts:185-193,259-262).</li>
+          <li>Timeout de 15 s vira <code>GITHUB_TIMEOUT</code> (504) via <code>AbortController</code> (github-tools.service.ts:40,233-249).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5710,6 +5749,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Projects V2</b> — quadros do usuário em <code>GET /user/projects</code>; sem <code>owner/repo</code> no path (projects.ts:19).</li>
+          <li><b>per_page / page</b> — paginação opcional, máx 100; sem padrão no código (projects.ts:13-14).</li>
+          <li><b>Idempotente</b> — repetir o GET não muda nada; vale para <code>GH.read</code> (shared.ts:21).</li>
+          <li><b>Open-world</b> — tool fala com API externa; anotação <code>openWorld</code> em <code>GH</code> (shared.ts:20-28).</li>
         </ul>
       </div>
 

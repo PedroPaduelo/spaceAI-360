@@ -5750,6 +5750,44 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <code>github_get_code_scanning_alert</code> com <code>owner/repo/alert_number</code> (security.ts:48-52).</li>
+          <li>Wrapper <code>gh</code> resolve o McpServer “GitHub” e padroniza erros (shared.ts:39-53).</li>
+          <li>Escopo <code>read</code>: <code>GH.read</code> (security.ts:53; shared.ts:20-21) mais rechecagem para GET (github-tools.service.ts:132-153).</li>
+          <li>Serviço faz <code>GET /repos/{owner}/{repo}/code-scanning/alerts/{alert_number}</code> sem query/body (security.ts:55-61).</li>
+          <li>Alerta único volta via <code>jsonContent</code> (shared.ts:48).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>360-gh-list-code-scanning-alerts.html</b> — lista de onde sai o <code>alert_number</code> (security.ts:27-40).</li>
+          <li><b>360-gh-list-secret-scanning-alerts.html</b> — outro sinal de segurança do mesmo repo (security.ts:79-86).</li>
+          <li><b>360-gh-search-code.html</b> — localiza o arquivo/trecho apontado pelo alerta (repos.ts:478-482).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><code>alert_number</code> é número, não ID textual; tipo errado falha no Zod antes do fetch (security.ts:51).</li>
+          <li>Sem paginação ou filtro — para varrer, volte à listagem com <code>state/severity/ref</code> (security.ts:15-20).</li>
+          <li>Alerta inexistente vira <code>GITHUB_API_ERROR</code> com corpo cortado em 500 caracteres (github-tools.service.ts:259-262).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5768,6 +5806,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>alert_number</b> — número do alerta no path <code>/alerts/{alert_number}</code> (security.ts:51,59).</li>
+          <li><b>Leitura pura</b> — GET com <code>GH.read</code>; sem query, body ou paginação (security.ts:53-61).</li>
+          <li><b>jsonContent</b> — envelope de sucesso do wrapper <code>gh</code> (shared.ts:48).</li>
+          <li><b>Timeout 15 s</b> — <code>AbortController</code> vira <code>GITHUB_TIMEOUT</code> (github-tools.service.ts:233-249).</li>
         </ul>
       </div>
 

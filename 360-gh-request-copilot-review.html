@@ -5793,7 +5793,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
-      <div class="card" id="card-glossario">
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida só <i>owner/repo/pull_number</i> (pulls.ts:250-254).</li>
+          <li>Resolve o McpServer “GitHub” com cache de 60 s (github-tools.service.ts:54-66).</li>
+          <li>Confere escopo: POST exige <i>github:write</i>; GH.create marca escrita (shared.ts:22; github-tools.service.ts:132-135).</li>
+          <li>Monta POST <i>/repos/{owner}/{repo}/pulls/{pull_number}/requested_reviewers</i> (pulls.ts:256-264).</li>
+          <li>Corpo fixo {reviewers: [“copilot-pull-request-reviewer[bot]”]} (pulls.ts:262).</li>
+          <li>Envia JSON com timeout de 15 s (github-tools.service.ts:237-249).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>github_create_pull_request_review</i> (pulls.ts:213-243) para review humana manual.</li>
+          <li><i>github_list_pull_request_reviews</i> (pulls.ts:188-211) para ver se o Copilot respondeu.</li>
+          <li><i>github_get_pull_request</i> (pulls.ts:34-49) para validar o PR alvo.</li>
+          <li><i>github_list_pull_requests</i> (pulls.ts:7-32) para achar o número do PR.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Requer Copilot habilitado no repo; sem isso vira 422 GITHUB_API_ERROR (pulls.ts:249; github-tools.service.ts:259-262).</li>
+          <li>Repetir o pedido pode retornar 422 porque o reviewer já foi solicitado.</li>
+          <li>Sem <i>github:write</i> a tool some do catálogo (shared.ts:96-102).</li>
+          <li>PR inexistente vira 404 (github-tools.service.ts:259-262).</li>
+        </ul>
+      </div>
+
+    <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
           <h3>Glossario</h3>
@@ -5811,7 +5852,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+                            <li><b>copilot-pull-request-reviewer[bot]</b> — revisor automático fixo no corpo (pulls.ts:262).</li>
+                    <li><b>requested_reviewers</b> — endpoint de solicitação de revisores (pulls.ts:261).</li>
+                    <li><b>GH.create</b> — escrita com <i>github:write</i> (shared.ts:22).</li>
+                    <li><b>Copilot habilitado</b> — pré-requisito no repo/organização para 2xx.</li>
+</ul>
       </div>
 
 </div>

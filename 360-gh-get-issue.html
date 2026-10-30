@@ -5750,7 +5750,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
-      <div class="card" id="card-glossario">
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida <i>owner/repo/issue_number</i>; número é <i>number</i> (issues.ts:42-47).</li>
+          <li>Resolve o McpServer “GitHub” com cache de 60 s (github-tools.service.ts:54-66).</li>
+          <li>Confere escopo: GET exige <i>read</i>; GH.read marca leitura (shared.ts:21; github-tools.service.ts:132-135).</li>
+          <li>Monta GET <i>/repos/{owner}/{repo}/issues/{issue_number}</i> (issues.ts:49-52).</li>
+          <li>Higieniza segmentos e chama <i>fetch</i> com timeout de 15 s (github-tools.service.ts:117-130,233-249).</li>
+          <li>Devolve JSON da issue via <i>jsonContent</i> (shared.ts:39-54).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>github_list_issues</i> (issues.ts:7-36) para descobrir o número antes do GET.</li>
+          <li><i>github_update_issue</i> (issues.ts:83-119) para editar título, corpo, estado ou rótulos.</li>
+          <li><i>github_list_issue_comments</i> (issues.ts:167-190) para a conversa da issue.</li>
+          <li><i>github_lock_issue</i> (issues.ts:278-302) para travar a conversa quando necessário.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Sem paginação; número inexistente vira 404 GITHUB_API_ERROR (github-tools.service.ts:259-262).</li>
+          <li>PRs também respondem aqui quando o número é de PR (issues.ts:11).</li>
+          <li><i>issue_number</i> é número; string vira erro zod (issues.ts:46).</li>
+          <li>Fora de <i>tools/call</i> o token nem é tocado (github-tools.service.ts:141-143).</li>
+        </ul>
+      </div>
+
+    <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
           <h3>Glossario</h3>
@@ -5768,7 +5809,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+                            <li><b>issue_number</b> — número sequencial da issue no repo; tipo <i>number</i> (issues.ts:46).</li>
+                    <li><b>GH.read</b> — leitura com escopo <i>read</i> (shared.ts:21).</li>
+                    <li><b>issues vs PRs</b> — a mesma numeração cobre issues e PRs na API.</li>
+                    <li><b>jsonContent</b> — envelope de sucesso com o JSON da API (shared.ts:48).</li>
+</ul>
       </div>
 
 </div>

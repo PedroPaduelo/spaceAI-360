@@ -5750,6 +5750,44 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <code>github_list_milestones</code> com <code>owner/repo</code> e <code>state/per_page/page</code> opcionais (labels.ts:33-39).</li>
+          <li>Wrapper <code>gh</code> resolve o McpServer “GitHub” (shared.ts:39-48); <code>GH.read</code> marca leitura (labels.ts:40).</li>
+          <li>Escopo <code>read</code> duplo: catálogo (shared.ts:96-101) e GET em <code>callGitHubApi</code> (github-tools.service.ts:132-153).</li>
+          <li>Serviço faz <code>GET /repos/{owner}/{repo}/milestones</code> com query filtrada; <code>undefined</code> omitido (labels.ts:42-48; github-tools.service.ts:213-216).</li>
+          <li>Lista de milestones volta via <code>jsonContent</code> (shared.ts:48).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>360-gh-list-labels.html</b> — taxonomia irmã do repo, sem filtro <code>state</code> (labels.ts:20-25).</li>
+          <li><b>360-gh-add-labels.html</b> — escrita em issue que costuma combinar label + milestone (issues.ts:247-253).</li>
+          <li><b>360-gh-list-project-items.html</b> — visão de projeto que pode agrupar issues por milestone (projects.ts:50-56).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><code>state</code> aceita só <code>open/closed/all</code>; sem valor, a API assume abertas (labels.ts:36).</li>
+          <li><code>per_page</code> até 100 sem padrão no código — paginar com <code>page</code> (labels.ts:37-38).</li>
+          <li>Milestone inexistente não é erro aqui (lista vazia); erro mesmo vira <code>GITHUB_API_ERROR</code> com 500 chars (github-tools.service.ts:259-262).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5768,6 +5806,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Milestone</b> — marco do repo em <code>GET /repos/{o}/{r}/milestones</code> (labels.ts:32,43).</li>
+          <li><b>state open/closed/all</b> — único filtro desta lista, via enum Zod (labels.ts:36).</li>
+          <li><b>Paginação manual</b> — <code>per_page</code> até 100 sem padrão; iterar <code>page</code> (labels.ts:37-38).</li>
+          <li><b>Headers GitHub</b> — <code>Accept: vnd.github+json</code>, versão <code>2022-11-28</code> e UA <code>agentpack</code> (github-tools.service.ts:219-224).</li>
         </ul>
       </div>
 

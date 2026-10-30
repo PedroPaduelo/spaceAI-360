@@ -5716,7 +5716,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
-      <div class="card" id="card-glossario">
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida <i>owner/repo</i> obrigatórios (repos.ts:419-422).</li>
+          <li>Resolve o McpServer “GitHub” com cache de 60 s (github-tools.service.ts:54-66).</li>
+          <li>Confere escopo: PUT exige <i>github:write</i>; GH.link marca vínculo (shared.ts:23; github-tools.service.ts:132-135).</li>
+          <li>Monta PUT <i>/user/starred/{owner}/{repo}</i> sem corpo nem query (repos.ts:424-425).</li>
+          <li>Chama <i>fetch</i> com timeout de 15 s; corpo só se método permitir (github-tools.service.ts:237-249).</li>
+          <li>204 sem corpo cai no ramo não-JSON {status, location, text} (github-tools.service.ts:264-275; shared.ts:39-54).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>github_unstar_repository</i> (repos.ts:428-440) para desfazer o star.</li>
+          <li><i>github_list_starred</i> (repos.ts:391-412) para confirmar que entrou na lista.</li>
+          <li><i>github_get_repository</i> (repos.ts:7-18) para validar <i>owner/repo</i> antes.</li>
+          <li><i>github_search_repositories</i> (repos.ts:21-48) para achar candidatos a favoritar.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Já favoritado continua 204; operação é idempotente de vínculo (shared.ts:23).</li>
+          <li>Repo inexistente vira 404 GITHUB_API_ERROR (github-tools.service.ts:259-262).</li>
+          <li>Sem <i>github:write</i> a tool some do catálogo (shared.ts:96-102).</li>
+          <li>204 não tem JSON; não espere corpo com dados (github-tools.service.ts:264-275).</li>
+        </ul>
+      </div>
+
+    <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
           <h3>Glossario</h3>
@@ -5734,7 +5775,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+                            <li><b>GH.link</b> — vínculo idempotente e não-destrutivo; exige <i>github:write</i> (shared.ts:23).</li>
+                    <li><b>PUT sem corpo</b> — star/unstar não enviam JSON nem query (repos.ts:425).</li>
+                    <li><b>204 No Content</b> — sucesso sem corpo, tratado no ramo não-JSON (github-tools.service.ts:264-275).</li>
+                    <li><b>idempotente</b> — repetir o PUT mantém o mesmo estado.</li>
+</ul>
       </div>
 
 </div>

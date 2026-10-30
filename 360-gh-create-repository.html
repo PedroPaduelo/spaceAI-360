@@ -5740,7 +5740,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
-      <div class="card" id="card-glossario">
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida <i>name</i> obrigatório e opcionais <i>description/private/auto_init</i> (repos.ts:490-495).</li>
+          <li>Resolve o McpServer “GitHub” com cache de 60 s (github-tools.service.ts:54-66).</li>
+          <li>Confere escopo: POST exige <i>github:write</i>; GH.create marca escrita (shared.ts:22; github-tools.service.ts:132-135,141-153).</li>
+          <li>Monta POST <i>/user/repos</i> com corpo {name, description, private, auto_init} (repos.ts:497-505).</li>
+          <li>Chama <i>fetch</i> com JSON, Accept vnd.github+json e timeout de 15 s (github-tools.service.ts:219-224,237-249).</li>
+          <li>Devolve JSON da repo criada via <i>jsonContent</i> ou <i>errorContent</i> (shared.ts:39-54).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>github_get_repository</i> (repos.ts:7-18) para ler o repositório logo após criar.</li>
+          <li><i>github_search_repositories</i> (repos.ts:21-48) para conferir colisão de nome antes de criar.</li>
+          <li><i>github_create_branch</i> (repos.ts:136-155) para criar a primeira branch a partir de um SHA após o <i>auto_init</i>.</li>
+          <li><i>github_list_starred</i> (repos.ts:391-412) para ver favoritos do usuário dono da nova repo.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Cria sempre para o usuário autenticado; não cria em organização nem com <i>team_id</i> nesta tool (repos.ts:485-506).</li>
+          <li>Nome duplicado vira GITHUB_API_ERROR 422; sem escopo <i>github:write</i> a tool nem aparece (shared.ts:96-102; github-tools.service.ts:259-262).</li>
+          <li>Corpo com <i>undefined</i> é omitido; <i>private</i> ausente segue o padrão da API (github-tools.service.ts:237-241).</li>
+          <li>Timeout de 15 s e McpServer sem token viram GITHUB_TIMEOUT e GITHUB_NOT_CONFIGURED (github-tools.service.ts:196-205,248-249).</li>
+        </ul>
+      </div>
+
+    <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
           <h3>Glossario</h3>
@@ -5758,7 +5799,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+                            <li><b>auto_init</b> — quando true inicializa com README (repos.ts:494).</li>
+                    <li><b>GH.create</b> — preset de escrita para criação; exige <i>github:write</i> (shared.ts:22).</li>
+                    <li><b>/user/repos</b> — endpoint de criação no contexto do usuário autenticado (repos.ts:499).</li>
+                    <li><b>withGitHubScope</b> — converte <i>readOnlyHint</i> em <i>read</i> ou <i>github:write</i> (shared.ts:96-102).</li>
+</ul>
       </div>
 
 </div>

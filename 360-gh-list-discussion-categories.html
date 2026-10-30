@@ -5750,6 +5750,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Validar entrada:<\/b> só <i>owner<\/i> e <i>repo<\/i> (strings), sem paginação (discussions.ts:54-57).<\/li>
+          <li><b>2. Resolver MCP:<\/b> <i>gh<\/i> obtém o id do McpServer “GitHub” (shared.ts:39-48) com cache de 60 s (github-tools.service.ts:54-66).<\/li>
+          <li><b>3. Checar escopo:<\/b> GET exige <i>read<\/i> (github-tools.service.ts:132-135,141-153).<\/li>
+          <li><b>4. Montar URL:<\/b> GET <i>\/repos\/{owner}\/{repo}\/discussions\/categories<\/i> (discussions.ts:59-62) com path validado (github-tools.service.ts:117-130).<\/li>
+          <li><b>5. Chamar e responder:<\/b> headers vnd.github+json e prazo 15 s (github-tools.service.ts:219-224,234-249); JSON via <i>jsonContent<\/i> (shared.ts:48).<\/li>
+          <li><b>6. Falha prevista:<\/b> repo sem Discussions vira <i>GITHUB_API_ERROR<\/i> (github-tools.service.ts:259-262).<\/li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>github_create_discussion<\/b> (discussions.ts:90-111) — consome o <i>category_id<\/i> devolvido aqui (discussions.ts:98).<\/li>
+          <li><b>github_list_discussions<\/b> (discussions.ts:7-26) — lista discussions já classificadas nessas categorias.<\/li>
+          <li><b>github_get_discussion<\/b> (discussions.ts:28-47) — detalha uma discussion da categoria.<\/li>
+          <li><b>github_get_discussion_comments<\/b> (discussions.ts:65-88) — comentários de discussions da categoria.<\/li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Sem paginação:<\/b> não aceita <i>per_page\/page<\/i>; total vem em uma resposta (discussions.ts:54-57).<\/li>
+          <li><b>Repo sem recurso:<\/b> 404\/410 vira <i>GITHUB_API_ERROR<\/i> (github-tools.service.ts:259-262).<\/li>
+          <li><b>category_id opaco:<\/b> o id retornado só serve para criar discussion (discussions.ts:98,105).<\/li>
+          <li><b>Escopo read:<\/b> GET pede só <i>read<\/i> (github-tools.service.ts:132-135).<\/li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5768,6 +5809,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>categories<\/b> — categorias configuradas do fórum do repo (discussions.ts:53,61).<\/li>
+          <li><b>category_id<\/b> — id opaco exigido para criar discussion (discussions.ts:98,105).<\/li>
+          <li><b>GH.read<\/b> — leitura com escopo <i>read<\/i> (shared.ts:20-21).<\/li>
+          <li><b>jsonContent<\/b> — envelope de sucesso do wrapper <i>gh<\/i> (shared.ts:48).<\/li>
         </ul>
       </div>
 

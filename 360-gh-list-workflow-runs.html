@@ -5678,6 +5678,44 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <code>github_list_workflow_runs</code> com <code>owner/repo/workflow_id</code> e filtros <code>branch/status/per_page/page</code> (repos.ts:297-308).</li>
+          <li>Wrapper <code>gh</code> resolve o McpServer “GitHub” (shared.ts:39-48); <code>GH.read</code> marca leitura (repos.ts:309).</li>
+          <li>Escopo <code>read</code> duplo: catálogo (shared.ts:96-101) e GET em <code>callGitHubApi</code> (github-tools.service.ts:132-153).</li>
+          <li>Serviço faz <code>GET /repos/{owner}/{repo}/actions/workflows/{workflow_id}/runs</code> com query filtrada; <code>undefined</code> omitido (repos.ts:311-324; github-tools.service.ts:213-216).</li>
+          <li>Lista de runs volta via <code>jsonContent</code> (shared.ts:48).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>360-gh-get-workflow-run.html</b> — detalha um run listado aqui pelo <code>run_id</code> (repos.ts:339-341).</li>
+          <li><b>360-gh-list-workflow-jobs.html</b> — jobs do run escolhido (<code>GET .../runs/{id}/jobs</code>, repos.ts:359-366).</li>
+          <li><b>360-gh-download-workflow-logs.html</b> — baixa o zip de logs do run (repos.ts:383-388).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><code>status</code> aceita só <code>queued/in_progress/completed/requested/waiting/pending</code> — sem <code>conclusion</code> como filtro (repos.ts:302-305).</li>
+          <li><code>workflow_id</code> aceita nome de arquivo, mas o path de runs exige o mesmo valor do get (repos.ts:300,287).</li>
+          <li><code>per_page</code> até 100; histórico longo exige loop de <code>page</code> com <code>branch</code> para fatiar (repos.ts:306-307).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5696,6 +5734,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Run</b> — execução em <code>GET .../workflows/{id}/runs</code> (repos.ts:296,315).</li>
+          <li><b>branch</b> — filtro opcional por branch do run (repos.ts:301).</li>
+          <li><b>status enum</b> — <code>queued/in_progress/completed/requested/waiting/pending</code> (repos.ts:302-305).</li>
+          <li><b>Sem conclusion</b> — filtro de conclusão não existe nesta tool (repos.ts:302-305).</li>
         </ul>
       </div>
 

@@ -5772,7 +5772,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
-      <div class="card" id="card-glossario">
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida <i>owner/repo/pull_number</i> (pulls.ts:176-180).</li>
+          <li>Resolve o McpServer “GitHub” com cache de 60 s (github-tools.service.ts:54-66).</li>
+          <li>Confere escopo: GET exige <i>read</i>; GH.read marca leitura (shared.ts:21; github-tools.service.ts:132-135).</li>
+          <li>Monta GET <i>/repos/{owner}/{repo}/pulls/{pull_number}</i>, igual ao GET do PR (pulls.ts:182-185).</li>
+          <li>Helper não envia Accept custom para diff cru (pulls.ts:174-175).</li>
+          <li>Devolve o JSON do PR, não o unified diff (pulls.ts:174-175; shared.ts:39-54).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>github_get_pull_request</i> (pulls.ts:34-49) mesmo GET e mesma resposta.</li>
+          <li><i>github_list_pull_request_files</i> (pulls.ts:145-168) para ver arquivos com <i>patch</i> por arquivo.</li>
+          <li><i>github_list_pull_request_reviews</i> (pulls.ts:188-211) para contexto de revisão.</li>
+          <li><i>github_get_commit</i> (repos.ts:81-96) que traz diff e stats por commit.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Não retorna diff unificado; espere JSON do PR (pulls.ts:174-175).</li>
+          <li>Para patch por arquivo use <i>list_pull_request_files</i> com paginação (pulls.ts:145-168).</li>
+          <li>PR inexistente vira 404 GITHUB_API_ERROR (github-tools.service.ts:259-262).</li>
+          <li>Sem paginação (pulls.ts:170-186).</li>
+        </ul>
+      </div>
+
+    <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
           <h3>Glossario</h3>
@@ -5790,7 +5831,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+                            <li><b>unified diff ausente</b> — limitação documentada: helper sem Accept custom (pulls.ts:174-175).</li>
+                    <li><b>JSON do PR</b> — resposta real desta tool, igual ao GET do PR.</li>
+                    <li><b>patch por arquivo</b> — alternativa via <i>list_pull_request_files</i> (pulls.ts:145-168).</li>
+                    <li><b>GH.read</b> — leitura com <i>read</i> (shared.ts:21).</li>
+</ul>
       </div>
 
 </div>

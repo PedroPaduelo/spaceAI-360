@@ -5750,6 +5750,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Validar entrada:<\/b> <i>owner<\/i>, <i>repo<\/i>, <i>category_id<\/i>, <i>title<\/i> e <i>body<\/i> obrigatórios (discussions.ts:95-101).<\/li>
+          <li><b>2. Resolver MCP e escopo:<\/b> <i>gh<\/i> resolve o McpServer (shared.ts:39-48); POST exige <i>github:write<\/i> antes do token (github-tools.service.ts:132-135,141-153; shared.ts:96-102).<\/li>
+          <li><b>3. Montar URL e corpo:<\/b> POST <i>\/repos\/{owner}\/{repo}\/discussions<\/i> com <i>{category_id, title, body}<\/i> (discussions.ts:103-110).<\/li>
+          <li><b>4. Chamar:<\/b> base <i>https:\/\/api.github.com<\/i>, headers vnd.github+json e prazo 15 s (github-tools.service.ts:37,219-224,234-249).<\/li>
+          <li><b>5. Responder:<\/b> JSON da discussion via <i>jsonContent<\/i> (shared.ts:48).<\/li>
+          <li><b>6. Falha prevista:<\/b> categoria inválida vira <i>GITHUB_API_ERROR<\/i>; sem escopo vira <i>FORBIDDEN<\/i> antes do token (github-tools.service.ts:259-262,141-153).<\/li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>github_list_discussion_categories<\/b> (discussions.ts:49-63) — fornece o <i>category_id<\/i> exigido (discussions.ts:98).<\/li>
+          <li><b>github_list_discussions<\/b> (discussions.ts:7-26) — confirma a discussion criada.<\/li>
+          <li><b>github_get_discussion<\/b> (discussions.ts:28-47) — detalha a discussion criada.<\/li>
+          <li><b>github_add_discussion_comment<\/b> (discussions.ts:113-134) — comenta na discussion criada.<\/li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Escrita:<\/b> <i>GH.create<\/i> exige <i>github:write<\/i>, que o token de bootstrap não tem (shared.ts:22,89-93,96-102).<\/li>
+          <li><b>Categoria obrigatória:<\/b> <i>category_id<\/i> vem de <i>list_discussion_categories<\/i>; id errado vira 422\/404 da API (discussions.ts:98,105).<\/li>
+          <li><b>Markdown:<\/b> <i>body<\/i> aceita markdown, sem validação local além do zod (discussions.ts:100).<\/li>
+          <li><b>Sem idempotência:<\/b> repetir cria outra discussion; não há chave de deduplicação (discussions.ts:103-110).<\/li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5768,6 +5809,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>GH.create<\/b> — marca escrita; exige <i>github:write<\/i> (shared.ts:22,96-102).<\/li>
+          <li><b>category_id<\/b> — categoria da nova discussion (discussions.ts:98,105).<\/li>
+          <li><b>github:write<\/b> — escopo de escrita do dono; POST confere antes de decifrar (github-tools.service.ts:132-135).<\/li>
+          <li><b>GITHUB_API_ERROR<\/b> — 502 para erro da API (github-tools.service.ts:78-80,259-262).<\/li>
         </ul>
       </div>
 

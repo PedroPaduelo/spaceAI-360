@@ -5758,6 +5758,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Validar entrada:</b> <i>query</i> como string zod (users.ts:87).</li>
+          <li><b>2. Resolver MCP:</b> <i>gh</i> obtém o id do McpServer “GitHub” (shared.ts:39-48) com cache de 60 s (github-tools.service.ts:54-66).</li>
+          <li><b>3. Checar escopo:</b> GET exige <i>read</i> antes de decifrar (github-tools.service.ts:132-135,141-153).</li>
+          <li><b>4. Montar URL:</b> GET <i>\/search\/users<\/i> com <i>q={query}<\/i> (users.ts:90-94) e query montada só com definidos (github-tools.service.ts:280-287).</li>
+          <li><b>5. Chamar e responder:</b> base <i>https:\/\/api.github.com<\/i>, headers vnd.github+json e prazo 15 s (github-tools.service.ts:37,219-224,234-249); JSON via <i>jsonContent<\/i> (shared.ts:48).</li>
+          <li><b>6. Falha prevista:</b> HTTP não-ok vira <i>GITHUB_API_ERROR<\/i> com 500 caracteres (github-tools.service.ts:259-262).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>github_search_orgs<\/b> (users.ts:98-114) — mesma rota <i>\/search\/users<\/i> com sufixo <i>type:org<\/i>.</li>
+          <li><b>github_get_user<\/b> (users.ts:17-27) — detalha cada login achado na busca.</li>
+          <li><b>github_get_user_orgs<\/b> (users.ts:29-47) — expande orgs do usuário encontrado.</li>
+          <li><b>github_list_followers<\/b> (users.ts:116-133) — confere popularidade do perfil achado.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Sintaxe da query:<\/b> usa qualificadores como <i>location:<\/i> e <i>language:<\/i>; erro de sintaxe retorna 422 da API virando <i>GITHUB_API_ERROR<\/i> (users.ts:87; github-tools.service.ts:259-262).</li>
+          <li><b>Sem paginação explícita:<\/b> handler não envia <i>per_page\/page<\/i>; vale o padrão da API (users.ts:90-94).</li>
+          <li><b>Rate limit de busca:<\/b> rota de search tem limite menor; excesso vira 403\/429 encapsulado em <i>GITHUB_API_ERROR<\/i> (github-tools.service.ts:259-262).</li>
+          <li><b>Escopo:<\/b> GET pede só <i>read<\/i> (github-tools.service.ts:132-135; shared.ts:96-102).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5776,6 +5817,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>q<\/b> — parâmetro de busca; recebe a <i>query<\/i> do agente (users.ts:90-94).</li>
+          <li><b>\/search\/users<\/b> — rota de busca de pessoas e orgs (users.ts:92,110).</li>
+          <li><b>GH.read<\/b> — leitura com escopo <i>read<\/i> (shared.ts:20-21,96-102).</li>
+          <li><b>buildQueryString<\/b> — monta query omitindo <i>undefined<\/i> (github-tools.service.ts:280-287).</li>
         </ul>
       </div>
 

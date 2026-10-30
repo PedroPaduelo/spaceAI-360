@@ -5793,6 +5793,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Validar entrada:<\/b> <i>org<\/i> obrigatório; <i>per_page<\/i> e <i>page<\/i> opcionais (users.ts:159-162).<\/li>
+          <li><b>2. Resolver MCP:<\/b> <i>gh<\/i> obtém o id do McpServer “GitHub” (shared.ts:39-48) com cache de 60 s (github-tools.service.ts:54-66).<\/li>
+          <li><b>3. Checar escopo:<\/b> GET exige <i>read<\/i> (github-tools.service.ts:132-135,141-153).<\/li>
+          <li><b>4. Montar URL:<\/b> GET <i>\/orgs\/{org}\/teams<\/i> com query só dos definidos (users.ts:165-170; github-tools.service.ts:280-287) e path validado (github-tools.service.ts:117-130).<\/li>
+          <li><b>5. Chamar e responder:<\/b> headers vnd.github+json e prazo 15 s (github-tools.service.ts:219-224,234-249); JSON via <i>jsonContent<\/i> (shared.ts:48).<\/li>
+          <li><b>6. Falha prevista:<\/b> 403\/404 de org privada vira <i>GITHUB_API_ERROR<\/i> (github-tools.service.ts:259-262).<\/li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>github_get_org<\/b> (users.ts:49-59) — detalha a org antes de listar times.<\/li>
+          <li><b>github_list_org_members<\/b> (users.ts:61-79) — membros da mesma org para cruzar com times.<\/li>
+          <li><b>github_get_user<\/b> (users.ts:17-27) — detalha integrantes dos times.<\/li>
+          <li><b>github_search_orgs<\/b> (users.ts:98-114) — descobre a org quando só há o nome aproximado.<\/li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Permissão:<\/b> times exigem visibilidade da org; sem acesso a API devolve 403\/404 virando <i>GITHUB_API_ERROR<\/i> (users.ts:158; github-tools.service.ts:259-262).<\/li>
+          <li><b>Paginação:<\/b> <i>per_page<\/i> até 100; <i>undefined<\/i> é omitido (github-tools.service.ts:280-287).<\/li>
+          <li><b>Escopo:<\/b> GET pede só <i>read<\/i> (github-tools.service.ts:132-135).<\/li>
+          <li><b>Traversal:<\/b> <i>org<\/i> malicioso é barrado por <i>safeGitHubApiPath<\/i> (github-tools.service.ts:117-130).<\/li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5811,6 +5852,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>teams<\/b> — times da org via <i>\/orgs\/{org}\/teams<\/i> (users.ts:157,167).<\/li>
+          <li><b>per_page \/ page<\/b> — paginação opcional até 100 (users.ts:161-162).<\/li>
+          <li><b>GH.read<\/b> — leitura com escopo <i>read<\/i> (shared.ts:20-21).<\/li>
+          <li><b>safeGitHubApiPath<\/b> — valida cada segmento do path (github-tools.service.ts:117-130).<\/li>
         </ul>
       </div>
 

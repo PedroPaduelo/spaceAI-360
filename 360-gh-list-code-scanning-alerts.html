@@ -5692,6 +5692,44 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <code>github_list_code_scanning_alerts</code> com <code>owner/repo</code> obrigatórios e filtros <code>state/ref/severity</code> mais <code>per_page/page</code> (security.ts:12-23).</li>
+          <li>Wrapper <code>gh</code> resolve o McpServer “GitHub” (shared.ts:39-48); <code>GH.read</code> marca leitura (security.ts:24; shared.ts:20-21).</li>
+          <li>Escopo <code>read</code> conferido no catálogo e de novo para GET em <code>callGitHubApi</code> (shared.ts:96-101; github-tools.service.ts:132-153).</li>
+          <li>Serviço faz <code>GET /repos/{owner}/{repo}/code-scanning/alerts</code> com query só dos definidos (security.ts:27-40; github-tools.service.ts:213-216).</li>
+          <li>Lista de alertas volta via <code>jsonContent</code>; erro previsto vira <code>errorContent</code> (shared.ts:48-53).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>360-gh-get-code-scanning-alert.html</b> — detalha um alerta pelo <code>alert_number</code> listado aqui (security.ts:54-61).</li>
+          <li><b>360-gh-list-secret-scanning-alerts.html</b> — varredura irmã para segredos vazados no mesmo repo (security.ts:79-86).</li>
+          <li><b>360-gh-search-code.html</b> — busca o trecho sinalizado pelo alerta no código (<code>GET /search/code</code>, repos.ts:478-482).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><code>state</code> aceita só <code>open/dismissed/fixed</code>; <code>severity</code> inclui <code>warning/note/error</code> além de <code>low/medium/high/critical</code> (security.ts:15-20).</li>
+          <li>Sem <code>ref</code> a API olha o branch padrão — para outro branch/tag/SHA informe <code>ref</code> (security.ts:11,16).</li>
+          <li><code>per_page</code> até 100 sem padrão; timeout de 15 s e corpo de erro cortado em 500 chars (github-tools.service.ts:40,259-262).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5710,6 +5748,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Code Scanning</b> — alertas no branch padrão ou <code>ref</code> em <code>/code-scanning/alerts</code> (security.ts:11,30).</li>
+          <li><b>severity</b> — filtro <code>low/medium/high/critical/warning/note/error</code> (security.ts:17-20).</li>
+          <li><b>ref</b> — branch/tag/SHA opcional para olhar fora do padrão (security.ts:16).</li>
+          <li><b>state</b> — <code>open/dismissed/fixed</code> nesta lista (security.ts:15).</li>
         </ul>
       </div>
 

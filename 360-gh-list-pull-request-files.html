@@ -5692,7 +5692,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
-      <div class="card" id="card-glossario">
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida <i>owner/repo/pull_number</i> e <i>per_page/page</i> opcionais (pulls.ts:149-156).</li>
+          <li>Resolve o McpServer “GitHub” com cache de 60 s (github-tools.service.ts:54-66).</li>
+          <li>Confere escopo: GET exige <i>read</i>; GH.read marca leitura (shared.ts:21; github-tools.service.ts:132-135).</li>
+          <li>Monta GET <i>/repos/{owner}/{repo}/pulls/{pull_number}/files</i> (pulls.ts:158-167).</li>
+          <li>Query com paginação omitindo <i>undefined</i> (github-tools.service.ts:213-216,280-287).</li>
+          <li>Lista paginada com timeout de 15 s (github-tools.service.ts:233-249).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>github_get_pull_request_diff</i> (pulls.ts:170-186) retorna só o JSON; arquivos dão o <i>patch</i>.</li>
+          <li><i>github_get_pull_request</i> (pulls.ts:34-49) para metadados do PR.</li>
+          <li><i>github_list_pull_request_reviews</i> (pulls.ts:188-211) para cruzar arquivos com revisões.</li>
+          <li><i>github_get_file_contents</i> (repos.ts:442-465) para ler o arquivo inteiro no <i>base</i> ou <i>head</i>.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><i>per_page</i> até 100; PR grande exige paginar (pulls.ts:154-155).</li>
+          <li>Cada item traz <i>filename/status/additions/deletions/patch</i>; <i>patch</i> pode ser truncado pela API.</li>
+          <li>PR inexistente vira 404 GITHUB_API_ERROR (github-tools.service.ts:259-262).</li>
+          <li>Binários não trazem <i>patch</i> textual.</li>
+        </ul>
+      </div>
+
+    <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
           <h3>Glossario</h3>
@@ -5710,7 +5751,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+                            <li><b>patch</b> — diff por arquivo dentro do item da lista.</li>
+                    <li><b>filename/status</b> — caminho e estado (added/modified/removed).</li>
+                    <li><b>per_page/page</b> — paginação; máx 100 (pulls.ts:154-155).</li>
+                    <li><b>GH.read</b> — leitura com <i>read</i> (shared.ts:21).</li>
+</ul>
       </div>
 
 </div>

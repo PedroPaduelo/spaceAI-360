@@ -5750,6 +5750,44 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <code>github_remove_label</code> com <code>owner/repo/issue_number/name</code> (issues.ts:261-266).</li>
+          <li>Wrapper <code>gh</code> resolve o McpServer “GitHub” (shared.ts:39-48); <code>GH.remove</code> marca escrita (issues.ts:267; shared.ts:25).</li>
+          <li>Escopo <code>github:write</code> duplo: catálogo (shared.ts:96-102) e DELETE em <code>callGitHubApi</code> (github-tools.service.ts:132-153).</li>
+          <li>Serviço faz <code>DELETE /repos/{owner}/{repo}/issues/{issue_number}/labels/{name}</code> sem corpo nem query; DELETE nunca envia body (issues.ts:268-275; github-tools.service.ts:237-241).</li>
+          <li>Labels restantes voltam via <code>jsonContent</code>; path é validado segmento a segmento (shared.ts:48; github-tools.service.ts:117-130).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>360-gh-add-labels.html</b> — operação inversa: soma labels via POST (issues.ts:247-253).</li>
+          <li><b>360-gh-list-labels.html</b> — confere o nome exato da label no catálogo do repo (labels.ts:20-25).</li>
+          <li><b>360-gh-list-milestones.html</b> — alternativa de organização quando label não basta (labels.ts:42-48).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><code>name</code> vai no path e é codificado; espaços/caixa precisam ser exatos (issues.ts:265; github-tools.service.ts:117-130).</li>
+          <li>Remover label inexistente retorna erro da API como <code>GITHUB_API_ERROR</code> (502) (github-tools.service.ts:259-262).</li>
+          <li>DELETE não tem corpo: condição exclui GET e DELETE do envio de JSON (github-tools.service.ts:238).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5768,6 +5806,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>DELETE sem corpo</b> — GET e DELETE nunca enviam JSON no serviço (github-tools.service.ts:238).</li>
+          <li><b>Path param name</b> — label vai no path e é <code>encodeURIComponent</code> após validação (issues.ts:273; github-tools.service.ts:117-130).</li>
+          <li><b>GH.remove</b> — anotação de remoção, exige <code>github:write</code> (shared.ts:25; issues.ts:267).</li>
+          <li><b>GITHUB_API_ERROR</b> — HTTP com erro vira 502 com corpo cortado em 500 chars (github-tools.service.ts:259-262).</li>
         </ul>
       </div>
 

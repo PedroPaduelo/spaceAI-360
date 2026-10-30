@@ -5794,7 +5794,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
-      <div class="card" id="card-glossario">
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida <i>sort/direction/per_page/page</i>, todos opcionais (repos.ts:396-401).</li>
+          <li>Resolve o McpServer “GitHub” com cache de 60 s (github-tools.service.ts:54-66).</li>
+          <li>Confere escopo: GET exige <i>read</i>; GH.read marca leitura (shared.ts:21; github-tools.service.ts:132-135).</li>
+          <li>Monta GET <i>/user/starred</i> com query de ordenação e paginação (repos.ts:403-411).</li>
+          <li>Query omite <i>undefined</i>; <i>sort</i> só aceita created/updated (repos.ts:397; github-tools.service.ts:280-287).</li>
+          <li>Busca com timeout de 15 s; JSON via <i>jsonContent</i> (github-tools.service.ts:233-249; shared.ts:39-54).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>github_star_repository</i> (repos.ts:414-426) para favoritar e ver o item aparecer aqui.</li>
+          <li><i>github_unstar_repository</i> (repos.ts:428-440) para remover da lista.</li>
+          <li><i>github_get_repository</i> (repos.ts:7-18) para detalhar um favorito listado.</li>
+          <li><i>github_search_repositories</i> (repos.ts:21-48) para descobrir repos antes de favoritar.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Lista só do usuário autenticado; não lista stars de terceiros (repos.ts:393-395).</li>
+          <li><i>sort</i> limitado a created/updated; valor fora vira erro de validação zod (repos.ts:397).</li>
+          <li><i>per_page</i> até 100; sem paginar a lista vem truncada (repos.ts:399-400).</li>
+          <li>Token sem <i>read</i> esconde a tool (shared.ts:96-102).</li>
+        </ul>
+      </div>
+
+    <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
           <h3>Glossario</h3>
@@ -5812,7 +5853,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+                            <li><b>starred</b> — repositórios favoritados pelo usuário autenticado (repos.ts:393-395).</li>
+                    <li><b>sort/direction</b> — ordenação por <i>created/updated</i> e direção <i>asc/desc</i> (repos.ts:397-398).</li>
+                    <li><b>/user/starred</b> — endpoint no contexto do token, sem <i>owner/repo</i> (repos.ts:405).</li>
+                    <li><b>GH.read</b> — leitura pura (shared.ts:21).</li>
+</ul>
       </div>
 
 </div>

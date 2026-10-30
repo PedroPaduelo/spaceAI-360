@@ -5794,6 +5794,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Validar entrada:</b> <i>username</i> obrigatório; <i>per_page<\/i> e <i>page<\/i> opcionais (users.ts:34-37).</li>
+          <li><b>2. Resolver MCP:</b> <i>gh<\/i> obtém o id do McpServer “GitHub” (shared.ts:39-48) com cache de 60 s (github-tools.service.ts:54-66).</li>
+          <li><b>3. Checar escopo:</b> GET exige <i>read<\/i> antes de decifrar o token (github-tools.service.ts:132-135,141-153; shared.ts:96-102).</li>
+          <li><b>4. Montar URL:</b> GET <i>\/users\/{username}\/orgs<\/i> com query só dos definidos (users.ts:40-45; github-tools.service.ts:280-287) e path higienizado (github-tools.service.ts:117-130).</li>
+          <li><b>5. Chamar e responder:</b> base <i>https:\/\/api.github.com<\/i>, headers vnd.github+json e prazo 15 s (github-tools.service.ts:37,219-224,234-249); JSON via <i>jsonContent<\/i> (shared.ts:48).</li>
+          <li><b>6. Falha prevista:</b> HTTP não-ok vira <i>GITHUB_API_ERROR<\/i>; sem MCP\/token vira 409 (github-tools.service.ts:259-262,185-193).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>github_get_user<\/b> (users.ts:17-27) — detalha o perfil do mesmo <i>username<\/i> antes de listar orgs.</li>
+          <li><b>github_get_org<\/b> (users.ts:49-59) — detalha cada org retornada por GET <i>\/users\/{username}\/orgs<\/i>.</li>
+          <li><b>github_list_org_members<\/b> (users.ts:61-79) — lista membros de uma dessas orgs.</li>
+          <li><b>github_get_teams<\/b> (users.ts:154-172) — lista times da org quando há permissão.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Só orgs públicas:</b> a descrição limita a orgs públicas do login (users.ts:33).</li>
+          <li><b>Paginação opcional:</b> sem <i>per_page\/page<\/i> a URL sai sem query; <i>undefined<\/i> é omitido (github-tools.service.ts:280-287); máximo 100 por página (users.ts:36-37).</li>
+          <li><b>Erro cortado:</b> corpo de erro HTTP é truncado em 500 caracteres (github-tools.service.ts:259-262).</li>
+          <li><b>Escopo:</b> GET pede só <i>read<\/i>; sem ele a chamada é recusada antes do token (github-tools.service.ts:132-135,141-153).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5812,6 +5853,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>per_page \/ page<\/b> — paginação; máximo 100 por página e <i>undefined<\/i> é omitido da query (users.ts:36-37; github-tools.service.ts:280-287).</li>
+          <li><b>Orgs públicas<\/b> — só associações visíveis do login entram no retorno (users.ts:33).</li>
+          <li><b>GH.read<\/b> — marca leitura; catálogo exige <i>read<\/i> (shared.ts:20-21,96-102).</li>
+          <li><b>GITHUB_NOT_CONFIGURED<\/b> — 409 quando falta McpServer ou token legível (github-tools.service.ts:78-80,185-193).</li>
         </ul>
       </div>
 

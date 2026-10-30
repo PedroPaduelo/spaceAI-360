@@ -5758,7 +5758,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
-      <div class="card" id="card-glossario">
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida <i>query</i> obrigatória e <i>sort/order/per_page/page</i> opcionais (repos.ts:28-36).</li>
+          <li>Resolve o McpServer “GitHub” com cache de 60 s (github-tools.service.ts:54-66).</li>
+          <li>Confere escopo: GET exige <i>read</i>; GH.read marca leitura (shared.ts:21; github-tools.service.ts:132-135).</li>
+          <li>Monta GET <i>/search/repositories</i> com <i>q=query</i> mais filtros (repos.ts:38-47).</li>
+          <li>Query omite <i>undefined</i>; <i>sort</i> só stars/forks/help-wanted-issues/updated (repos.ts:30; github-tools.service.ts:280-287).</li>
+          <li>Busca com timeout de 15 s; JSON via <i>jsonContent</i> (github-tools.service.ts:233-249).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>github_get_repository</i> (repos.ts:7-18) para detalhar um resultado.</li>
+          <li><i>github_search_code</i> (repos.ts:467-483) para buscar dentro do código em vez do repo.</li>
+          <li><i>github_search_issues</i> (issues.ts:192-208) para buscar issues/PRs com sintaxe similar.</li>
+          <li><i>github_list_starred</i> (repos.ts:391-412) para cruzar com favoritos.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Sintaxe GitHub: “language:typescript stars:&gt;100”; <i>q</i> malformada dá 422 GITHUB_API_ERROR (repos.ts:26).</li>
+          <li><i>per_page</i> até 100; <i>rate limit</i> de search é mais restrito na API (repos.ts:34-35).</li>
+          <li>Sem paginar só vem a primeira página; use <i>page</i> (repos.ts:35).</li>
+          <li>Resposta inclui <i>total_count</i> e <i>items</i>; não é lista pura (repos.ts:38-47).</li>
+        </ul>
+      </div>
+
+    <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
           <h3>Glossario</h3>
@@ -5776,7 +5817,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+                            <li><b>q</b> — query na sintaxe de busca do GitHub, ex. <i>language:typescript stars:&gt;100</i> (repos.ts:26,41).</li>
+                    <li><b>sort/order</b> — campo e direção da ordenação; sort restrito a 4 valores (repos.ts:29-33).</li>
+                    <li><b>total_count/items</b> — envelope da busca; os repos ficam em <i>items</i>.</li>
+                    <li><b>/search/repositories</b> — endpoint de busca, com paginação (repos.ts:40).</li>
+</ul>
       </div>
 
 </div>

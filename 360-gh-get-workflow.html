@@ -5794,6 +5794,44 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Agente chama <code>github_get_workflow</code> com <code>owner/repo/workflow_id</code> (ID numérico ou arquivo como “ci.yml”) (repos.ts:276-280).</li>
+          <li>Wrapper <code>gh</code> resolve o McpServer “GitHub” (shared.ts:39-48); <code>GH.read</code> marca leitura (repos.ts:281).</li>
+          <li>Escopo <code>read</code> duplo: catálogo (shared.ts:96-101) e GET em <code>callGitHubApi</code> (github-tools.service.ts:132-153).</li>
+          <li>Serviço faz <code>GET /repos/{owner}/{repo}/actions/workflows/{workflow_id}</code> sem query/body; segmento codificado (repos.ts:283-289; github-tools.service.ts:117-130).</li>
+          <li>Workflow único volta via <code>jsonContent</code> (shared.ts:48).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>360-gh-list-workflows.html</b> — lista de onde sai o <code>workflow_id</code> (repos.ts:260-268).</li>
+          <li><b>360-gh-list-workflow-runs.html</b> — runs desse workflow filtráveis por <code>branch/status</code> (repos.ts:312-324).</li>
+          <li><b>360-gh-get-workflow-run.html</b> — detalhe de um run específico (repos.ts:339-341).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><code>workflow_id</code> é string: número vira texto no path; nome de arquivo precisa incluir extensão (repos.ts:279).</li>
+          <li>Arquivo renomeado quebra o link por nome — prefira o ID numérico estável (repos.ts:275,283-289).</li>
+          <li>Workflow inexistente vira <code>GITHUB_API_ERROR</code> com corpo cortado em 500 caracteres (github-tools.service.ts:259-262).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5812,6 +5850,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>workflow_id flexível</b> — string com ID numérico ou nome de arquivo (repos.ts:279).</li>
+          <li><b>ci.yml</b> — exemplo de nome de workflow no path (repos.ts:275,279).</li>
+          <li><b>Segmento codificado</b> — <code>workflow_id</code> passa por <code>safeGitHubApiPath</code> (github-tools.service.ts:117-130; repos.ts:287).</li>
+          <li><b>Leitura</b> — <code>GH.read</code>; sem query, body ou paginação (repos.ts:281-289).</li>
         </ul>
       </div>
 

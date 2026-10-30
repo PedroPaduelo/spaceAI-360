@@ -5750,6 +5750,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Validar entrada:<\/b> <i>owner<\/i>, <i>repo<\/i>, <i>discussion_number<\/i> e <i>body<\/i> obrigatórios (discussions.ts:118-123).<\/li>
+          <li><b>2. Resolver MCP e escopo:<\/b> <i>gh<\/i> resolve o McpServer (shared.ts:39-48); POST exige <i>github:write<\/i> (github-tools.service.ts:132-135,141-153).<\/li>
+          <li><b>3. Montar URL e corpo:<\/b> POST <i>\/repos\/{owner}\/{repo}\/discussions\/{n}\/comments<\/i> com <i>{body}<\/i> (discussions.ts:125-133).<\/li>
+          <li><b>4. Chamar:<\/b> headers vnd.github+json e prazo 15 s (github-tools.service.ts:219-224,234-249) com path validado (github-tools.service.ts:117-130).<\/li>
+          <li><b>5. Responder:<\/b> JSON do comentário via <i>jsonContent<\/i> (shared.ts:48).<\/li>
+          <li><b>6. Falha prevista:<\/b> discussion inexistente vira <i>GITHUB_API_ERROR<\/i> (github-tools.service.ts:259-262).<\/li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>github_get_discussion_comments<\/b> (discussions.ts:65-88) — lê os comentários da mesma discussion.<\/li>
+          <li><b>github_get_discussion<\/b> (discussions.ts:28-47) — valida que a discussion existe antes de comentar.<\/li>
+          <li><b>github_create_discussion<\/b> (discussions.ts:90-111) — cria a discussion quando ela ainda não existe.<\/li>
+          <li><b>github_list_discussions<\/b> (discussions.ts:7-26) — descobre o <i>discussion_number<\/i>.<\/li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Escrita:<\/b> <i>GH.create<\/i> exige <i>github:write<\/i> (shared.ts:22,96-102).<\/li>
+          <li><b>Alvo existente:<\/b> número errado vira 404 encapsulado em <i>GITHUB_API_ERROR<\/i> (github-tools.service.ts:259-262).<\/li>
+          <li><b>Sem idempotência:<\/b> repetir o POST cria outro comentário (discussions.ts:125-133).<\/li>
+          <li><b>Corpo mínimo:<\/b> só <i>body<\/i> vai no JSON; formatação é markdown livre (discussions.ts:131).<\/li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5768,6 +5809,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>GH.create<\/b> — escrita com <i>github:write<\/i> (shared.ts:22).<\/li>
+          <li><b>body<\/b> — texto do comentário, com markdown (discussions.ts:122,131).<\/li>
+          <li><b>scopeForMethod<\/b> — POST pede <i>github:write<\/i> (github-tools.service.ts:132-135).<\/li>
+          <li><b>safeGitHubApiPath<\/b> — codifica o número no path (github-tools.service.ts:117-130).<\/li>
         </ul>
       </div>
 

@@ -5793,7 +5793,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
-      <div class="card" id="card-glossario">
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida <i>owner</i> e <i>repo</i> como strings obrigatórias (repos.ts:12-15).</li>
+          <li>Resolve o McpServer “GitHub” com cache de 60 s (github-tools.service.ts:54-66).</li>
+          <li>Confere escopo: GET exige <i>read</i>; GH.read marca leitura (shared.ts:21; github-tools.service.ts:132-135,141-153).</li>
+          <li>Monta GET <i>/repos/{owner}/{repo}</i> e higieniza cada segmento contra traversal (repos.ts:17-18; github-tools.service.ts:117-130).</li>
+          <li>Chama <i>fetch</i> com Accept vnd.github+json, versão 2022-11-28 e timeout de 15 s (github-tools.service.ts:219-224,233-249).</li>
+          <li>Devolve JSON via <i>jsonContent</i> ou <i>errorContent</i> com <i>code</i> (shared.ts:39-54).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>github_search_repositories</i> (repos.ts:21-48) para descobrir <i>owner/repo</i> antes do GET direto.</li>
+          <li><i>github_list_branches</i> (repos.ts:98-117) e <i>github_list_tags</i> (repos.ts:157-176) para explorar refs do mesmo repositório.</li>
+          <li><i>github_list_releases</i> (repos.ts:195-214) para ver publicações do repositório lido.</li>
+          <li><i>github_get_file_contents</i> (repos.ts:442-465) para ler arquivos após confirmar que o repositório existe.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Sem paginação: resposta única; repositório inexistente vira GITHUB_API_ERROR 404 (github-tools.service.ts:259-262).</li>
+          <li><i>owner/repo</i> com “..”, “/”, “?” ou controle é recusado pelo <i>safeGitHubApiPath</i> (github-tools.service.ts:117-130).</li>
+          <li>Fora de um <i>tools/call</i> o token nem é usado (github-tools.service.ts:141-143).</li>
+          <li>Timeout de 15 s vira GITHUB_TIMEOUT; McpServer ausente vira GITHUB_NOT_CONFIGURED (github-tools.service.ts:40,78-95,248-249).</li>
+        </ul>
+      </div>
+
+    <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
           <h3>Glossario</h3>
@@ -5811,7 +5852,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+                            <li><b>owner/repo</b> — dono e nome do repositório; compõem o path <i>/repos/{owner}/{repo}</i> (repos.ts:12-15).</li>
+                    <li><b>GH.read</b> — preset de annotations para leitura; exige só o escopo <i>read</i> (shared.ts:21).</li>
+                    <li><b>safeGitHubApiPath</b> — valida e codifica cada segmento do path (github-tools.service.ts:117-130).</li>
+                    <li><b>callGitHubApi</b> — helper único que monta URL, headers e trata a resposta (github-tools.service.ts:170-176).</li>
+</ul>
       </div>
 
 </div>

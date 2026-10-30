@@ -5716,6 +5716,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Validar entrada:<\/b> só <i>gist_id<\/i>, obrigatório (gists.ts:95-97).<\/li>
+          <li><b>2. Resolver MCP e escopo:<\/b> <i>gh<\/i> resolve o McpServer (shared.ts:39-48); DELETE exige <i>github:write<\/i> (github-tools.service.ts:132-135,141-153).<\/li>
+          <li><b>3. Montar URL:<\/b> DELETE <i>\/gists\/{gist_id}<\/i>, sem corpo nem query (gists.ts:99).<\/li>
+          <li><b>4. Chamar:<\/b> headers vnd.github+json e prazo 15 s (github-tools.service.ts:219-224,234-249).<\/li>
+          <li><b>5. Responder:<\/b> 204 sem corpo vira <i>{status, location, text}<\/i> (github-tools.service.ts:268-275).<\/li>
+          <li><b>6. Falha prevista:<\/b> id inexistente vira <i>GITHUB_API_ERROR<\/i> (github-tools.service.ts:259-262).<\/li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>github_get_gist<\/b> (gists.ts:28-38) — confirma o alvo antes de apagar.<\/li>
+          <li><b>github_list_gists<\/b> (gists.ts:7-26) — lista para achar o <i>gist_id<\/i>.<\/li>
+          <li><b>github_create_gist<\/b> (gists.ts:40-64) — cria substituto após apagar.<\/li>
+          <li><b>github_update_gist<\/b> (gists.ts:66-88) — alternativa quando apagar é excessivo.<\/li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Irreversível:<\/b> <i>GH.remove<\/i> marca remoção destrutiva (shared.ts:25); repetir após apagar vira 404.<\/li>
+          <li><b>Escrita:<\/b> DELETE exige <i>github:write<\/i>, não só <i>read<\/i> (github-tools.service.ts:132-135).<\/li>
+          <li><b>Sem corpo:<\/b> DELETE não envia JSON mesmo com body definido (github-tools.service.ts:237-241).<\/li>
+          <li><b>Sem MCP:<\/b> 409 <i>GITHUB_NOT_CONFIGURED<\/i> (github-tools.service.ts:185-193).<\/li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5734,6 +5775,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>GH.remove<\/b> — remoção irreversível (shared.ts:25).<\/li>
+          <li><b>DELETE \/gists\/{id}<\/b> — sem corpo nem query (gists.ts:99).<\/li>
+          <li><b>Resposta não-JSON<\/b> — 204 vira <i>{status, location, text}<\/i> (github-tools.service.ts:268-275).<\/li>
+          <li><b>github:write<\/b> — exigido para DELETE (github-tools.service.ts:132-135).<\/li>
         </ul>
       </div>
 
