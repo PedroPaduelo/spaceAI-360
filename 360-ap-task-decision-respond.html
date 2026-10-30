@@ -5734,6 +5734,44 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>Agente chama a tool</b> só com decisionId; ela nunca grava, só entrega o link (backend/src/tools/core/tasks.ts:519-535).</li>
+          <li><b>Tool localiza a tela:</b> decisionScreen devolve path /projects/:projectId/tasks/:taskId#decisao e URL absoluta quando há base configurada (backend/src/services/task-decision.service.ts:321-325,508-512).</li>
+          <li><b>Devolve isError:</b> HUMAN_DECISION_REQUIRED com a URL e o status da decisão; o agente repassa ao humano e aguarda (backend/src/tools/core/tasks.ts:527-533).</li>
+          <li><b>Humano responde na UI:</b> só pessoa autenticada com escopo hitl (requireHumanActor); agente nunca, por nenhuma credencial (backend/src/services/task-decision.service.ts:206-214,367-370).</li>
+          <li><b>Service aplica:</b> valida opções, grava revisão, marca answered e recalcula o portão (awaiting_* vira todo sem pendência) (backend/src/services/task-decision.service.ts:378-407; backend/src/services/task-status.ts:122-123).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>Portão humano (BE-19):</b> responder é ato exclusivo da pessoa; a tool do MCP é só ponte para a tela, nunca grava (backend/src/services/task-decision.service.ts:200-214; backend/src/tools/core/tasks.ts:513-516).</li>
+          <li><b>Ciclo decisão↔complemento:</b> se faltar contexto, o humano pede mais informações (awaiting_more_information) em vez de responder; o agente devolve com return-to-decision e a resposta vem depois (backend/src/services/task-decision.service.ts:475-488,494-506).</li>
+          <li><b>Leitura da resposta:</b> após o humano responder, o agente lê com task_decision_list (revision nova primeiro) (backend/src/tools/core/tasks.ts:459-465; backend/src/services/task-decision.service.ts:301-304).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Agente não responde:</b> optionId ou otherText enviados pelo agente não valem; só a UI com JWT grava (backend/src/services/task-decision.service.ts:206-214).</li>
+          <li><b>Decisão fechada:</b> answered, cancelled ou superseded dá 409 e não aceita resposta (backend/src/services/task-decision.service.ts:380).</li>
+          <li><b>Opção inválida:</b> optionId de outra decisão dá 422; single com mais de uma opção dá 422; sem opção nem otherText dá 422 (backend/src/services/task-decision.service.ts:386-395; backend/src/schemas/task-decisions.ts:58-65).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5752,6 +5790,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>HITL</b> — human-in-the-loop: só pessoa autenticada com escopo hitl responde; agente entrega o link (backend/src/services/task-decision.service.ts:200-214).</li>
+          <li><b>HUMAN_DECISION_REQUIRED</b> — isError que a tool devolve com a URL da tela de decisão (backend/src/tools/core/tasks.ts:527-533).</li>
+          <li><b>answered</b> — status após a resposta humana; sai da contagem de pendentes e pode liberar o portão (backend/src/services/task-decision.service.ts:398-407; prisma/schema.prisma:660-666).</li>
+          <li><b>RespondDecisionSchema</b> — exige ao menos uma opção ou otherText; valida min/maxSelections (backend/src/schemas/task-decisions.ts:58-65).</li>
         </ul>
       </div>
 

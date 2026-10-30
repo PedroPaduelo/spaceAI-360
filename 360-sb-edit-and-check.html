@@ -5673,6 +5673,50 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>Registro transacional</b> — handler <i>edit_and_check</i> chama <i>handleEditAndCheck</i>; valida <i>edits</i> nao-vazio de <i>{path,old_string,new_string}</i> (mypanel/packages/sandbox-agent-go/internal/tools/batch/batch.go:107-113; internal/tools/batch/edit.go:27-31,138-155).</li>
+          <li><b>Checks: override ou perfil</b> — <i>check</i> opcional substitui; senao <i>profileChecks</i> do <i>stack.Detect</i>; sem repo volta lista vazia sem erro (internal/tools/batch/edit.go:32-41,99-115).</li>
+          <li><b>Timeout por check</b> — padrao 120s (<i>defaultCheckMs</i>), respeita <i>timeout_ms</i> (internal/tools/batch/read.go:14-21; internal/tools/batch/edit.go:42-45).</li>
+          <li><b>Aplica tudo ou nada</b> — <i>files.ApplyEdits</i> valida todas (existe, regular, lida antes, old acha uma vez) e so entao grava com <i>AtomicWrite</i> + <i>remember</i> (internal/tools/batch/edit.go:46-49; internal/tools/files/batch.go:137-220).</li>
+          <li><b>Roda checks em ordem</b> — cwd do repo (ou workspace sem repo); comando vazio pula; <i>RunBash</i> por check com cauda 4KB e marca de timeout (internal/tools/batch/edit.go:54-71,167-178).</li>
+          <li><b>Para ou continua</b> — falha interrompe salvo <i>continue_on_error:true</i>; resumo via <i>checkSummary</i> (internal/tools/batch/edit.go:72-80,118-135).</li>
+          <li><b>Resposta</b> — <i>Applied N edit(s) in ...</i> + JSON <i>{applied,checks}</i>; falha vira <i>IsError</i> mantendo edicoes (internal/tools/batch/edit.go:80-94).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Correlacoes</h3>
+        </div>
+        <ul>
+          <li><b>batch_read</b> — mesma ponte <i>Batch</i>; leitura conta para o <i>check</i> de edicao (memoria unica) (internal/tools/files/batch.go:30-75; main.go:290-298).</li>
+          <li><b>run_steps</b> — checks usam o mesmo <i>RunBash + tailOf</i> dos passos; sem plano condicional (internal/tools/batch/steps.go:53-60).</li>
+          <li><b>test_changed</b> — alternativa focada: so testes de mudados via <i>TestMap</i> (internal/tools/batch/testchanged.go:42-117).</li>
+          <li><b>workspace_info</b> — mostra checks/runner do perfil usado como padrao (internal/tools/info/info.go:116; internal/stack/stack.go:241-259).</li>
+          <li><b>edit simples</b> — lote exige unicidade de <i>old_string</i> como o edit sem <i>replace_all</i> (internal/tools/files/batch.go:194-208).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Nada parcial</b> — um <i>old_string</i> sem match aborta tudo e checks nem rodam (internal/tools/batch/edit.go:23-28; internal/tools/files/batch.go:196-208).</li>
+          <li><b>Regras de edicao</b> — <i>old vazio</i>, <i>old==new</i>, diretorio, binario ou acima de <i>maxEditBytes</i> recusam (internal/tools/files/batch.go:149-175).</li>
+          <li><b>Sem checks</b> — sem perfil e sem <i>check</i>: <i>No checks to run</i>, edicoes mantidas sem erro (internal/tools/batch/edit.go:99-103,118-121).</li>
+          <li><b>Subdiretorio</b> — perfil com <i>Dir</i> vira <i>cd 'dir' e comando</i> via <i>shellQuote</i>; schema nao tem cwd (internal/tools/batch/edit.go:105-115,193-196).</li>
+          <li><b>Observacao</b> — gravacao e por plano: falha de disco no meio pode deixar anteriores gravados (cada item nomeado); nao confirmado rollback total (internal/tools/files/batch.go:175-186).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5691,6 +5735,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Transacional</b> — valida todas, aplica todas; uma falha e nada muda, checks nem rodam (internal/tools/batch/edit.go:23-28; internal/tools/files/batch.go:137-175).</li>
+          <li><b>profileChecks</b> — checks do perfil da stack; sem repo volta vazio sem erro (internal/tools/batch/edit.go:99-115).</li>
+          <li><b>AtomicWrite</b> — gravacao atomica por arquivo; cada aplicado entra em <i>remember</i> (internal/tools/files/batch.go:175-186).</li>
+          <li><b>tailOf</b> — cauda de 4KB sem partir rune, com marca de corte (internal/tools/batch/edit.go:167-178).</li>
+          <li><b>continue_on_error</b> — falso para no primeiro check falho; true roda todos (internal/tools/batch/edit.go:58-80).</li>
         </ul>
       </div>
 

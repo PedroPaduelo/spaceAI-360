@@ -5696,6 +5696,50 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>Registro</b> — handler <i>pr_create</i> le <i>branch/title/base/body/draft</i> (<i>draft</i> padrao false) e chama <i>Repo.PRCreate</i> com <i>WithoutCancel</i> (nao para no meio) (mypanel/packages/sandbox-agent-go/internal/tools/repo/register.go:17-24; internal/tools/repo/prcreate.go:40-41).</li>
+          <li><b>Valida e resolve base</b> — <i>ValidateBranch</i> na head e no alvo; alvo vazio vira main do clone (internal/tools/repo/prcreate.go:42-55; internal/tools/repo/branch.go:15-22).</li>
+          <li><b>Exige GitHub</b> — <i>remote get-url origin</i> precisa casar <i>github.com/dono/repo</i>; senao <i>origin is not a GitHub repository</i> (internal/tools/repo/prcreate.go:56-64,20).</li>
+          <li><b>Push antes da PR</b> — escolhe a pasta da worktree da branch (se houver) senao o clone, e roda <i>push -u origin branch</i> com <i>PushTimeout</i> 300s (internal/tools/repo/prcreate.go:67-86; internal/tools/repo/git.go:22).</li>
+          <li><b>Token do sandbox</b> — <i>githubToken</i> le <i>~/.git-credentials</i> e so aceita host <i>github.com</i> (internal/tools/repo/prcreate.go:88-92,163-178).</li>
+          <li><b>Abre a PR</b> — POST <i>/repos/owner/name/pulls</i> com <i>title/head/base/body/draft</i>, timeout 30s, teto 1MB; fora de 2xx vira <i>GitHub refused the PR</i> com <i>apiDetail</i> (internal/tools/repo/prcreate.go:96-141,22-25,145-159).</li>
+          <li><b>Resposta</b> — <i>Pushed ... and opened PR #N: url (head -&gt; base[, draft])</i>; sem fila de merge (internal/tools/repo/prcreate.go:139-140,36-39).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Correlacoes</h3>
+        </div>
+        <ul>
+          <li><b>worktree_merge</b> — merge local <i>--no-ff</i> nao exige PR; PR e so para revisao remota (internal/tools/worktree/worktree.go:217-241).</li>
+          <li><b>Branch da worktree</b> — PR usa a pasta da worktree da branch para hooks/cwd iguais aos do merge (internal/tools/repo/prcreate.go:67-79).</li>
+          <li><b>worktree_list</b> — confirma branch e base antes de abrir (internal/tools/worktree/worktree.go:179-212).</li>
+          <li><b>git push</b> — <i>push -u origin</i> com <i>PushTimeout</i>; rede e separada da fila de merge (internal/tools/repo/git.go:84-97; internal/tools/repo/prcreate.go:80).</li>
+          <li><b>ValidateBranch</b> — mesma regra de nome do worktree (internal/tools/repo/branch.go:15-22).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Sem GitHub</b> — origem nao GitHub aborta antes do push; sem token vira <i>No GitHub token in this sandbox</i> (internal/tools/repo/prcreate.go:62-64,177).</li>
+          <li><b>Push falhou aborta</b> — <i>Could not push ...</i> e erro de tool, sem PR (internal/tools/repo/prcreate.go:84-86).</li>
+          <li><b>GitHub recusou</b> — HTTP fora de 200-299 com <i>apiDetail</i> (mensagem + erros de campo); corpo nao-JSON vira <i>no details</i> (internal/tools/repo/prcreate.go:128-159).</li>
+          <li><b>Rede e prazo</b> — transporte falho vira <i>GitHub is not reachable</i>; API tem 30s e limite de 1MB (internal/tools/repo/prcreate.go:107-124,22-25).</li>
+          <li><b>Observacao</b> — operacao nao e cancelavel no meio: push sem PR (ou vice-versa) deixa metade para retry (internal/tools/repo/prcreate.go:36-41).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5714,6 +5758,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>githubRemote</b> — regex que aceita <i>https://github.com/dono/repo</i> ou <i>git@github.com:dono/repo</i> (internal/tools/repo/prcreate.go:20,60-64).</li>
+          <li><b>.git-credentials</b> — arquivo com token; so senha de host <i>github.com</i> vale para a API (internal/tools/repo/prcreate.go:163-178).</li>
+          <li><b>apiDetail</b> — junta <i>message</i> + <i>errors[].message</i> da API; sem JSON vira <i>no details</i> (internal/tools/repo/prcreate.go:145-159).</li>
+          <li><b>WithoutCancel</b> — contexto sem cancelamento: push+PR vao ate o fim mesmo se o pedido cair (internal/tools/repo/prcreate.go:40-41).</li>
+          <li><b>Draft</b> — PR rascunho: resposta acrescenta <i>, draft</i> ao resumo (internal/tools/repo/prcreate.go:135-140).</li>
         </ul>
       </div>
 

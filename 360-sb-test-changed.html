@@ -5762,6 +5762,50 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>Registro</b> — handler <i>test_changed</i> chama <i>handleTestChanged</i>; schemas do catalogo (mypanel/packages/sandbox-agent-go/internal/tools/batch/batch.go:107-113; internal/tools/batch/testchanged.go:42).</li>
+          <li><b>Resolve repo e cwd</b> — <i>repo()</i> devolve dir+main ou <i>no repository</i>; <i>cwd</i> opcional precisa ser diretorio; <i>base</i> vazia vira main (internal/tools/batch/testchanged.go:43-60).</li>
+          <li><b>Timeout com teto</b> — padrao 600s, respeita <i>timeout_ms</i> e capa em 3600s em <i>runTestCommand</i> (internal/tools/batch/testchanged.go:18-22,61-64,250-252).</li>
+          <li><b>Diff desde base</b> — <i>diffFiles</i>: <i>merge-base HEAD base</i> ate HEAD + sujo (<i>diff</i>, <i>diff --cached</i>, <i>ls-files --others</i>); ordenado sem duplicata (internal/tools/batch/testchanged.go:122-174).</li>
+          <li><b>Mapeia por perfil</b> — <i>detect(dir)</i> + <i>profileDir</i>; relativo ao perfil; <i>mapTests</i>: teste casa consigo, fonte tenta candidatos ate achar arquivo (internal/tools/batch/testchanged.go:70-86,180-208,229-245).</li>
+          <li><b>Sem teste: fallback ou aviso</b> — sem mapa e sem <i>full_fallback</i> (ou sem <i>Full</i>) devolve <i>No changed file maps...</i>; com fallback roda suite cheia (internal/tools/batch/testchanged.go:97-108).</li>
+          <li><b>Executa e relata</b> — sem <i>Runner</i> avisa sem rodar; senao <i>runner + quoteAll(tests)</i> em <i>runTestCommand</i> e <i>testResult</i> com <i>IsError</i> se falhou (internal/tools/batch/testchanged.go:109-117,249-286).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Correlacoes</h3>
+        </div>
+        <ul>
+          <li><b>workspace_info</b> — exibe <i>stack.Detect(dir).Describe()</i> com runner/checks usados aqui (internal/tools/info/info.go:116; internal/stack/stack.go:241-259).</li>
+          <li><b>run_steps / edit_and_check</b> — mesma base <i>RunBash</i> + <i>tailOf</i> 8KB/4KB para saida aparada (internal/tools/batch/steps.go:53-60; internal/tools/batch/edit.go:67-71).</li>
+          <li><b>batch_read</b> — le os arquivos mudados/mapeados sem custo extra de fila (internal/tools/batch/read.go:39-84).</li>
+          <li><b>worktree_task</b> — baseline usa o mesmo <i>detect + Full</i>; <i>skip_baseline/skip_install</i> controlam (internal/tools/batch/task.go:38-80).</li>
+          <li><b>stack.TestMap</b> — <i>Suffixes/Prefixes/Runner/Full</i> definem candidatos e comandos (internal/stack/stack.go:42-51,229-245).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Sem repo</b> — <i>repo()</i> nil vira <i>no repository attached</i>; sem <i>RepoDir</i> nao ha diff (internal/tools/batch/batch.go:124-129; internal/tools/batch/testchanged.go:43-46).</li>
+          <li><b>Base desconhecida</b> — sem <i>merge-base</i> compara direto; se <i>diff base HEAD</i> falha vira <i>cannot diff against ...</i> (internal/tools/batch/testchanged.go:139-157).</li>
+          <li><b>Unmapped nao some</b> — arquivo sem teste vai para <i>unmapped</i> ordenado, nunca silencioso (internal/tools/batch/testchanged.go:180-208).</li>
+          <li><b>Runner vazio</b> — <i>Tests found, but the stack profile has no runner</i>: sem execucao (internal/tools/batch/testchanged.go:109-115).</li>
+          <li><b>Observacao</b> — diff sai relativo a raiz do git; fora de <i>profileDir</i> nao mapeia mas aparece (internal/tools/batch/testchanged.go:75-85).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5780,6 +5824,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>merge-base</b> — ancestral comum de HEAD e base; ponto de partida do diff de commits (internal/tools/batch/testchanged.go:135-157).</li>
+          <li><b>Unmapped</b> — mudado sem teste correspondente; listado e ordenado, nunca omitido (internal/tools/batch/testchanged.go:88-96,180-208).</li>
+          <li><b>full_fallback</b> — sem mapa, roda a suite cheia (<i>prof.Test.Full</i>) em vez de nada (internal/tools/batch/testchanged.go:97-108).</li>
+          <li><b>TestMap</b> — <i>Suffixes/Prefixes</i> geram candidatos (<i>testCandidates</i>) e <i>isTestFile</i> detecta teste (internal/stack/stack.go:42-51; internal/tools/batch/testchanged.go:211-245).</li>
+          <li><b>testReport</b> — <i>changed/tests/unmapped/command/exit/tail/full_suite</i> em texto + JSON (internal/tools/batch/testchanged.go:24-36,268-286).</li>
         </ul>
       </div>
 

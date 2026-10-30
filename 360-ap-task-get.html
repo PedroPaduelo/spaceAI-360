@@ -5743,6 +5743,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Checar acesso antes de tudo:</b> withTaskAccess valida o id contra o projeto da chave; fora do alcance vira 404 de inexistente (tasks.ts:750-768).</li>
+          <li><b>2. Buscar o detalhe:</b> o handler chama taskService.getByIdWithTodos com o id (tasks.ts:179-180; task.service.ts:496-502).</li>
+          <li><b>3. Trazer os vizinhos:</b> o include carrega todos, decisions, attachments, memory/skill/prompt/knowledge links e os últimos 51 eventos (task.service.ts:148-169; task.service.ts:126).</li>
+          <li><b>4. Achatar para o agente:</b> tags de JSON para lista, isCompleted para booleano, decisions via shapeDecisions, skills/prompts sem content e knowledge via shapeKnowledgeLink (tasks.ts:182-194; task.service.ts:129-157).</li>
+          <li><b>5. Cortar o histórico:</b> devolve 50 eventos em ordem de gravação com taskEventsTruncated quando passou do limite (task.service.ts:497-501).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>task_list × task_get × bundle:</b> a lista resume sem description, o get detalha uma task e o context_bundle monta o pacote de execução com gate e mustRead (tasks.ts:133-151; tasks.ts:172-196; tasks.ts:283-294).</li>
+          <li><b>Corpos ficam nas gets próprias:</b> skill_get, prompt_get, memory_get e knowledge_get leem o corpo; attachment_get lê o arquivo (tasks.ts:296-343).</li>
+          <li><b>Histórico completo:</b> task_event_list pagina por seq/cursor além dos 50 do detalhe (tasks.ts:266-275; schemas/tasks.ts:162-172).</li>
+          <li><b>Antes de executar:</b> o protocolo prefere task_context_bundle, que já traz mustRead e o portão HITL (task-context.service.ts:267-330; task-context.service.ts:353-385).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Truncado não é completo:</b> taskEventsTruncated true exige task_event_list; o detalhe nunca passa de 50 eventos (task.service.ts:168; task.service.ts:499-501).</li>
+          <li><b>Sem content de propósito:</b> skillLinks e promptLinks vêm em resumo para não carregar dezenas de KB por vínculo; o corpo só vem na get própria (task.service.ts:154-164).</li>
+          <li><b>Lixeira some do detalhe:</b> memória na lixeira e knowledge deletada ficam de fora, mas o vínculo fica e volta com o restore (task.service.ts:152-153; task.service.ts:96-104).</li>
+          <li><b>404 duplo:</b> id inexistente e id fora do projeto devolvem o mesmo NOT_FOUND anti-BOLA (tasks.ts:759-768).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5761,7 +5801,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+        
+          <li><b>TaskDetail</b> — task mais todos, decisões, anexos, vínculos e últimos eventos, montada pelo include único (task.service.ts:148-174).</li>
+          <li><b>taskEventsTruncated</b> — true quando a task tem mais eventos que os 50 devolvidos; o resto está no event_list (task.service.ts:126).</li>
+          <li><b>shapeDecisions / shapeKnowledgeLink</b> — achatam decisões (opções/respostas como arrays) e knowledge (título e metadados) para o agente (tasks.ts:187-193).</li>
+          <li><b>Resumo × corpo</b> — vínculo traz só metadados; o markdown da skill/memória/prompt/knowledge sai na get própria (task.service.ts:129-164).</li>
+</ul>
       </div>
 
 </div>

@@ -5720,6 +5720,50 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>Registro best-effort</b> — handler <i>batch_read</i> chama <i>handleBatchRead</i>; exige <i>paths</i> array de strings 1-20 (mypanel/packages/sandbox-agent-go/internal/tools/batch/batch.go:107-113; internal/tools/batch/read.go:39-43,88-102).</li>
+          <li><b>Orcamento total</b> — <i>budget = default 200KB</i>, respeita <i>max_bytes</i> ate 2MB (<i>min(v,max)</i>) (internal/tools/batch/read.go:14-16,44-47).</li>
+          <li><b>Loop na ordem</b> — path vazio vira item de falha; <i>spent &gt;= budget</i> vira <i>skipped (budget)</i> sem ler (internal/tools/batch/read.go:52-62).</li>
+          <li><b>Le por item</b> — <i>files.BatchReadOne(path, budget-spent)</i>: linhas numeradas ate o saldo, com marca de corte (internal/tools/batch/read.go:63; internal/tools/files/batch.go:30-75).</li>
+          <li><b>Casos por arquivo</b> — falta vira erro e segue; diretorio vira aviso <i>Use ls</i>; imagem pede <i>read</i>; binario avisa <i>Not shown</i> (internal/tools/files/batch.go:30-70).</li>
+          <li><b>Memoria de leitura</b> — cada lido faz <i>remember</i>: conta como lido para edit/write seguinte (internal/tools/files/batch.go:50-75).</li>
+          <li><b>Resposta</b> — <i>Read X of Y files (N bytes of M budgeted) [+ failed/skipped]</i> + JSON indentado + <i>Structured</i> (internal/tools/batch/read.go:72-83).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Correlacoes</h3>
+        </div>
+        <ul>
+          <li><b>read</b> — mesmo formato numerado e <i>remember</i>; lote e para 1-20 arquivos sem 20 calls (internal/tools/files/batch.go:30-75).</li>
+          <li><b>edit / edit_and_check</b> — leitura do lote vale para o <i>check</i> de edicao; escrita e transacional (internal/tools/files/batch.go:137-220; internal/tools/batch/edit.go:46-49).</li>
+          <li><b>glob / grep / ls</b> — acham paths; lote le conteudo com teto (internal/tools/files/batch.go:30-75).</li>
+          <li><b>Registro unico</b> — <i>batch.Register</i> liga 5 super-tools com schemas do catalogo (internal/tools/batch/batch.go:107-118).</li>
+          <li><b>Adaptacao</b> — <i>batchfiles.BatchReadOne/ApplyEdits</i> adaptam a ponte <i>files.Batch</i> (main.go:283-298).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Um falha nao derruba</b> — erro por arquivo vira item <i>{ok:false,error}</i>; so o resumo conta <i>failed</i> (internal/tools/batch/read.go:64-78).</li>
+          <li><b>Teto e por lote</b> — arquivo grande e cortado por linha ate o saldo com <i>cutUTF8</i>; restante vira <i>skipped</i> (internal/tools/files/batch.go:60-75; internal/tools/batch/read.go:58-62).</li>
+          <li><b>Truncado pede read</b> — <i>[file truncated ...] Read it with the read tool, with offset</i> para continuar (internal/tools/files/batch.go:60-75).</li>
+          <li><b>Binario/imagem</b> — nunca fazem dump; voltam como texto explicativo no item (internal/tools/files/batch.go:38-60).</li>
+          <li><b>Observacao</b> — limite 1-20 vem do schema; <i>strList</i> so valida tipo string, nao o teto de 20 (internal/tools/batch/read.go:88-102).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5738,6 +5782,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Best-effort</b> — o que da para ler volta com conteudo; o que nao da volta como erro ao lado do path (internal/tools/batch/read.go:34-38).</li>
+          <li><b>Budget</b> — teto total 200KB padrao ate 2MB via <i>max_bytes</i>; saldo por item (<i>budget-spent</i>) (internal/tools/batch/read.go:12-21,44-47).</li>
+          <li><b>Skipped</b> — <i>output budget reached</i>: sem leitura quando o saldo acabou (internal/tools/batch/read.go:58-62).</li>
+          <li><b>Truncated</b> — corte por linha ate o saldo com <i>cutUTF8</i> sem partir rune (internal/tools/files/batch.go:60-75).</li>
+          <li><b>remember</b> — leitura entra na memoria: vale como <i>read</i> para edit/write (internal/tools/files/batch.go:50-75).</li>
         </ul>
       </div>
 

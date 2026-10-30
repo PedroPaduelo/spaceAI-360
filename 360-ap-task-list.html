@@ -5719,6 +5719,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Validar filtros:</b> projectId mais status, priority, search e tags opcionais, com take implícito de 200 no MCP (tasks.ts:140-147; schemas/tasks.ts:124-132).</li>
+          <li><b>2. Montar o WHERE:</b> listWhere confere o projeto (404 se inexistente ou na lixeira) e soma filtros de status, priority, busca textual e tags JSON (task.service.ts:397-415).</li>
+          <li><b>3. Ler só o resumo:</b> listSummaries seleciona id, title, status, priority, tags e datas mais _count de todos, sem o count total (task.service.ts:466-489).</li>
+          <li><b>4. Contar concluídos:</b> withCompletedTodos agrupa todos com isCompleted por taskId e junta completedTodos ao _count (task.service.ts:422-436).</li>
+          <li><b>5. Devolver o board:</b> cada linha vira TaskSummary via toTaskSummary, até 200 itens (tasks.ts:148-150).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>task_get detalha:</b> um item da lista abre no get com description, todos e decisões; o bundle prepara a execução (tasks.ts:172-196; tasks.ts:283-294).</li>
+          <li><b>Board × fila:</b> a lista ordena por priority desc e updatedAt desc, a fila next ordena por priority desc e createdAt asc — board mostra recência, next mostra vez (task.service.ts:85-89; task-dependency.service.ts:42-46).</li>
+          <li><b>Mesmos enums:</b> status e priority filtram com os mesmos TaskStatusEnum e TaskPriorityEnum do create e do update (schemas/tasks.ts:15-25).</li>
+          <li><b>Busca e tags:</b> search casa title/description via textSearch e tags casa o JSON de tags (task.service.ts:405-413).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Teto diferente:</b> o MCP devolve até 200 sem total; a REST pagina com pageSize padrão 100 e máximo 1000 (tasks.ts:149; schemas/tasks.ts:122-127).</li>
+          <li><b>Sem description e sem total:</b> o resumo não traz corpo nem count; não dá para paginar por offset aqui (task.service.ts:460-489).</li>
+          <li><b>Projeto na lixeira é 404:</b> igual a projeto inexistente, até o restore (task.service.ts:399-400).</li>
+          <li><b>Busca varia por provider:</b> o case-insensitive passa por lib/search, então o comportamento muda com o banco (task.service.ts:405-408).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5737,7 +5777,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+        
+          <li><b>Resumo (summary)</b> — id, title, status, priority, tags e contagem de todos, sem description nem lista de todos (tasks.ts:138-150).</li>
+          <li><b>Paginação estável</b> — order por priority desc, updatedAt desc e id asc para a página não embaralhar (task.service.ts:85-89).</li>
+          <li><b>Busca textual</b> — search em title/description via textSearch com detecção de provider (task.service.ts:405-408).</li>
+          <li><b>Tags JSON</b> — tags é String com array JSON dentro, não String[]; o filtro usa cláusulas próprias (task.service.ts:409-413).</li>
+</ul>
       </div>
 
 </div>

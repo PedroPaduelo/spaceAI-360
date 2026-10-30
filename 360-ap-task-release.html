@@ -5717,6 +5717,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Validar quem solta:</b> taskId mais agentId, único campo do TaskReleaseSchema (schemas/tasks.ts:267; tasks.ts:437).</li>
+          <li><b>2. Ler o lease na transação:</b> busca claimedBy e claimExpiresAt; task inexistente vira 404 antes de escrever (task-dependency.service.ts:321-323).</li>
+          <li><b>3. Barrar dono alheio:</b> lease ativo de outro agente vira 409 CLAIM_HELD com dono e vencimento (task-dependency.service.ts:324-331; task-dependency.service.ts:76-79).</li>
+          <li><b>4. Apagar com condição:</b> UPDATE que zera claimedBy e claimExpiresAt só onde claimedBy é o agentId; zero linhas devolve released false (task-dependency.service.ts:332-336).</li>
+          <li><b>5. Registrar a soltura:</b> uma linha apagada grava o evento released com reason released e devolve released true (task-dependency.service.ts:337-338).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>claim e claim_next pegam, release devolve:</b> o trio coordena a fila sem servidor externo (tasks.ts:397-440).</li>
+          <li><b>Fechar solta sozinho:</b> update para done ou cancelled libera com evento released de reason task_closed, sem chamar release (task.service.ts:666-675).</li>
+          <li><b>Vencido é livre:</b> lease expirado não precisa de release; soltar após vencer devolve released false sem evento (task-dependency.service.ts:17; task-dependency.service.ts:76-79).</li>
+          <li><b>Pronto de novo:</b> sem lease, a task volta a casar o readyWhere de status todo, sem lease ativo e dependências done (task-dependency.service.ts:52-59).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Só o dono solta:</b> soltar lease ativo alheio é 409 CLAIM_HELD, nunca released false silencioso (task-dependency.service.ts:324-331).</li>
+          <li><b>released false não é erro:</b> nunca teve dono, venceu e outro pegou, ou já foi solta (task-dependency.service.ts:336).</li>
+          <li><b>Não muda status:</b> release só zera o lease; a task continua todo, in_progress ou blocked (task-dependency.service.ts:320-340).</li>
+          <li><b>Vencido não registra:</b> sobrescrever lease vencido não gera evento, então o histórico pode pular de claimed para claimed (task-dependency.service.ts:17).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5735,7 +5775,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+        
+          <li><b>released true/false</b> — true soltou uma linha do dono, false não mudou nada sem erro (task-dependency.service.ts:332-338).</li>
+          <li><b>task_closed × released</b> — fechar via update solta com reason task_closed; soltar à mão usa reason released (task.service.ts:675; task-dependency.service.ts:337).</li>
+          <li><b>Lease vencido</b> — claimExpiresAt no passado vale como livre e dispensa release (task-dependency.service.ts:76-79).</li>
+          <li><b>Dono do lease</b> — claimedBy que o release confere antes de zerar; só ele solta (task-dependency.service.ts:332-335).</li>
+</ul>
       </div>
 
 </div>

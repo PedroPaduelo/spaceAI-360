@@ -5777,6 +5777,50 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>Registro e fila git</b> — handler <i>worktree_merge</i> le <i>name/into/push/message</i> e chama <i>Service.Merge</i> dentro de <i>runQueued</i> na fila <i>gitQ</i> (mypanel/packages/sandbox-agent-go/internal/tools/worktree/register.go:25-28; internal/tools/worktree/worktree.go:217-220; internal/tools/worktree/queue.go:48-61).</li>
+          <li><b>Validacoes de entrada</b> — resolve <i>into</i> (padrao: main), valida branch alvo, acha worktree por branch ou pasta, recusa detached e mesma branch (internal/tools/worktree/worktree.go:253-274).</li>
+          <li><b>So com commit</b> — <i>dirtyCount</i> com untracked no src; se maior que 0, pede commit antes (internal/tools/worktree/worktree.go:275-282,600-613).</li>
+          <li><b>Escolhe onde fundir</b> — se o alvo ja esta checado em algum worktree usa ele; senao faz checkout no clone principal com restore depois (internal/tools/worktree/worktree.go:286-330).</li>
+          <li><b>Merge --no-ff</b> — <i>mergeAt</i> checa <i>busyIndex</i>, destrava MERGE_HEAD vazio via <i>--abort</i>, recusa sujo, testa <i>merge-base --is-ancestor</i> e roda <i>merge --no-ff -m</i> (internal/tools/worktree/worktree.go:350-426).</li>
+          <li><b>Falha com aborto</b> — <i>mergeFailure</i> lista conflitos via <i>diff --name-only --diff-filter=U</i>, da <i>--abort</i> e orienta rebase na worktree (internal/tools/worktree/worktree.go:431-482).</li>
+          <li><b>Push separado</b> — se <i>push:true</i>, empurra o alvo na fila <i>pushQ</i>; sem push avisa <i>Not pushed</i> (internal/tools/worktree/worktree.go:225-240,485-505).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Correlacoes</h3>
+        </div>
+        <ul>
+          <li><b>worktree_list</b> — mostra ahead/behind e pendencias antes de fundir (internal/tools/worktree/worktree.go:179-212).</li>
+          <li><b>worktree_create / remove</b> — criam e limpam a worktree fundida; remove mantem branch por padrao (internal/tools/worktree/worktree.go:93-160,509-562).</li>
+          <li><b>pr_create</b> — alternativa remota (push + PR via API); merge local nao exige PR (internal/tools/repo/prcreate.go:40-93).</li>
+          <li><b>Fila gitQ x pushQ</b> — merge e remove usam <i>gitQ</i>; push usa <i>pushQ</i> propria (internal/tools/worktree/worktree.go:80-81,485-489; internal/tools/worktree/queue.go:42-44).</li>
+          <li><b>repo.Git</b> — executor real: <i>Run/Must</i> com <i>CommandTimeout</i> 120s e <i>PushTimeout</i> 300s (internal/tools/repo/git.go:21-22,84-136).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Fila cheia / prazo</b> — <i>The git queue is full</i> recusa na hora; <i>Waited N s ... giving up</i> descarta quem esperou alem de <i>QueueWait</i> (internal/tools/worktree/queue.go:55-72; internal/tools/worktree/limits.go:15-16,21-23).</li>
+          <li><b>Index ocupado</b> — <i>busyIndex</i> (index.lock recente menor que 60s) pede retry; lock velho vira dica de <i>rm -f ...index.lock</i> via <i>lockHint</i> (internal/tools/worktree/worktree.go:626-650).</li>
+          <li><b>MERGE_HEAD no meio</b> — com sujeira exige resolver ou <i>merge --abort</i>; sem sujeira aborta sozinho e destrava (internal/tools/worktree/worktree.go:358-382).</li>
+          <li><b>Ja fundido e idempotente</b> — <i>already merged</i> nao refaz merge, mas o push ainda pode rodar no retry (internal/tools/worktree/worktree.go:384-394,225-233).</li>
+          <li><b>Observacao</b> — push falho nao e erro de tool: devolve <i>Push FAILED ... retry</i> com merge mantido (internal/tools/worktree/worktree.go:493-500).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5795,6 +5839,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>--no-ff</b> — merge sempre cria commit de merge, mesmo com fast-forward possivel (internal/tools/worktree/worktree.go:396-425).</li>
+          <li><b>MERGE_HEAD</b> — arquivo que marca merge em andamento; com sujeira exige <i>commit</i> ou <i>--abort</i> (internal/tools/worktree/worktree.go:358-382).</li>
+          <li><b>gitQ / pushQ</b> — filas separadas: git serializa merges; push serializa pushes para rede lenta nao travar merge (internal/tools/worktree/worktree.go:80-81,485-489).</li>
+          <li><b>already merged</b> — <i>merge-base --is-ancestor</i> OK: nada a fundir, push ainda pode rodar (internal/tools/worktree/worktree.go:384-394).</li>
+          <li><b>ValidateBranch</b> — so letras, digitos e <i>._-/</i> ate 200, sem <i>..</i> nem traco inicial (internal/tools/repo/branch.go:11-22).</li>
         </ul>
       </div>
 

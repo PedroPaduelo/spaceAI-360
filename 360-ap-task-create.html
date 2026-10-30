@@ -5751,6 +5751,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Validar o input no MCP:</b> projectId uuid mais taskFields (title 1–500, description, status, priority) e TaskScheduleFields, com tags em CSV e decisions/vínculos embutidos (sem promptLinks no MCP) (tasks.ts:198-213; schemas/tasks.ts:56-93).</li>
+          <li><b>2. Travar o projeto e resolver vínculos:</b> lockActiveProject mais resolveTaskLinks confere memória/knowledge no projeto, skill por id/slug e prompt no projeto, tudo na transação (task.service.ts:534-543; task.service.ts:244-315).</li>
+          <li><b>3. Gravar a task e as decisões:</b> insert da task, evento created e insertDecision posição a posição; obrigatória leva a task aberta para awaiting_human_decision (task.service.ts:545-569; task-status.ts:105-114).</li>
+          <li><b>4. Gravar os vínculos:</b> memory_task_links, task_skill_links, knowledge_ticket_links e agent_prompt_task_links, com um evento por vínculo (memory_linked/skill_linked/prompt_linked/knowledge_linked) (task.service.ts:571-609).</li>
+          <li><b>5. Devolver o gravado:</b> task mais decisions, memoryLinks, skillLinks, promptLinks e knowledgeLinks, com o status já gated (tasks.ts:216-226).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>task_update:</b> replaneja startAt/endAt e move o status respeitando o mesmo portão HITL que o create arma (tasks.ts:228-252; task-status.ts:46-67).</li>
+          <li><b>task_get / task_context_bundle:</b> leem o que o create gravou; o bundle é o “ler tudo antes de executar” com gate e mustRead (tasks.ts:172-196; tasks.ts:283-294).</li>
+          <li><b>claim / next / release:</b> só alcançam a task criada se ela estiver em status claimable (todo, in_progress, blocked), sem decisão obrigatória pendente e com dependências done (task-dependency.service.ts:36; task-dependency.service.ts:52-59).</li>
+          <li><b>Decisões e vínculos:</b> o que nasce junto tem rotas próprias depois — decision_create/supersede/cancel e task_memory/skill/prompt/knowledge link e list (tasks.ts:443-565; tasks.ts:567-686).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Sem promptLinks no MCP:</b> o schema não cabe no teto de 15.000 tokens do catálogo; a REST aceita promptLinks, o MCP vincula depois com task_prompt_link (tasks.ts:74-85; tasks.ts:209-212).</li>
+          <li><b>Status inicial gated:</b> awaiting_* sem decisão obrigatória e done/cancelled com obrigatória são 422, e fim antes do início é 422 antes do banco (task-status.ts:87-98; task-schedule.ts:101-107).</li>
+          <li><b>Não idempotente:</b> repetir o create cria outra task (HINTS.create em tasks.ts:215); referência fora do projeto (ou memória/knowledge na lixeira) vira 422 com os ids em issues e nada é gravado (task.service.ts:204-213).</li>
+          <li><b>Tags divergem:</b> no MCP é texto CSV, na REST é array; o handler converte com csvList (schemas/tasks.ts:8; tasks.ts:208, 217).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5769,7 +5809,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+        
+          <li><b>Portão HITL</b> — statuses awaiting_human_decision e awaiting_more_information que travam a task até a pessoa responder (task-status.ts:26).</li>
+          <li><b>Decisão obrigatória</b> — decision com required true que move a task aberta para o portão e bloqueia done/todo/in_progress (task-status.ts:101-114).</li>
+          <li><b>Roadmap (startAt/endAt/allDay)</b> — datas previstas; YYYY-MM-DD é dia inteiro, ISO com offset é com hora, null limpa (task-schedule.ts:40-55).</li>
+          <li><b>Vínculo atômico</b> — task mais decisões e links gravados numa transação só: falha num id anula tudo (task.service.ts:523-543).</li>
+</ul>
       </div>
 
 </div>

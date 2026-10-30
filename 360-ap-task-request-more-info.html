@@ -5740,6 +5740,44 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>Agente chama a tool</b> só com taskId; ela nunca grava, só entrega o link da tela (backend/src/tools/core/tasks.ts:538-554).</li>
+          <li><b>Tool localiza a tela:</b> taskDecisionScreen (404 se a task não existe) com path #decisao (backend/src/tools/core/tasks.ts:544-546; backend/src/services/task-decision.service.ts:514-518,321-325).</li>
+          <li><b>Devolve isError:</b> HUMAN_DECISION_REQUIRED com a URL; o humano abre e pede o complemento (backend/src/tools/core/tasks.ts:546-552).</li>
+          <li><b>Humano pede na UI:</b> só pessoa autenticada com hitl; service exige awaiting_human_decision e move para awaiting_more_information com observation (backend/src/services/task-decision.service.ts:475-488; backend/src/schemas/task-decisions.ts:67-69).</li>
+          <li><b>Histórico gravado:</b> more_information_requested mais status_changed, com o ator humano (backend/src/services/task-decision.service.ts:484-485).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>Portão humano (BE-19):</b> pedir complemento é ato exclusivo da pessoa na tela; a tool do MCP nunca muda a task (backend/src/services/task-decision.service.ts:474-477; backend/src/tools/core/tasks.ts:537-543).</li>
+          <li><b>Ciclo decisão↔complemento:</b> awaiting_human_decision vira awaiting_more_information e volta com return-to-decision após o agente enriquecer (backend/src/services/task-decision.service.ts:475-506; backend/src/services/task-status.ts:26).</li>
+          <li><b>Complemento e retorno:</b> se a task já está em awaiting_more_information, não peça de novo; enriqueça e chame task_return_to_decision (backend/src/tools/core/tasks.ts:541-542,555-564).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Só do portão:</b> fora de awaiting_human_decision dá 409 Task is not awaiting a human decision, nada é gravado (backend/src/services/task-decision.service.ts:480-482).</li>
+          <li><b>Agente não pede:</b> a tool sempre retorna isError; insistir sem levar o link ao humano trava o fluxo (backend/src/tools/core/tasks.ts:546-552).</li>
+          <li><b>Observation obrigatória:</b> MoreInformationSchema exige texto de 1 a 10000 caracteres (backend/src/schemas/task-decisions.ts:67-69).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5758,6 +5796,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>awaiting_more_information</b> — task parada esperando o agente complementar; só sai com return-to-decision (backend/src/services/task-decision.service.ts:483-487; prisma/schema.prisma:650-652).</li>
+          <li><b>HITL</b> — pedir complemento é ato humano com escopo hitl; agente nunca grava (backend/src/services/task-decision.service.ts:200-214,474-477).</li>
+          <li><b>MoreInformationSchema</b> — observation obrigatória de 1 a 10000 caracteres (backend/src/schemas/task-decisions.ts:67-69).</li>
+          <li><b>more_information_requested</b> — evento do pedido, com status_changed junto (backend/src/services/task-decision.service.ts:484-485; prisma/schema.prisma:669-672).</li>
         </ul>
       </div>
 

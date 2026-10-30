@@ -5721,6 +5721,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Validar o patch:</b> id uuid mais title, description, status, priority, tags CSV, startAt, endAt e allDay, tudo opcional (tasks.ts:234-244; schemas/tasks.ts:110-119).</li>
+          <li><b>2. Travar e ler o gate:</b> a transação trava a linha com FOR UPDATE (404 se sumiu) e lê os ids das decisões obrigatórias pendentes (task.service.ts:627-629; task-status.ts:133-140).</li>
+          <li><b>3. Resolver as datas:</b> effectiveSchedule junta patch com o gravado (ausente mantém, null limpa) e assertScheduleOrder recusa fim antes do início com 422 (task.service.ts:630-637; task-schedule.ts:71-107).</li>
+          <li><b>4. Validar a transição HITL:</b> assertTransition libera ou nega com 409 DECISION_PENDING ou NO_PENDING_DECISION (task.service.ts:644-647; task-status.ts:46-80).</li>
+          <li><b>5. Gravar e registrar:</b> update mais status_changed (from/to) e updated só com campos que mudaram; done/cancelled solta o lease com evento released reason task_closed (task.service.ts:673-677; task.service.ts:666-675).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>create arma, update move:</b> o create define o status inicial gated e o update circula entre statuses sob o mesmo gate (task-status.ts:87-98; task-status.ts:46-67).</li>
+          <li><b>claim/release × update:</b> claim e release mexem só no lease; o update para done ou cancelled solta o lease sozinho (task.service.ts:666-675; task-dependency.service.ts:320-340).</li>
+          <li><b>Dependências:</b> dependency_add e remove bloqueiam claim e next, mas o update continua sujeito ao HITL independente delas (task-dependency.service.ts:106-113).</li>
+          <li><b>Roadmap:</b> startAt/endAt também alimentam a timeline do roadmap listada por task_timeline_list (tasks.ts:156-170).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Mesmo status sempre passa:</b> ficar no mesmo status é permitido para o form reenviar tudo sem travar (task-status.ts:47).</li>
+          <li><b>Sem mudança, sem evento:</b> patch que não altera nada não gera updated, e status nunca entra no evento updated (task.service.ts:342-386; task.service.ts:674-676).</li>
+          <li><b>completedAt automático:</b> preenche ao concluir e limpa ao reabrir quando o chamador não manda outro valor (task.service.ts:659-664).</li>
+          <li><b>Tags em CSV:</b> no MCP tags é string opcional convertida com csvList; na REST é array (tasks.ts:240; tasks.ts:248-249).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5739,7 +5779,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+        
+          <li><b>Transição HITL</b> — regra que libera ou nega a troca de status conforme as decisões obrigatórias pendentes (task-status.ts:46-67).</li>
+          <li><b>FOR UPDATE</b> — trava a linha da task até o fim da transação para o gate não ser furado por escrita concorrente (task-status.ts:148-154).</li>
+          <li><b>completedAt</b> — carimbo de conclusão que acompanha o status done e limpa ao reabrir (task.service.ts:659-664).</li>
+          <li><b>Schedule efetivo</b> — datas finais após juntar patch parcial com o valor gravado antes de validar a ordem (task-schedule.ts:71-94).</li>
+</ul>
       </div>
 
 </div>

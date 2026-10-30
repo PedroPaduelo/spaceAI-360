@@ -5718,6 +5718,44 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>Humano pede dados</b> na tela de decisão (awaiting_human_decision vira awaiting_more_information) (backend/src/services/task-decision.service.ts:475-488).</li>
+          <li><b>Agente enriquece</b> a task fora da tool (anexos, descrição, contexto) e chama task_return_to_decision com taskId mais context (backend/src/tools/core/tasks.ts:557-564; backend/src/schemas/task-decisions.ts:94-96).</li>
+          <li><b>Service trava e confere:</b> lock da task e exige awaiting_more_information, senão 409 (backend/src/services/task-decision.service.ts:494-498).</li>
+          <li><b>Anexa e volta à fila:</b> acrescenta ## Mais informações à descrição e move para awaiting_human_decision (backend/src/services/task-decision.service.ts:499-501).</li>
+          <li><b>Eventos gravados:</b> more_information_added mais status_changed, com o ator de ctx (agente ou pessoa) (backend/src/services/task-decision.service.ts:502-503; prisma/schema.prisma:669-672).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>Portão humano:</b> o retorno recoloca a task no portão; sem pendência obrigatória o próximo respond libera para todo (backend/src/services/task-decision.service.ts:494-506; backend/src/services/task-status.ts:122-123).</li>
+          <li><b>Ciclo decisão↔complemento:</b> fecha o vai-e-volta: decisão → pedido de complemento → enriquecimento → fila de decisão → resposta (backend/src/services/task-decision.service.ts:475-506).</li>
+          <li><b>Quem pode devolver:</b> ato de quem executa (agente via MCP ou pessoa); o ator do evento vem de ctx, sem exigir hitl (backend/src/services/task-decision.service.ts:490-494; backend/src/tools/core/tasks.ts:562-563).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Fora do complemento:</b> sem estar em awaiting_more_information dá 409 Task is not awaiting more information (backend/src/services/task-decision.service.ts:496-498).</li>
+          <li><b>Context vazio:</b> ReturnToDecisionSchema tem default vazio; sem texto, a descrição não muda mas o status volta mesmo assim (backend/src/schemas/task-decisions.ts:94-96; backend/src/services/task-decision.service.ts:499-501).</li>
+          <li><b>Não responde sozinho:</b> voltar à fila não responde a decisão; o humano ainda precisa responder na tela (backend/src/services/task-decision.service.ts:494-506).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5736,6 +5774,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>awaiting_human_decision</b> — fila de decisão para onde a task volta após o complemento (backend/src/services/task-decision.service.ts:501; prisma/schema.prisma:650-652).</li>
+          <li><b>awaiting_more_information</b> — estado que só o retorno desfaz; fora dele dá 409 (backend/src/services/task-decision.service.ts:496-498).</li>
+          <li><b>HITL</b> — o retorno recoloca no portão humano; a resposta continua sendo da pessoa (backend/src/services/task-decision.service.ts:490-494).</li>
+          <li><b>ReturnToDecisionSchema</b> — context de até 10000 caracteres, vazio por padrão (backend/src/schemas/task-decisions.ts:94-96).</li>
+          <li><b>more_information_added</b> — evento do complemento, com status_changed junto (backend/src/services/task-decision.service.ts:502-503).</li>
         </ul>
       </div>
 

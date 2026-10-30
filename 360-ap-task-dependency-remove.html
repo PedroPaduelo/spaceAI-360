@@ -5684,6 +5684,44 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>Agente chama a tool</b> com taskId mais dependsOnId (backend/src/tools/core/tasks.ts:376-386; backend/src/schemas/tasks.ts:229-234).</li>
+          <li><b>Service localiza a aresta:</b> findUnique por taskId mais dependsOnId; inclui o título para o evento (backend/src/services/task-dependency.service.ts:196-201).</li>
+          <li><b>Ausência vira 404:</b> sem a task, 404 de Task; com a task mas sem a aresta, 404 de Task dependency (backend/src/services/task-dependency.service.ts:202-205).</li>
+          <li><b>Apaga na transação:</b> delete da aresta mais dependency_removed com os mesmos ids e título (backend/src/services/task-dependency.service.ts:207-208; prisma/schema.prisma:797-811).</li>
+          <li><b>Efeito na fila:</b> sem a aresta aberta, a task pode ficar ready e elegível a next e claim (backend/src/services/task-dependency.service.ts:137-156,52-59).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>Portão humano intacto:</b> remover dependência não mexe em awaiting_*; claim segue exigindo sair do HITL (backend/src/services/task-dependency.service.ts:256-268; backend/src/services/task-status.ts:26).</li>
+          <li><b>Ciclo decisão↔complemento:</b> task que esperava outra task e pessoa continua no portão humano após o remove; confira task_decision_list junto (backend/src/services/task-decision.service.ts:255; backend/src/services/task-dependency.service.ts:19-21).</li>
+          <li><b>Lista e próxima:</b> após remover, list mostra ready verdadeiro e next pode devolver a task (backend/src/services/task-dependency.service.ts:137-156,217-231).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Qual 404:</b> mensagem distingue task inexistente de dependência inexistente; não crie a aresta de novo por engano (backend/src/services/task-dependency.service.ts:202-205).</li>
+          <li><b>Sem desfazer extra:</b> remover aresta inexistente dá 404, nunca removed true (backend/src/services/task-dependency.service.ts:202-208; backend/src/tools/core/tasks.ts:382-385).</li>
+          <li><b>Concorrência:</b> a remoção roda em transação com o evento; duas remoções juntas, uma recebe 404 (backend/src/services/task-dependency.service.ts:196-210).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5702,6 +5740,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>dependency_removed</b> — evento da remoção, na mesma transação do delete (backend/src/services/task-dependency.service.ts:207-208; prisma/schema.prisma:689-693).</li>
+          <li><b>ready</b> — remoção pode tornar a task pronta para next e claim (backend/src/services/task-dependency.service.ts:148-155,52-59).</li>
+          <li><b>HITL</b> — remover dependência não libera o portão humano; awaiting_* continua até resposta ou cancel (backend/src/services/task-dependency.service.ts:256-268).</li>
+          <li><b>awaiting_human_decision</b> — status que sobrevive ao remove; confira junto com a lista de dependências (backend/src/services/task-status.ts:26).</li>
         </ul>
       </div>
 

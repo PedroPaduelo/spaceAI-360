@@ -5742,6 +5742,44 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>Agente chama a tool</b> com taskId, decisionId, reason e a decisão corrigida (mesmos campos da criação) (backend/src/tools/core/tasks.ts:472-484; backend/src/schemas/task-decisions.ts:88-91).</li>
+          <li><b>Service valida e trava:</b> parse de SupersedeDecisionSchema e lockOpenDecision (só pending ou partially_answered; senão 404 ou 409 DECISION_CLOSED) (backend/src/services/task-decision.service.ts:440-444,263-279).</li>
+          <li><b>Regras da troca:</b> substituta de obrigatória precisa ser required true (senão 422); key precisa ser nova na task (senão 422) (backend/src/services/task-decision.service.ts:445-452).</li>
+          <li><b>Troca ligada:</b> antiga vira superseded com motivo, nova é inserida pelo mesmo portão de insertDecision e recebe o link supersededById (backend/src/services/task-decision.service.ts:453-462; prisma/schema.prisma:864-870).</li>
+          <li><b>Portão recalculado:</b> grava decision_superseded e settleGate mantém o portão fechado (substituta obrigatória também trava) (backend/src/services/task-decision.service.ts:463-471; backend/src/schemas/task-responses.ts:117-121).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>Portão humano mantido:</b> supersede não abre o portão; só cancel humano ou resposta libera. É o caminho do agente para corrigir sem soltar a task (backend/src/services/task-decision.service.ts:432-439).</li>
+          <li><b>Ciclo decisão↔complemento:</b> se o erro foi falta de contexto, prefira enriquecer via return-to-decision antes de superseder; a nova decisão já nasce com contexto melhor (backend/src/services/task-decision.service.ts:494-506).</li>
+          <li><b>Versões ligadas:</b> superseded aponta para a nova via supersededById; o histórico mostra decision_superseded com motivo e chaves (backend/src/services/task-decision.service.ts:463-469; prisma/schema.prisma:864-870).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Soltar o portão sem querer:</b> trocar obrigatória por opcional dá 422; para liberar sem resposta, uma pessoa cancela (backend/src/services/task-decision.service.ts:445-449).</li>
+          <li><b>Repetir key:</b> usar a mesma key da superseded dá 422; a antiga mantém a key para sempre (backend/src/services/task-decision.service.ts:450-452; prisma/schema.prisma:875).</li>
+          <li><b>Fechada não troca:</b> answered, cancelled ou superseded dá 409 DECISION_CLOSED (backend/src/services/task-decision.service.ts:271-277).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5760,6 +5798,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>superseded</b> — decisão trocada por versão corrigida, com motivo e link para a nova (backend/src/services/task-decision.service.ts:440-473; prisma/schema.prisma:660-666).</li>
+          <li><b>supersededById</b> — ponte da antiga para a substituta (backend/src/services/task-decision.service.ts:458-462; prisma/schema.prisma:864-870).</li>
+          <li><b>HITL</b> — supersede vale para agente ou pessoa, mas mantém o portão fechado (backend/src/services/task-decision.service.ts:432-439).</li>
+          <li><b>SupersedeDecisionSchema</b> — reason mais decisão nova com key ainda não usada (backend/src/schemas/task-decisions.ts:88-91).</li>
         </ul>
       </div>
 

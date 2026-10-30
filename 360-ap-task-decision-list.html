@@ -5689,6 +5689,44 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>Agente chama a tool</b> com taskId e filtro opcional status (enum de decisão) (backend/src/tools/core/tasks.ts:459-465; backend/src/schemas/task-decisions.ts:98-99).</li>
+          <li><b>Borda anti-BOLA:</b> withTaskAccess confere se a chave alcança o projeto antes do handler (backend/src/tools/core/tasks.ts:759-768).</li>
+          <li><b>Service só lê:</b> findMany por taskId (mais status quando informado), ordem por position asc, com opções e respostas (backend/src/services/task-decision.service.ts:341-344).</li>
+          <li><b>Molda para o agente:</b> shapeDecisions desserializa pros, cons e optionIds como array, nunca o JSON da coluna (backend/src/services/task-decision.service.ts:62-70,146-147).</li>
+          <li><b>Devolve JSON de leitura:</b> sem gravar evento nem mexer no portão; sem acesso, responde como inexistente (backend/src/services/task-decision.service.ts:341-344; backend/src/tools/core/tasks.ts:759-768).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>Portão humano:</b> a lista mostra quem ainda trava a task (pending, partially_answered obrigatórias); zeradas, o portão libera para todo (backend/src/services/task-decision.service.ts:255; backend/src/services/task-status.ts:122-123).</li>
+          <li><b>Ciclo decisão↔complemento:</b> após responder ou pedir complemento, releia aqui para ver status answered ou a task em awaiting_more_information (backend/src/services/task-decision.service.ts:367-409,475-488).</li>
+          <li><b>Mesmo shape em tudo:</b> task_get, bundle de contexto e esta lista usam o mesmo shape (JT-15), sem divergência de pros e cons (backend/src/services/task-decision.service.ts:142-147; backend/src/tools/core/tasks.ts:186-193).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Filtro fechado:</b> status só aceita pending, partially_answered, answered, superseded ou cancelled; outro valor é recusado pelo Zod (backend/src/schemas/task-decisions.ts:98-99; prisma/schema.prisma:660-666).</li>
+          <li><b>Respostas por revisão:</b> responses vêm com a mais nova primeiro (revision desc); não assuma ordem de criação (backend/src/services/task-decision.service.ts:301-304; backend/src/schemas/task-responses.ts:99-100).</li>
+          <li><b>Leitura não libera:</b> listar não responde nem cancela; para sair do portão é preciso respond, cancel ou supersede (backend/src/services/task-decision.service.ts:340-344).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5707,6 +5745,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>HITL</b> — human-in-the-loop: só pessoa autenticada responde; a lista é o termômetro do portão para o agente (backend/src/services/task-decision.service.ts:200-214).</li>
+          <li><b>pending / partially_answered</b> — decisões abertas que ainda travam o portão; as únicas que contam como pendentes (backend/src/services/task-decision.service.ts:255; backend/src/services/task-status.ts:133-137).</li>
+          <li><b>shapeDecisions</b> — moldagem que entrega pros, cons e optionIds como array (backend/src/services/task-decision.service.ts:62-70,146-147).</li>
+          <li><b>DecisionQuerySchema</b> — filtro opcional por status da decisão (backend/src/schemas/task-decisions.ts:98-99).</li>
         </ul>
       </div>
 

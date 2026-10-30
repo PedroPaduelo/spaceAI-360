@@ -5706,6 +5706,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Checar acesso:</b> withTaskAccess valida o id antes do handler; fora do projeto vira 404 (tasks.ts:746-768).</li>
+          <li><b>2. Chamar o service:</b> o handler invoca taskService.delete com o id (tasks.ts:261-264).</li>
+          <li><b>3. Apagar a linha:</b> deleteMany por id; count zero vira NotFound de Task (task.service.ts:687-689).</li>
+          <li><b>4. Cascatear filhas:</b> todos, decisões, vínculos e linhas de anexo caem por onDelete Cascade do Prisma (task.service.ts:681-686).</li>
+          <li><b>5. Purgar arquivos:</b> após o commit, purgeTask remove o diretório de anexos; falha de storage vai para o log sem reverter (task.service.ts:690-694).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>Alternativa segura:</b> task_update com done ou cancelled fecha sem apagar, como a própria description da tool recomenda (tasks.ts:253-265).</li>
+          <li><b>Anexos:</b> attachment_add, get e list gerenciam arquivos; o delete purga o diretório físico após o commit (tasks.ts:306-354; task.service.ts:690-694).</li>
+          <li><b>Histórico some junto:</b> sem a task, task_event_list não tem mais o que paginar (tasks.ts:266-275).</li>
+          <li><b>Dependências somem nos dois lados:</b> a aresta TaskDependency tem chave taskId mais dependsOnId e cai com a task (schema.prisma TaskDependency).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Hard delete sem lixeira:</b> task não tem restore como knowledge, memory e prompt; é irreversível (task.service.ts:681-686).</li>
+          <li><b>404 sem oráculo:</b> inexistente e fora do projeto dão o mesmo NOT_FOUND de propósito (task-access.service.ts:70-97).</li>
+          <li><b>Purga pós-commit:</b> se o storage falhar, o banco já apagou; a falha vira log com o taskId e a resposta continua sucesso (task.service.ts:690-694).</li>
+          <li><b>Retentativa dá 404:</b> deletar de novo o mesmo id não devolve deleted true, devolve NotFound (task.service.ts:687-689).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5724,7 +5764,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+        
+          <li><b>Hard delete</b> — apagamento definitivo da linha sem lixeira nem restore, ao contrário de knowledge e memory (task.service.ts:681-686).</li>
+          <li><b>Cascata</b> — filhas (todos, decisões, vínculos, anexos) apagadas pelo onDelete Cascade do Prisma (schema.prisma Task).</li>
+          <li><b>Purga do storage</b> — remoção do diretório de anexos após o commit, com falha só em log (task.service.ts:690-694).</li>
+          <li><b>Fechar sem apagar</b> — done ou cancelled via task_update como saída segura antes do delete (tasks.ts:253-265).</li>
+</ul>
       </div>
 
 </div>

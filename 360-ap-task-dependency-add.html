@@ -5706,6 +5706,44 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>Agente chama a tool</b> com taskId mais dependsOnId (a task que precisa terminar antes) (backend/src/tools/core/tasks.ts:365-373; backend/src/schemas/tasks.ts:232-234).</li>
+          <li><b>Recusa auto-dependência:</b> taskId igual a dependsOnId dá 422 na hora (backend/src/services/task-dependency.service.ts:164-165).</li>
+          <li><b>Confere projeto:</b> ambas precisam existir no mesmo projeto, senão 404 ou 422; trava o grafo com advisory lock por projeto (backend/src/services/task-dependency.service.ts:167-175,128-130).</li>
+          <li><b>Idempotência e ciclo:</b> aresta repetida devolve created false sem gravar; CTE recursiva upstream recusa ciclo com 422 DEPENDENCY_CYCLE (backend/src/services/task-dependency.service.ts:177-185,116-125).</li>
+          <li><b>Grava e responde:</b> insere em task_dependencies e grava dependency_added na mesma transação; devolve a dependência com status (backend/src/services/task-dependency.service.ts:187-191; prisma/schema.prisma:797-811).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>Portão humano mais dependência:</b> claim exige task fora do HITL e sem dependência aberta; são dois portões independentes (backend/src/services/task-dependency.service.ts:256-268; backend/src/services/task-status.ts:26).</li>
+          <li><b>Prontidão (ready):</b> task só entra em next e claim quando dependsOn está todo done; esta aresta é o que list e next leem (backend/src/services/task-dependency.service.ts:52-59,137-156).</li>
+          <li><b>Ciclo decisão↔complemento:</b> dependência não move status HITL; uma task pode estar presa nos dois ao mesmo tempo (aguardando pessoa e aguardando outra task) (backend/src/services/task-dependency.service.ts:19-21).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Outro projeto:</b> dependsOnId de outro projeto dá 422 task not found in this project, mesmo com UUID válido (backend/src/services/task-dependency.service.ts:172-174).</li>
+          <li><b>Ciclo indireto:</b> A espera B que espera A (mesmo via C) dá 422 DEPENDENCY_CYCLE; a tabela só proíbe a aresta para si (backend/src/services/task-dependency.service.ts:116-125,180-185; prisma/schema.prisma:791-796).</li>
+          <li><b>Repetir não duplica:</b> mesma aresta devolve created false, sem novo evento (backend/src/services/task-dependency.service.ts:177-179).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5724,6 +5762,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>dependsOn</b> — a task que precisa estar done antes desta começar (backend/src/schemas/tasks.ts:232-234; prisma/schema.prisma:797-811).</li>
+          <li><b>DEPENDENCY_CYCLE</b> — motivo do 422 quando a aresta fecharia ciclo direto ou indireto (backend/src/services/task-dependency.service.ts:180-185).</li>
+          <li><b>awaiting_human_decision</b> — portão HITL independente da dependência; claim exige sair dos dois (backend/src/services/task-dependency.service.ts:256-268).</li>
+          <li><b>HITL</b> — dependência não substitui decisão humana; task pode aguardar pessoa e outra task juntas (backend/src/services/task-dependency.service.ts:19-21).</li>
         </ul>
       </div>
 

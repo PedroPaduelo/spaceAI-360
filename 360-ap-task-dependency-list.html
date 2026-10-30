@@ -5648,6 +5648,44 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>Agente chama a tool</b> só com taskId (backend/src/tools/core/tasks.ts:389-396).</li>
+          <li><b>Service lê em uma consulta:</b> task mais dependsOn (o que ela espera) e dependents (quem espera por ela), ordenados por criação (backend/src/services/task-dependency.service.ts:137-145).</li>
+          <li><b>Monta a visão:</b> cada ponta vira DependencyView com resumo mais satisfied (verdadeiro só quando status é done) (backend/src/services/task-dependency.service.ts:88-93,32-33).</li>
+          <li><b>Calcula o portão de fila:</b> openDependencyIds são os dependsOn não satisfeitos; ready é verdadeiro quando a lista está vazia (backend/src/services/task-dependency.service.ts:148-155; backend/src/schemas/task-responses.ts:164-170).</li>
+          <li><b>Task inexistente dá 404:</b> sem gravar nada; fora isso, leitura pura, sem evento (backend/src/services/task-dependency.service.ts:146).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>Portão humano:</b> ready aqui não inclui o HITL; claim também recusa task em awaiting_* mesmo com ready verdadeiro (backend/src/services/task-dependency.service.ts:256-268; backend/src/services/task-status.ts:26).</li>
+          <li><b>Ciclo decisão↔complemento:</b> uma task pode estar pronta na fila (ready) mas parada no portão humano; confira o status junto com esta lista (backend/src/services/task-dependency.service.ts:19-21,52-59).</li>
+          <li><b>Próxima e claim:</b> next usa o mesmo filtro de dependência aberta; remover a aresta aqui torna a task elegível lá (backend/src/services/task-dependency.service.ts:48-59,195-210).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Satisfeito é só done:</b> in_progress ou blocked não liberam; satisfied compara com SATISFIED_STATUS done (backend/src/services/task-dependency.service.ts:32-33,88-93).</li>
+          <li><b>Duas direções:</b> dependsOn (espera) e dependents (esperada) são listas distintas; não confunda openDependencyIds (só a primeira) (backend/src/schemas/task-responses.ts:164-170).</li>
+          <li><b>Leitura sem efeito:</b> listar não cria, remove nem libera claim; para mudar, use add ou remove (backend/src/services/task-dependency.service.ts:137-156).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5666,6 +5704,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>ready</b> — verdadeiro quando não há dependência aberta; não inclui o portão humano (backend/src/services/task-dependency.service.ts:148-155).</li>
+          <li><b>openDependencyIds</b> — dependsOn ainda não done, os que seguram a task (backend/src/services/task-dependency.service.ts:148-149).</li>
+          <li><b>satisfied</b> — ponta liberada quando a outra task está done, único status que satisfaz (backend/src/services/task-dependency.service.ts:32-33,88-93).</li>
+          <li><b>HITL</b> — task com ready verdadeiro pode seguir presa em awaiting_human_decision (backend/src/services/task-dependency.service.ts:256-268).</li>
         </ul>
       </div>
 

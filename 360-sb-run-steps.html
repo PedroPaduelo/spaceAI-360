@@ -5720,6 +5720,50 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 
 
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>Registro sequencial</b> — handler <i>run_steps</i> chama <i>handleRunSteps</i>; valida <i>steps</i> nao-vazio de <i>{name,cmd}</i> (mypanel/packages/sandbox-agent-go/internal/tools/batch/batch.go:107-113; internal/tools/batch/steps.go:34-38,92-113).</li>
+          <li><b>Cwd e politica de parada</b> — <i>cwd</i> do schema; <i>stop_on_error</i> padrao true via cast de bool (internal/tools/batch/steps.go:39-43).</li>
+          <li><b>Timeout por passo</b> — padrao 120s (<i>defaultStepMs</i>); <i>timeout_ms</i> por item quando numero JSON valido (internal/tools/batch/read.go:14-21; internal/tools/batch/steps.go:105-110).</li>
+          <li><b>Executa em ordem</b> — <i>cmd</i> vazio vira erro <i>step ... has an empty cmd</i>; senao <i>RunBash(cmd,timeout,cwd)</i> (internal/tools/batch/steps.go:49-56).</li>
+          <li><b>Registra cauda</b> — <i>stepItem {name,exit,timedOut,duration,tail}</i> com <i>tailOf</i> 8KB e marca de timeout (internal/tools/batch/steps.go:57-62,13-21).</li>
+          <li><b>Para ou segue</b> — <i>exit != 0</i> marca falha e guarda <i>stopped</i>; com <i>stop_on_error</i> interrompe (internal/tools/batch/steps.go:63-70).</li>
+          <li><b>Resumo</b> — <i>Ran N of M step(s). All passed / Stopped at ... / Failures above</i> + JSON <i>{steps,stopped_at}</i>; falha vira <i>IsError</i> (internal/tools/batch/steps.go:71-89).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Correlacoes</h3>
+        </div>
+        <ul>
+          <li><b>edit_and_check</b> — checks sao passos com perfil; mesma cauda e <i>IsError</i> em falha (internal/tools/batch/edit.go:59-94).</li>
+          <li><b>test_changed</b> — roda suite via mesmo <i>RunBash</i> com teto 3600s (internal/tools/batch/testchanged.go:249-265).</li>
+          <li><b>bash</b> — cada passo e um bash com cwd; sem branching: julgar no meio exige bash passo a passo (internal/tools/batch/steps.go:30-33).</li>
+          <li><b>worktree_task</b> — install e baseline sao dois <i>RunBash</i> com o mesmo formato <i>stepResult</i> (internal/tools/batch/task.go:38-80).</li>
+          <li><b>Timeouts</b> — <i>defaultStepMs/defaultCheckMs/defaultTestMs</i> centralizados em <i>batch/read.go</i> (internal/tools/batch/read.go:14-22).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Sem desvio</b> — sem <i>if/loop</i>: plano e dado, nao programa; condicao no meio pede bash manual (internal/tools/batch/steps.go:30-33).</li>
+          <li><b>Cmd vazio falha</b> — nao pula: erro de tool imediato (internal/tools/batch/steps.go:50-52).</li>
+          <li><b>Cauda aparada</b> — so <i>tail</i> 8KB volta; log cheio exige rerun fatiado (internal/tools/batch/steps.go:57-61; internal/tools/batch/read.go:20).</li>
+          <li><b>stop_on_error:false</b> — roda todos mesmo com falha; resumo conta <i>skipped</i> (internal/tools/batch/steps.go:71-78).</li>
+          <li><b>Observacao</b> — cwd vazio usa workspace; nao confirmado isolamento entre passos alem do cwd (internal/tools/batch/steps.go:39,53).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5738,6 +5782,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>stepItem</b> — <i>{name,exit,timedOut,duration,tail}</i> por passo, com cauda 8KB (internal/tools/batch/steps.go:13-21,57-62).</li>
+          <li><b>stop_on_error</b> — padrao true; falso roda todos e conta <i>skipped</i> (internal/tools/batch/steps.go:40-43,71-78).</li>
+          <li><b>stopped_at</b> — nome do passo onde parou; vazio se tudo passou (internal/tools/batch/steps.go:44-48,83-84).</li>
+          <li><b>stepTailBytes</b> — 8KB por passo; timeout prefixa <i>[timed out after ...]</i> (internal/tools/batch/read.go:20; internal/tools/batch/steps.go:59-61).</li>
         </ul>
       </div>
 

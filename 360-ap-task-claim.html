@@ -5660,6 +5660,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Validar o lease pedido:</b> taskId mais agentId estável e ttlSeconds de 30 s a 24 h, padrão 15 min (schemas/tasks.ts:236-263; tasks.ts:426).</li>
+          <li><b>2. Abrir a transação e ler a task:</b> busca breve com claimedBy e claimExpiresAt; 404 se não existe (task-dependency.service.ts:250-255).</li>
+          <li><b>3. Barrar o não claimable:</b> status fora de todo, in_progress e blocked vira 409 TASK_NOT_CLAIMABLE, e dependência aberta vira 409 DEPENDENCY_OPEN (task-dependency.service.ts:256-268; task-dependency.service.ts:36).</li>
+          <li><b>4. Disputar com UPDATE condicional:</b> só grava onde não há dono, o lease venceu ou o dono é o próprio agente; zero linhas vira 409 CLAIM_HELD com dono e vencimento (task-dependency.service.ts:274-285).</li>
+          <li><b>5. Registrar e devolver:</b> grava o evento claimed com renewed e previousAgentId e devolve task mais lease (task-dependency.service.ts:287-293).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>next lista, claim pega:</b> task_next só sugere prontas; task_claim pega pelo id e task_claim_next pega a primeira livre (tasks.ts:397-419).</li>
+          <li><b>release devolve:</b> task_release solta o lease do dono; update para done ou cancelled solta sozinho com reason task_closed (task-dependency.service.ts:320-340; task.service.ts:666-675).</li>
+          <li><b>Dependências mandam:</b> openDependencies conta dependsOn com status diferente de done e decide o DEPENDENCY_OPEN (task-dependency.service.ts:106-113; task-dependency.service.ts:48-49).</li>
+          <li><b>Lease no banco:</b> claimedBy mais claimExpiresAt na Task com CHECK de consistência (schema.prisma Task 745-746).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Vencido é livre:</b> lease expirado conta como livre e não gera evento ao ser sobrescrito (task-dependency.service.ts:13-17; task-dependency.service.ts:76-79).</li>
+          <li><b>Renovar é repetir com o mesmo agentId:</b> antes de vencer devolve renewed true; outro agente com lease ativo recebe 409 (task-dependency.service.ts:274-288).</li>
+          <li><b>Três CONFLICTS diferentes:</b> TASK_NOT_CLAIMABLE (gate ou fechada), DEPENDENCY_OPEN (com openDependencyIds) e CLAIM_HELD (com dono e vencimento) (task-dependency.service.ts:256-284).</li>
+          <li><b>TTL fora da faixa é 422:</b> abaixo de 30 s ou acima de 24 h o Zod barra antes do banco (schemas/tasks.ts:254-262).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5678,7 +5718,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+        
+          <li><b>CLAIM_HELD</b> — 409 com claimedBy e claimExpiresAt quando outro agente segura lease ativo (task-dependency.service.ts:278-285).</li>
+          <li><b>Renewed</b> — true quando o mesmo agentId renova o próprio lease antes de vencer (task-dependency.service.ts:287-288).</li>
+          <li><b>UPDATE condicional</b> — trava da disputa: o Postgres reavalia a condição na linha nova e só um claim vence (task-dependency.service.ts:272-277).</li>
+          <li><b>agentId estável</b> — identificador que o agente escolhe (ex. lane-3/worker-a), de 1 a 200 chars (schemas/tasks.ts:244-249).</li>
+</ul>
       </div>
 
 </div>

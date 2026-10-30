@@ -5731,6 +5731,49 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>Registro e fila git</b> — handler <i>worktree_remove</i> le <i>name/delete_branch/force</i> (<i>delete_branch</i> padrao true via <i>boolOr</i>) e chama <i>Service.Remove</i> em <i>runQueued</i> na <i>gitQ</i> (mypanel/packages/sandbox-agent-go/internal/tools/worktree/register.go:29-32,63-70; internal/tools/worktree/worktree.go:509-513).</li>
+          <li><b>Acha a worktree</b> — <i>PrimaryRepo</i> + <i>findWorktree</i> por branch ou nome da pasta; erro lista <i>existing: ...</i> (internal/tools/worktree/worktree.go:515-523,580-595).</li>
+          <li><b>Checagem de sujeira</b> — sem <i>force</i>, <i>dirtyCount</i> com untracked; se maior que 0, recusa e pede commit ou <i>force:true</i>; com <i>force</i> nem olha (indice corrompido e motivo de descarte) (internal/tools/worktree/worktree.go:524-533,600-613).</li>
+          <li><b>Remove a pasta</b> — <i>git worktree remove [--force] &lt;path&gt;</i> via <i>Must</i> (internal/tools/worktree/worktree.go:534-541).</li>
+          <li><b>Branch: manter ou apagar</b> — se <i>delete_branch</i> e ha branch: <i>-d</i> (ou <i>-D</i> com force); se <i>-d</i> falha, mantem por nao merged e avisa; senao, <i>Branch kept</i> (internal/tools/worktree/worktree.go:543-560).</li>
+          <li><b>Resposta</b> — junta <i>Removed worktree ...</i> + destino da branch em linhas de texto (internal/tools/worktree/worktree.go:542-561).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Correlacoes</h3>
+        </div>
+        <ul>
+          <li><b>worktree_list</b> — confere nome e pendencias antes de remover (internal/tools/worktree/worktree.go:179-212).</li>
+          <li><b>worktree_create</b> — caminho inverso: valida limite <i>WorktreeMax</i> e recria pasta <i>.worktrees/</i> (internal/tools/worktree/worktree.go:93-125).</li>
+          <li><b>worktree_merge</b> — fundir antes evita perder trabalho; branch nao merged e mantida sem <i>force</i> (internal/tools/worktree/worktree.go:217-241).</li>
+          <li><b>dirtyCount</b> — mesma contagem de <i>status --porcelain</i> usada no merge e na listagem (internal/tools/worktree/worktree.go:600-622).</li>
+          <li><b>Fila gitQ</b> — create, merge e remove passam por <i>runQueued</i>; list nao (internal/tools/worktree/queue.go:48-61; internal/tools/worktree/worktree.go:177-179).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Nao achou</b> — <i>No worktree ... Existing: ...</i>; procure por branch ou pasta base (internal/tools/worktree/worktree.go:580-595).</li>
+          <li><b>Sujeira sem force</b> — <i>has N uncommitted change(s). Commit them, or pass force:true</i>; uncommitted inclui arquivo novo sem add (internal/tools/worktree/worktree.go:531-533,600-613).</li>
+          <li><b>Branch nao merged</b> — <i>-d</i> falha e a branch e mantida; so <i>force</i> (<i>-D</i>) apaga (internal/tools/worktree/worktree.go:543-557).</li>
+          <li><b>Fila e lock</b> — fila cheia recusa na hora; <i>busyIndex</i>/<i>lockHint</i> valem no merge, remocao segue o mesmo <i>gitQ</i> (internal/tools/worktree/queue.go:67-72; internal/tools/worktree/worktree.go:626-650).</li>
+          <li><b>Observacao</b> — remover pasta fora do git (rm -rf) nao atualiza a lista interna; o parse de <i>Worktrees</i> faz prune, mas o uso suportado e via tool (internal/tools/repo/git.go:158-166).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5749,6 +5792,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>delete_branch</b> — padrao true via <i>boolOr</i>; ausente apaga branch se merged (internal/tools/worktree/register.go:29-32,63-70).</li>
+          <li><b>-d x -D</b> — <i>-d</i> so apaga branch merged; <i>-D</i> (force) apaga mesmo sem merge (internal/tools/worktree/worktree.go:543-557).</li>
+          <li><b>force</b> — pula checagem de sujeira e forca <i>remove --force</i> + <i>-D</i>; para indice corrompido (internal/tools/worktree/worktree.go:524-541).</li>
+          <li><b>findWorktree</b> — acha por branch ou nome da pasta base; senao lista <i>Existing: ...</i> (internal/tools/worktree/worktree.go:580-595).</li>
+          <li><b>Prune</b> — <i>git worktree prune</i> antes de listar limpa registro de pasta apagada fora do git (internal/tools/repo/git.go:158-166).</li>
         </ul>
       </div>
 

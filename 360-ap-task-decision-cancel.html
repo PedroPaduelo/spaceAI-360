@@ -5760,6 +5760,44 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>Agente chama a tool</b> com taskId, decisionId e reason obrigatório (backend/src/tools/core/tasks.ts:488-498; backend/src/schemas/task-decisions.ts:78-82).</li>
+          <li><b>Handler tenta como agente:</b> usa MCP_AGENT_CALLER, sem principal humano (backend/src/tools/core/tasks.ts:498-501; backend/src/services/task-decision.service.ts:232,416-419).</li>
+          <li><b>Trava e confere aberta:</b> lockOpenDecision exige pending ou partially_answered; de outra task dá 404, já fechada dá 409 DECISION_CLOSED (backend/src/services/task-decision.service.ts:263-279,255).</li>
+          <li><b>Permissão (assertMayCancel):</b> opcional o agente pode; obrigatória só pessoa autenticada, senão 403 (backend/src/services/task-decision.service.ts:240-248).</li>
+          <li><b>Fecha e recalcula:</b> marca cancelled com motivo, grava decision_cancelled e settleGate libera awaiting_* para todo se zerou pendência (backend/src/services/task-decision.service.ts:422-429; backend/src/services/task-status.ts:122-123).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>Portão humano:</b> cancelar a última obrigatória libera a task em awaiting_* para todo; sem obrigatória pendente, awaiting_* não se sustenta (backend/src/services/task-decision.service.ts:286-299; backend/src/services/task-status.ts:122-123).</li>
+          <li><b>Cancelar x substituir:</b> para corrigir pergunta errada, o agente usa supersede (mantém o portão); cancelar obrigatória sem resposta é ato humano na tela (backend/src/services/task-decision.service.ts:432-439,240-248; backend/src/tools/core/tasks.ts:503-510).</li>
+          <li><b>Ciclo decisão↔complemento:</b> cancelada sai da contagem; se o humano ainda precisa de dados, ele pede complemento antes, via awaiting_more_information (backend/src/services/task-decision.service.ts:475-488).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Agente e obrigatória:</b> tentar cancelar obrigatória pelo MCP não grava; volta isError com a URL da tela #decisao para a pessoa (backend/src/tools/core/tasks.ts:498-510).</li>
+          <li><b>Motivo obrigatório:</b> reason vazio ou maior que 2000 é recusado pelo Zod (backend/src/schemas/task-decisions.ts:78-82).</li>
+          <li><b>Já fechada:</b> respondida, cancelada ou substituída dá 409 DECISION_CLOSED, nunca reabre (backend/src/services/task-decision.service.ts:271-277).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5778,6 +5816,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>cancelled</b> — decisão fechada sem resposta, com motivo obrigatório; sai da contagem do portão (backend/src/services/task-decision.service.ts:416-431; prisma/schema.prisma:660-666).</li>
+          <li><b>awaiting_human_decision</b> — portão que o cancelamento pode liberar para todo quando zera pendência (backend/src/services/task-status.ts:122-123).</li>
+          <li><b>CancelDecisionSchema</b> — corpo com reason de 1 a 2000 caracteres (backend/src/schemas/task-decisions.ts:78-82).</li>
+          <li><b>HITL</b> — cancelar obrigatória é ato humano; agente só cancela opcional (backend/src/services/task-decision.service.ts:240-248).</li>
         </ul>
       </div>
 

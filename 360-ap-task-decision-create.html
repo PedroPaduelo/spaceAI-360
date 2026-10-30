@@ -5676,6 +5676,44 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>Agente chama a tool</b> com taskId mais campos da decisão (key, question, context, options; required verdadeiro por padrão) (backend/src/tools/core/tasks.ts:446-452; backend/src/schemas/task-decisions.ts:22-34).</li>
+          <li><b>Service valida e trava:</b> confere com TaskDecisionInputSchema (regra de min/maxSelections) e trava a linha da task com FOR UPDATE (backend/src/services/task-decision.service.ts:350-353; backend/src/schemas/task-decisions.ts:51-54; backend/src/services/task-status.ts:148).</li>
+          <li><b>Portão calculado:</b> key repetida na task dá 409; obrigatória calcula awaiting_human_decision via statusAfterDecisionRequested (backend/src/services/task-decision.service.ts:163-165; backend/src/services/task-status.ts:105-113).</li>
+          <li><b>Grava tudo-ou-nada:</b> insere decisão mais opções, grava decision_requested e, quando muda, status_changed para awaiting_human_decision (backend/src/services/task-decision.service.ts:166-194; prisma/schema.prisma:650-652,843-855).</li>
+          <li><b>Devolve moldada:</b> opções com pros e cons como array (shape), mesmo formato da listagem (backend/src/services/task-decision.service.ts:62-70).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>Portão humano:</b> só obrigatória move task aberta (todo, in_progress, blocked) para awaiting_human_decision; opcional nunca muda o status (backend/src/services/task-decision.service.ts:150-155).</li>
+          <li><b>Ciclo decisão↔complemento:</b> com pendência aberta, o humano pode pedir complemento (awaiting_more_information) e o agente devolve com return-to-decision (backend/src/services/task-decision.service.ts:475-488,494-506; backend/src/services/task-status.ts:26).</li>
+          <li><b>Leitura unificada:</b> task_decision_list e o bundle de contexto mostram as mesmas decisões abertas (pending, partially_answered) (backend/src/tools/core/tasks.ts:459-465; backend/src/services/task-decision.service.ts:255).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>key duplicada:</b> repetir a key na mesma task dá 409; respeite o formato em minúsculas com números, _ ou - (backend/src/services/task-decision.service.ts:163-164; backend/src/schemas/task-decisions.ts:23; prisma/schema.prisma:875).</li>
+          <li><b>Task fechada:</b> obrigatória em done ou cancelled dá 409 TASK_CLOSED; reabra antes de pedir (backend/src/services/task-status.ts:105-113).</li>
+          <li><b>multiple mal formado:</b> exige min menor ou igual a max dentro do número de opções, senão o refine recusa (backend/src/schemas/task-decisions.ts:42-54).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5694,6 +5732,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>HITL</b> — human-in-the-loop: decisão que só pessoa autenticada responde; o agente cria e entrega o link da tela (backend/src/services/task-decision.service.ts:200-214).</li>
+          <li><b>awaiting_human_decision</b> — status-portão: task parada esperando a pessoa; com obrigatória pendente só valem awaiting_*, cancelled (backend/src/services/task-status.ts:26,46-49; prisma/schema.prisma:650-652).</li>
+          <li><b>required</b> — obrigatória trava o portão; opcional nunca muda o status (backend/src/schemas/task-decisions.ts:29).</li>
+          <li><b>key</b> — chave estável única por task, minúsculas com números, _ ou - (backend/src/schemas/task-decisions.ts:23; prisma/schema.prisma:875).</li>
+          <li><b>selectionType</b> — single (uma opção) ou multiple (checkbox com min/maxSelections) (backend/src/schemas/task-decisions.ts:30-32; prisma/schema.prisma:817-820).</li>
         </ul>
       </div>
 

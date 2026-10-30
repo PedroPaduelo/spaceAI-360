@@ -5703,6 +5703,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Validar projeto e lease:</b> projectId mais agentId e ttlSeconds com os mesmos limites do claim (schemas/tasks.ts:252-263; tasks.ts:413).</li>
+          <li><b>2. Listar candidatas:</b> next com até 10 candidatas na ordem de pronto, da mais prioritária à mais antiga (tasks.ts:415-417; task-dependency.service.ts:302-303; task-dependency.service.ts:38-39).</li>
+          <li><b>3. Tentar em ordem:</b> para cada candidata chama claim; ConflictError pula para a próxima (task-dependency.service.ts:304-310).</li>
+          <li><b>4. Devolver a vitória:</b> o primeiro claim que grava retorna claimed true com task e lease (task-dependency.service.ts:306; task-dependency.service.ts:235-239).</li>
+          <li><b>5. Fila vazia:</b> sem candidata livre retorna claimed false; projeto inexistente ou na lixeira propaga 404 (task-dependency.service.ts:312; task-dependency.service.ts:218-219).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>Mesma ordem do next:</b> priority desc, createdAt asc e id asc valem para task_next e para as candidatas do claim_next (task-dependency.service.ts:42-46; task-dependency.service.ts:217-231).</li>
+          <li><b>claim mira, claim_next varre:</b> um pega o id escolhido, o outro pega a primeira livre para workers paralelos do TSK-09 (task-dependency.service.ts:1-21).</li>
+          <li><b>release devolve à fila:</b> soltar o lease ou concluir/cancelar via update libera a task para o próximo claim_next (task-dependency.service.ts:320-340).</li>
+          <li><b>Filtros antes do claim:</b> HITL e dependências já filtram as candidatas no readyWhere antes de qualquer UPDATE (task-dependency.service.ts:52-59).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Só 10 candidatas:</b> CLAIM_NEXT_CANDIDATES limita as tentativas; corrida intensa pode devolver claimed false com fila maior (task-dependency.service.ts:38-39).</li>
+          <li><b>claimed false não é erro:</b> significa nada pronto livre; não retentar em loop apertado sem espera (tasks.ts:411-418).</li>
+          <li><b>Só Conflict pula:</b> CLAIM_HELD, DEPENDENCY_OPEN e TASK_NOT_CLAIMABLE passam para a próxima; outro erro propaga (task-dependency.service.ts:307-309).</li>
+          <li><b>404 propaga:</b> projeto inexistente não vira claimed false, vira NOT_FOUND (task-dependency.service.ts:218-219).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5721,7 +5761,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+        
+          <li><b>Candidatas</b> — até 10 tasks prontas tentadas em ordem até o primeiro claim vencer (task-dependency.service.ts:38-39).</li>
+          <li><b>Corrida (race)</b> — dois agentes no mesmo next disputam a linha; o UPDATE condicional decide um vencedor (task-dependency.service.ts:272-285).</li>
+          <li><b>claimed false</b> — retorno sem erro quando nada está pronto livre; diferente de 404 de projeto (task-dependency.service.ts:302-313).</li>
+          <li><b>Workers paralelos (TSK-09)</b> — coordenação por lease para agentes simultâneos sem fila externa (task-dependency.service.ts:1-21).</li>
+</ul>
       </div>
 
 </div>

@@ -5671,6 +5671,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Validar projeto e limite:</b> projectId mais limit de 1 a 20, padrão 1 (schemas/tasks.ts:270-272; tasks.ts:403).</li>
+          <li><b>2. Conferir o projeto:</b> inexistente ou na lixeira vira 404 antes de ler tasks (task-dependency.service.ts:218-219).</li>
+          <li><b>3. Aplicar o pronto:</b> readyWhere exige status todo, sem lease ativo (nulo ou vencido) e nenhuma dependência fora de done (task-dependency.service.ts:52-59; task-dependency.service.ts:48-49).</li>
+          <li><b>4. Ordenar e cortar:</b> priority desc, createdAt asc e id asc, com take do limit (task-dependency.service.ts:42-46; task-dependency.service.ts:220-225).</li>
+          <li><b>5. Devolver items:</b> id, projectId, title, status, priority, tags como lista e createdAt ISO em { items } (task-dependency.service.ts:226-230; tasks.ts:405).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>Sugere, não claima:</b> HINTS.read só lista; pegar é task_claim pelo id ou task_claim_next pela primeira livre (tasks.ts:402; tasks.ts:412).</li>
+          <li><b>claim_next usa a mesma ordem:</b> tenta as candidatas do next e pula quem foi pego no caminho com CLAIM_HELD (task-dependency.service.ts:302-313).</li>
+          <li><b>Só todo entra:</b> in_progress e blocked com lease pedem release ou renovação, não aparecem aqui (task-dependency.service.ts:36; task-dependency.service.ts:55).</li>
+          <li><b>Dependências liberam:</b> dependency_list mostra openDependencyIds e ready que explicam por que a task não entra no next (task-dependency.service.ts:137-156).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>HITL já filtrado:</b> awaiting_human_decision e awaiting_more_information nunca aparecem, só todo (task-dependency.service.ts:10-12; task-dependency.service.ts:55).</li>
+          <li><b>Lease ativo esconde:</b> task com dono some da lista; vencido volta sem evento (task-dependency.service.ts:56; task-dependency.service.ts:76-79).</li>
+          <li><b>Teto 20:</b> limit máximo 20; fila maior exige novas chamadas (schemas/tasks.ts:270-272).</li>
+          <li><b>Vazio não é erro:</b> items vazio significa nada pronto, não falha (tasks.ts:402).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5689,7 +5729,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+        
+          <li><b>readyWhere</b> — filtro do pronto: todo mais sem lease ativo mais dependências done (task-dependency.service.ts:52-59).</li>
+          <li><b>Fila pronta</b> — tasks que um agente pode começar agora, na ordem de prioridade e idade (task-dependency.service.ts:42-46).</li>
+          <li><b>HINTS.read</b> — marca de só leitura: idempotente e sem escrita no mundo (tasks.ts:404).</li>
+          <li><b>Limit</b> — quantas prontas devolver, de 1 a 20 com padrão 1 (schemas/tasks.ts:270-272).</li>
+</ul>
       </div>
 
 </div>

@@ -5689,6 +5689,50 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>Registro sem argumentos</b> — handler <i>worktree_list</i> chama <i>Service.List</i> sem ler args (mypanel/packages/sandbox-agent-go/internal/tools/worktree/register.go:21-24; internal/tools/worktree/worktree.go:179-183).</li>
+          <li><b>Resolve o clone principal</b> — <i>PrimaryRepo</i> devolve dir + main branch ou erro de sem-repo/cloning/falha (internal/tools/worktree/worktree.go:180; internal/tools/repo/repo.go:347-356).</li>
+          <li><b>Lista checkouts</b> — <i>git.Worktrees</i> roda <i>git worktree list --porcelain</i> e faz parse por bloco (internal/tools/worktree/worktree.go:184; internal/tools/repo/git.go:158-172).</li>
+          <li><b>Conta pendencias</b> — <i>dirtyLabel</i> chama <i>dirtyCount</i>: <i>git status --porcelain --untracked-files=all</i>, <i>Lines</i> vira N uncommitted (internal/tools/worktree/worktree.go:191,600-622).</li>
+          <li><b>Ahead/behind</b> — se tem branch, <i>rev-list --left-right --count main...branch</i>; so preenche se OK e com 2 campos (internal/tools/worktree/worktree.go:195-204).</li>
+          <li><b>Formata e dica</b> — <i>*</i> marca o clone principal, <i>-</i> marca cada worktree; se so ha 1, sugere criar uma por tarefa paralela (internal/tools/worktree/worktree.go:188-211).</li>
+          <li><b>So leitura</b> — nao entra na fila gitQ/pushQ; roda direto, fora de <i>runQueued</i> (internal/tools/worktree/worktree.go:177-179).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Correlacoes</h3>
+        </div>
+        <ul>
+          <li><b>worktree_create</b> — cria a pasta em <i>.worktrees/</i> e a branch que esta lista exibe (internal/tools/worktree/worktree.go:93-160).</li>
+          <li><b>worktree_merge / worktree_remove</b> — fundem ou limpam o que a lista mostra; remove tem <i>delete_branch</i> padrao true (internal/tools/worktree/worktree.go:217-241,509-562).</li>
+          <li><b>repo.Git.Worktrees</b> — fonte unica: <i>worktree list --porcelain</i> apos <i>prune</i> (internal/tools/repo/git.go:158-166).</li>
+          <li><b>workspace_info</b> — conta <i>git worktree list</i> e aponta para worktree_list quando ha outras (internal/tools/info/info.go:107-110).</li>
+          <li><b>Limites</b> — <i>WorktreeMax</i> (padrao 20) barra o create, nao a listagem (internal/tools/worktree/limits.go:14,20,36-38; internal/tools/worktree/worktree.go:122-125).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>PrimaryRepo falha e aborta</b> — cloning, clone falhou ou sem .git: a lista devolve o erro, sem parcial (internal/tools/repo/repo.go:347-356; internal/tools/worktree/worktree.go:180-183).</li>
+          <li><b>Status desconhecido nao derruba</b> — <i>dirtyLabel</i> vira <i>status unknown (git status failed)</i> e a linha segue (internal/tools/worktree/worktree.go:616-622).</li>
+          <li><b>rev-list falhou omite</b> — sem ahead/behind, sem erro; so preenche se <i>c.OK</i> (internal/tools/worktree/worktree.go:195-204).</li>
+          <li><b>Detached sem branch</b> — vira <i>(detached ...)</i> via <i>labelOf</i>; sem ahead/behind (internal/tools/worktree/worktree.go:659-664).</li>
+          <li><b>Observacao</b> — esconder <i>.worktrees/</i> do status e feito no create via <i>hideWorktrees</i>; nao confirmado que o list reaplique (internal/tools/worktree/worktree.go:164-174).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5707,6 +5751,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Worktree</b> — checkout extra da mesma repo em <i>.worktrees/&lt;nome&gt;</i>; uma branch por pasta de tarefa (internal/tools/worktree/worktree.go:22-23,99-114).</li>
+          <li><b>Ahead / behind</b> — <i>rev-list --left-right --count main...branch</i>: quantos commits so da branch e so da principal (internal/tools/worktree/worktree.go:196-204).</li>
+          <li><b>Porcelain</b> — saida estavel de <i>git worktree list --porcelain</i> e <i>status --porcelain</i> para parse (internal/tools/repo/git.go:158-172; internal/tools/worktree/worktree.go:605).</li>
+          <li><b>Untracked</b> — arquivo novo sem <i>git add</i>; conta em <i>dirtyCount</i> com <i>--untracked-files=all</i> (internal/tools/worktree/worktree.go:600-613).</li>
+          <li><b>PrimaryRepo</b> — resolve dir do clone + branch principal ou erro de sem-repo/cloning (internal/tools/repo/repo.go:347-356).</li>
         </ul>
       </div>
 

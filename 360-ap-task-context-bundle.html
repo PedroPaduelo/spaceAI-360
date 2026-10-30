@@ -5692,6 +5692,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Validar o orçamento:</b> taskId mais budgetBytes de 4 a 64 KB, padrão 30 KB (schemas/tasks.ts:206-224; tasks.ts:289-294).</li>
+          <li><b>2. Carregar task e gate:</b> getByIdWithTodos mais decisões slim, com blocked e pendingRequiredDecisions e decisionTools quando há humano por responder (task-context.service.ts:350-385).</li>
+          <li><b>3. Montar o núcleo:</b> task, todos, decisions, vínculos de memória/skill/prompt/knowledge, anexos, mustRead e budget com omitted (task-context.service.ts:362-432).</li>
+          <li><b>4. Encolher até caber:</b> corta descrição, compacta decisões, aplica piso de 256 B, tira notas e corta listas de todos até mustRead, registrando cada corte (task-context.service.ts:499-580).</li>
+          <li><b>5. Inlinear a sobra:</b> texto de anexos, corpo de memórias e prompts de mustRead entram quando couberem; marca truncated e usedBytes, ou 413 se nem o mínimo couber (task-context.service.ts:600-697; task-context.service.ts:582-590).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>get detalha, bundle executa:</b> task_get devolve o cru e o bundle devolve o pacote “ler antes de executar” com mustRead e gate (tasks.ts:172-196; tasks.ts:283-294).</li>
+          <li><b>decisionTools é opt-in:</b> as tools de decisão moram no toolset decisions fora do padrão; o ponteiro diz como ligar (task-context.service.ts:33-37; task-context.service.ts:384).</li>
+          <li><b>Leitura completa:</b> skill_get, prompt_get, memory_get, knowledge_get, attachment_get e task_get resolvem cada readWith do bundle (task-context.service.ts:74-84; task-context.service.ts:436-439).</li>
+          <li><b>Mesmo gate do update e do claim:</b> isGateStatus e pendências obrigatórias decidem blocked e elegibilidade nos três fluxos (task-context.service.ts:354-358; task-status.ts:26-32).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Teto é do texto com envelope:</b> budgetBytes vale para a saída com { ok, data, meta }; a reserva ENVELOPE_RESERVE_BYTES sai do que o bundle pode ocupar (task-context.service.ts:484-488).</li>
+          <li><b>Binário nunca inline:</b> vira omitted com reason binary; texto é cortado em bytes UTF-8 sem quebrar caractere (task-context.service.ts:448-453; task-context.service.ts:219-231).</li>
+          <li><b>Núcleo intocável:</b> obrigatórias pendentes primeiro e decisionTools nunca saem, mesmo sob pressão de orçamento (task-context.service.ts:540; task-context.service.ts:33-37).</li>
+          <li><b>inline parcial engana:</b> inline true só quando o corpo inteiro coube; senão ler via readWith com requiresToolset quando houver (task-context.service.ts:86-95; task-context.service.ts:633-688).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5710,7 +5750,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+        
+          <li><b>budgetBytes / omitted</b> — orçamento do JSON compacto e a lista do que ficou de fora com a tool que lê cada item (schemas/tasks.ts:214-224).</li>
+          <li><b>mustRead / inline</b> — skills e prompts execution, memórias constraint/decision, knowledge solution/reference e anexos de decisão; inline true só com corpo inteiro (task-context.service.ts:68-95).</li>
+          <li><b>Gate / decisionTools</b> — blocked mais chaves pendentes, com ponteiro do toolset opt-in decisions quando há humano por responder (task-context.service.ts:380-385).</li>
+          <li><b>Reserva do envelope</b> — bytes descontados do teto para o { ok, data, meta } da resposta (task-context.service.ts:484-488).</li>
+</ul>
       </div>
 
 </div>
