@@ -5804,6 +5804,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>A tool recebe id mais patch opcional (title, summary, content, format, category, parentId, tags, order) e expectedVersion opcional (backend/src/tools/core/knowledge.ts:167-178); parentId nulo volta à raiz.</li>
+          <li>O handler monta o patch, converte tags com csvList e repassa expectedVersion com projectIds do chamador (backend/src/tools/core/knowledge.ts:180-195).</li>
+          <li>O service carrega via getByIdOnly com escopo; ausente é 404 (backend/src/services/knowledge.service.ts:515-516) e detecta re-nest de pai (backend/src/services/knowledge.service.ts:517).</li>
+          <li>Em transação única com tree lock quando re-nesta e FOR UPDATE na linha, confere expectedVersion na linha travada (backend/src/services/knowledge.service.ts:519-528) e valida novo pai e demandId (backend/src/services/knowledge.service.ts:529-536; backend/src/services/knowledge-hierarchy.ts:98-107).</li>
+          <li>Sanitiza pelo formato final e decide: mudou title/summary/content/format arquiva N em KnowledgeVersion e vai a N+1, senão grava metadados sem versionar; depois invalida L1/L2 e listas (backend/src/services/knowledge.service.ts:251-259, 539-554, 557-558).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li>knowledge_create define formato/tags/pai/order que o update altera (backend/src/services/knowledge.service.ts:425-497).</li>
+          <li>knowledge_versions_list e version_get leem o histórico que o update gera; restore chama update com snapshot (backend/src/services/knowledge.service.ts:568-588; backend/src/services/knowledge-version.service.ts:32-56).</li>
+          <li>knowledge_move usa a mesma ordem de locks (árvore antes da linha) e validação de pai (backend/src/services/knowledge.service.ts:519-533, 746-791).</li>
+          <li>knowledge_get relê o estado novo; expectedVersion evita lost update (backend/src/schemas/knowledge.ts:43-45; backend/src/services/knowledge.service.ts:278-284).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Sem expectedVersion vale last-write-wins ainda versionado; divergente dá 409 VERSION_CONFLICT retryable — releia e refaça, não repita (backend/src/services/knowledge.service.ts:278-284, 526-528).</li>
+          <li>Só 4 campos versionam (VERSIONED_FIELDS); tags/category/order/parent/demand não incrementam (backend/src/services/knowledge.service.ts:199, 270-272, 539-541).</li>
+          <li>Página na lixeira não pode trocar de pai: INVALID_PARENT, restaure antes (backend/src/services/knowledge.service.ts:530-533).</li>
+          <li>HTML passa por DOMPurify e markdown grava cru; o formato final decide a sanitização (backend/src/services/knowledge.service.ts:251-259).</li>
+        </ul>
+      </div>
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5822,6 +5862,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+                  <li><b>VERSIONED_FIELDS</b> — title/summary/content/format (backend/src/services/knowledge.service.ts:199).</li>
+          <li><b>expectedVersion</b> — versão lida; divergiu dá 409 (backend/src/schemas/knowledge.ts:43-45).</li>
+          <li><b>FOR UPDATE</b> — trava a linha; concorrentes enfileiram (backend/src/services/knowledge.service.ts:523).</li>
+          <li><b>buildUpdateData</b> — normaliza formato e sanitiza (backend/src/services/knowledge.service.ts:251-259).</li>
         </ul>
       </div>
 

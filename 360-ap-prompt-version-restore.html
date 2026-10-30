@@ -5816,6 +5816,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Exigir tudo:</b> projectId, promptId, version de destino e expectedVersion lida, sem last-write-wins (tools/core/prompts.ts:325-329; schemas/prompts.ts:126-128).</li>
+          <li><b>2. Barrar às cegas:</b> sem expectedVersion falha com 428 PRECONDITION_REQUIRED antes de tocar o banco (services/prompt.service.ts:396-398).</li>
+          <li><b>3. Achar snapshot e travar:</b> busca a versão com prompt ativo e faz lockLivePrompt com FOR UPDATE mais checkVersion (services/prompt.service.ts:400-406).</li>
+          <li><b>4. Arquivar o atual:</b> insere o estado corrente em agent_prompt_versions com restoredFrom apontando a origem e ator da vez (services/prompt.service.ts:408-422).</li>
+          <li><b>5. Gravar a volta guardada:</b> updateMany com name, description, content, tags e isActive do snapshot mais incremento, devolvendo o atualizado (services/prompt.service.ts:423-430).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>prompt_version_list / prompt_version_get:</b> localizam a version de destino e mostram o corpo antes da volta (tools/core/prompts.ts:272-275; tools/core/prompts.ts:300-303).</li>
+          <li><b>prompt_get / prompt_update:</b> get dá a expectedVersion atual e update usa a mesma guarda otimista desta volta (tools/core/prompts.ts:117-120; tools/core/prompts.ts:179-182).</li>
+          <li><b>prompt_delete / prompt_restore:</b> lixeira trata de deletedAt; aqui se trata de conteúdo versionado, nunca reescrito (services/prompt.service.ts:293-310; services/prompt.service.ts:389-394).</li>
+          <li><b>Trilha de auditoria:</b> o restore gera linha append-only com entidade prompt e ação de escrita versionada (services/audit.service.ts:306-341).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>428 sem versão lida:</b> omitir expectedVersion ou If-Match não faz last-write-wins, falha com PRECONDITION_REQUIRED (services/prompt.service.ts:396-398).</li>
+          <li><b>409 com retryable:</b> versão defasada devolve atual e esperada para recarregar e reaplicar (services/prompt.service.ts:117-122).</li>
+          <li><b>Lixeira bloqueia:</b> prompt apagado responde 409 PROMPT_IN_TRASH; versão inexistente responde 404 (services/prompt.service.ts:153-158; services/prompt.service.ts:404).</li>
+          <li><b>Nunca reescreve:</b> o histórico é só inserido; a volta entra como versão nova com restoredFrom (services/prompt.service.ts:408-422).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5834,7 +5874,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+        
+          <li><b>PRECONDITION_REQUIRED (428)</b> — erro sem expectedVersion no restore: voltar às cegas não tem last-write-wins (services/prompt.service.ts:396-398).</li>
+          <li><b>restoredFrom</b> — carimbo na versão arquivada dizendo de qual versão veio a restauração (services/prompt.service.ts:417; prisma/schema.prisma:593).</li>
+          <li><b>SELECT FOR UPDATE</b> — trava que enfileira escritas do mesmo prompt antes da gravação guardada (services/prompt.service.ts:145-151).</li>
+          <li><b>updateMany guardado</b> — escrita final condicionada à versão lida; corrida vira VERSION_CONFLICT (services/prompt.service.ts:167-174).</li>
+</ul>
       </div>
 
 </div>

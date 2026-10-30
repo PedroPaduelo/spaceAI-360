@@ -5662,6 +5662,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>A tool exige projectId mais filtros opcionais category/tags/search e paginação page/pageSize (backend/src/tools/core/knowledge.ts:73-78; backend/src/schemas/knowledge.ts:83-86).</li>
+          <li>O handler converte tags CSV com csvList e calcula skip=(page-1)*pageSize, take=pageSize (backend/src/tools/core/knowledge.ts:81-86).</li>
+          <li>O service monta where com projeto ativo, isDeleted falso, category/scope/demandId/parentId (backend/src/services/knowledge.service.ts:302-307) mais textSearch em title/summary/content (backend/src/services/knowledge.service.ts:308-310) e cláusulas AND de tags (backend/src/services/knowledge.service.ts:311-313).</li>
+          <li>Lê com omit WITHOUT_CONTENT em SIBLING_ORDER (order, createdAt, id) mais count (backend/src/services/knowledge.service.ts:315-324, 205, 215-219).</li>
+          <li>Mapeia para shape de resumo e devolve {items,total,page,pageSize,pages} via listPage (backend/src/tools/core/knowledge.ts:60-62, 87).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li>knowledge_get carrega o content que a lista omite; knowledge_search ranqueia quando precisa de relevância (backend/src/tools/core/knowledge.ts:90-107; backend/src/services/knowledge-search.service.ts:93-206).</li>
+          <li>knowledge_children lista 1 nível na mesma ordem; descendants pagina a subárvore em ordem de árvore (backend/src/services/knowledge.service.ts:686-703, 719-727).</li>
+          <li>Os filtros category/scope/demandId/tags repetem-se no search com cursor keyset (backend/src/schemas/knowledge.ts:88-96, 103-112).</li>
+          <li>Cache L3 por fingerprint de filtros, invalidado em toda escrita (backend/src/services/knowledge.service.ts:291-301, 495, 557-558).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>page padrão 50, teto 200 (backend/src/schemas/knowledge.ts:83-86); página além do fim vem vazia, sem erro.</li>
+          <li>O search da list é contains via textSearch, sem rank nem snippet; para ranqueado use o search dedicado (backend/src/services/knowledge.service.ts:308-310; backend/src/services/knowledge-search.service.ts:141-157).</li>
+          <li>tags é String com JSON dentro, não array; o filtro usa LIKE com termo escapado (backend/src/services/knowledge.service.ts:311-313).</li>
+          <li>Só páginas ativas de projeto ativo; lixeira fica fora e usa listagem própria (backend/src/services/knowledge.service.ts:302, 655-663).</li>
+        </ul>
+      </div>
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5680,6 +5720,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+                  <li><b>WITHOUT_CONTENT</b> — omite content nas listas; corpo só no get (backend/src/services/knowledge.service.ts:205).</li>
+          <li><b>csvList</b> — CSV de tags vira array (backend/src/tools/core/knowledge.ts:84-86).</li>
+          <li><b>textSearch</b> — contains em title/summary/content (backend/src/services/knowledge.service.ts:308-310).</li>
+          <li><b>L3</b> — cache de listas por fingerprint (backend/src/services/knowledge.service.ts:291-301).</li>
         </ul>
       </div>
 

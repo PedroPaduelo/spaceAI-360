@@ -5738,6 +5738,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Gateway valida <i>taskId</i> UUID + <i>MemoryLinkSchema</i>: <i>memoryId</i> UUID, <i>relationType</i> default context, <i>note</i> até 5000 (tools/core/tasks.ts:570-577; schemas/task-decisions.ts:103-107).</li>
+          <li>Service carrega task e memória; projetos diferentes ou inexistentes viram 404 Task or Memory (task-decision.service.ts:540-542).</li>
+          <li>Memória na lixeira vira 422 VALIDATION_ERROR com código <i>in_trash</i> e orientação de <i>restore</i> (task-decision.service.ts:543-546,336-338).</li>
+          <li>Transação busca o trio <i>(taskId, memoryId, relationType)</i>: existente só atualiza a nota; novo cria o vínculo + evento <i>memory_linked</i> (task-decision.service.ts:548-554).</li>
+          <li>Chave única <i>@@unique([taskId, memoryId, relationType])</i> garante um vínculo por relação (schema.prisma:987).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>task_memory_list</i> lista os vínculos ativos da task ordenados por criação (tools/core/tasks.ts:580-586; task-decision.service.ts:557).</li>
+          <li><i>memory_get</i> lê o corpo da memória vinculada; <i>memory_restore</i> reativa vínculos ocultos (task-decision.service.ts:333,557).</li>
+          <li><i>unlinkMemory</i> exige o mesmo trio e grava <i>memory_unlinked</i>; 404 se o vínculo não existe (task-decision.service.ts:559-569).</li>
+          <li><i>memory_list</i> e <i>memory_create</i> gerenciam o outro lado: a memória precisa existir e ser do mesmo projeto (memory.service.ts:292-309,330-346).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><i>HINTS.link</i> idempotente: repetir o trio só atualiza a nota, sem evento novo (mcp/tool-kit.ts:400-401; task-decision.service.ts:549-550).</li>
+          <li><i>relationType</i> faz parte da chave: context/decision/constraint/outcome são vínculos distintos (schema.prisma:696-701,987).</li>
+          <li>Vínculos de memória na lixeira ficam ocultos por <i>LIVE_MEMORY_LINK</i> e voltam com o restore (task-decision.service.ts:333,557).</li>
+          <li><i>note</i> até 5000 chars; relação errada em unlink gera 404, não deleção parcial (schemas/task-decisions.ts:106; task-decision.service.ts:561-569).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5756,6 +5796,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>MemoryTaskLink</b> — vínculo task↔memória com chave única (taskId, memoryId, relationType) (schema.prisma:975-990).</li>
+          <li><b>relationType</b> — por que a memória está na task: context, decision, constraint ou outcome; default context (schemas/task-decisions.ts:101-107).</li>
+          <li><b>HINTS.link</b> — vínculo idempotente: repetir o mesmo trio só atualiza a nota (mcp/tool-kit.ts:400-401).</li>
+          <li><b>in_trash / LIVE_MEMORY_LINK</b> — memória deletada não vincula (422) e some das listas até o restore (task-decision.service.ts:333-338).</li>
         </ul>
       </div>
 

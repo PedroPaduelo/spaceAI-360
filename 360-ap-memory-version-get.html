@@ -5741,6 +5741,45 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Gateway valida <i>id</i> UUID + <i>version</i> inteiro ≥ 1 vindo de <i>memory_versions_list</i> (tools/core/memory.ts:233-236; schemas/memory.ts:37).</li>
+          <li>Handler chama <i>getVersion</i> com os projetos do <i>tools/call</i> (tools/core/memory.ts:238-241).</li>
+          <li>Service busca em <i>memory_versions</i> por <i>(memoryId, version)</i> filtrando a memória ativa no escopo (memory.service.ts:403-407).</li>
+          <li>Ausente vira <i>NotFoundError</i> de versão; presente retorna o snapshot com <i>tags</i> como array (memory.service.ts:408; tools/core/memory.ts:241).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>memory_versions_list</i> descobre o número da versão; <i>version_get</i> traz o corpo dela (tools/core/memory.ts:202-203,231-232).</li>
+          <li><i>memory_get</i> compara o estado atual com o snapshot substituído (tools/core/memory.ts:86-88).</li>
+          <li><i>memory_update</i> reaplica título/conteúdo/categoria/tags de uma versão para trazê-la de volta (memory.service.ts:416-428).</li>
+          <li>Via REST existe <i>GET .../memories/:id/versions/:version</i> e <i>POST .../versions/:version/restore</i> (routes/memories.ts:12-13,190-221).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Linha <i>version = N</i> é o que a memória era na versão N, gravada pelo save que a levou a N+1 (memory.service.ts:9-13).</li>
+          <li>Memória deletada ou de outro projeto dá 404 mesmo que a versão exista; filtro exige memória ativa (memory.service.ts:405,287-288).</li>
+          <li>Só leitura <i>HINTS.read</i>: nada é gravado, sem <i>expectedVersion</i> nem nova versão (tools/core/memory.ts:237).</li>
+          <li>Entrada inválida (id não-UUID, version &lt; 1) recusa no Zod antes do handler como VALIDATION_ERROR (tools/core/memory.ts:233-236).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5759,6 +5798,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Estado substituído</b> — <i>memory_versions</i> guarda title, content, category e tags de cada versão trocada (schema.prisma:507-526).</li>
+          <li><b>Chave (memoryId, version)</b> — única por memória; a leitura filtra pela memória ativa no escopo (memory.service.ts:403-407; schema.prisma:525).</li>
+          <li><b>actorType / actorId / source</b> — quem fez o save que substituiu o estado e quando (memory.service.ts:64-73).</li>
+          <li><b>restoreVersion</b> — o conteúdo da versão vira versão nova via <i>update</i>, sem perder o atual (memory.service.ts:416-428).</li>
         </ul>
       </div>
 

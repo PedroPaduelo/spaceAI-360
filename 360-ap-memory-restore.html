@@ -5648,6 +5648,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Gateway valida só o <i>id</i> UUID, sem <i>expectedVersion</i> (tools/core/memory.ts:272).</li>
+          <li>Handler chama <i>memoryService.restore</i> com os projetos do <i>tools/call</i> (tools/core/memory.ts:274-276).</li>
+          <li>Transação trava a linha com <i>lockMemory</i> lendo mesmo deletada; ausente vira <i>NotFoundError</i> (memory.service.ts:373-375,199-206).</li>
+          <li>Se <i>deletedAt</i> é nulo, recusa com 409 NOT_IN_TRASH (memory.service.ts:376).</li>
+          <li><i>writeAtVersion</i> limpa <i>deletedAt</i> e devolve a linha via <i>memoryPayload</i> (memory.service.ts:377; tools/core/memory.ts:276).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>memory_delete</i> é o inverso: carimba <i>deletedAt</i> e o <i>restore</i> desfaz (tools/core/memory.ts:252-253,270-271).</li>
+          <li><i>memory_get</i> e <i>memory_list</i> voltam a enxergar a memória após o <i>restore</i> (tools/core/memory.ts:88,53).</li>
+          <li><i>task_memory_link</i> volta a aceitar a memória: vínculos ocultos por <i>LIVE_MEMORY_LINK</i> reaparecem (task-decision.service.ts:333,557).</li>
+          <li>Via REST existe também <i>POST .../memories/:id/restore</i> com o mesmo service (routes/memories.ts:10,122-137).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Id desconhecido ou de outro projeto (DAT-14): 404 indistinguível (tools/core/memory.ts:10-12; memory.service.ts:373-375).</li>
+          <li>Memória já ativa vira 409 NOT_IN_TRASH, não sucesso idempotente (memory.service.ts:376).</li>
+          <li>Limpar <i>deletedAt</i> não arquiva estado: não cria versão nova no histórico (memory.service.ts:372-379,230-262).</li>
+          <li>Não confunda com <i>restoreVersion</i> (REST): trazer versão antiga gera versão nova via <i>update</i> (memory.service.ts:416-428).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5666,6 +5706,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>NOT_IN_TRASH</b> — 409 quando a memória já está ativa; só deletada pode voltar (memory.service.ts:376).</li>
+          <li><b>lockMemory</b> — trava FOR UPDATE e lê mesmo deletada, diferente de <i>lockActiveMemory</i> (memory.service.ts:199-212).</li>
+          <li><b>LIVE_PROJECT</b> — filtro que exige projeto fora da lixeira em todas as leituras (memory.service.ts:108).</li>
+          <li><b>restoreVersion</b> — outro fluxo: o conteúdo de uma versão vira versão nova via <i>update</i> (memory.service.ts:416-428).</li>
         </ul>
       </div>
 

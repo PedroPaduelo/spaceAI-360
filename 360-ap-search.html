@@ -5766,6 +5766,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Validar a consulta:</b> q com 1–200 caracteres mais types CSV dos seis, projectId uuid, limit até 50 e offset até 500 (services/search.service.ts:78-104; tools/core/search.ts:70-74).</li>
+          <li><b>2. Resolver o escopo:</b> com projectId a busca fica nele; sem ele, usuário e bootstrap veem tudo e chave de agente só os seus, com MCP filtrado por empresa (services/search.service.ts:485-500; services/search.service.ts:345-349).</li>
+          <li><b>3. Rodar um SELECT por tipo:</b> ILIKE com pesos mais trigram no título e FTS em português no search_tsv, cortado em offset mais limit por tipo (services/search.service.ts:301-338; services/search.service.ts:368-381).</li>
+          <li><b>4. Fundir por RRF:</b> score 1 dividido por 60 mais posição no tipo; empate segue a ordem dos tipos (services/search.service.ts:527-533; services/search.service.ts:57-61).</li>
+          <li><b>5. Cortar snippet seguro:</b> segunda query traz o corpo da página e buildSnippet devolve até 200 chars com HTML escapado e termos em mark (services/search.service.ts:394-410; services/search.service.ts:446-476).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>knowledge_search:</b> busca só de knowledge com cursor ou offset e filtros de categoria e escopo; search global funde seis tipos com RRF (tools/core/search.ts:26-62; tools/core/search.ts:63-85).</li>
+          <li><b>prompt_list search:</b> filtro textual simples em nome, descrição e corpo; o global usa FTS mais trigram com ranking (services/prompt.service.ts:129-142; services/search.service.ts:301-318).</li>
+          <li><b>Gets por tipo:</b> cada hit se abre na tool do tipo, como prompt_get para prompts (tools/core/prompts.ts:117-120; services/search.service.ts:537-547).</li>
+          <li><b>Catálogos globais:</b> skills e MCP entram sempre; knowledge, memory, task e prompt ficam no projeto do escopo (services/search.service.ts:31-39).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Modo degradado sem índice:</b> sem pg_trgm ou search_tsv a busca roda só com ILIKE e reporta degradação uma vez (services/search.service.ts:515-521).</li>
+          <li><b>MCP de outra empresa some:</b> só entram linhas da empresa do escopo mais as de plataforma; o resto nem o nome aparece (services/search.service.ts:345-349).</li>
+          <li><b>Lixeira e projeto morto ficam de fora:</b> knowledge deletada, memory e prompt com deletedAt e projeto na lixeira não pontuam (services/search.service.ts:193-284).</li>
+          <li><b>Página é sobre o fundido:</b> offset e limit andam no ranking RRF, com cap por tipo em offset mais limit (services/search.service.ts:511-534).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5784,7 +5824,13 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+        
+          <li><b>RRF (RRF_K 60)</b> — fusão por posto: 1 dividido por 60 mais posição no tipo, sem comparar scores entre tipos (services/search.service.ts:61; services/search.service.ts:527-545).</li>
+          <li><b>pg_trgm / trigram</b> — similaridade por trigramas no título que tolera erro de digitação (services/search.service.ts:311-314).</li>
+          <li><b>search_tsv</b> — vetor FTS em português com pesos por campo, que cobre os corpos na busca (services/search.service.ts:315-318; prisma/schema.prisma:558).</li>
+          <li><b>Snippet com mark</b> — janela de 200 chars em torno do primeiro termo, escapada, com ocorrências em mark (services/search.service.ts:68-71; services/search.service.ts:446-476).</li>
+          <li><b>TYPE_ORDER / mcpOrg</b> — ordem que desempata o RRF e escopo de empresa que filtra o catálogo MCP (services/search.service.ts:57; services/search.service.ts:345-349).</li>
+</ul>
       </div>
 
 </div>

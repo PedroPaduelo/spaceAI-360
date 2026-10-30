@@ -5694,6 +5694,45 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Gateway valida o único argumento <i>id</i> como UUID via <i>MemoryIdSchema</i> (tools/core/memory.ts:39,89).</li>
+          <li>Handler chama <i>getByIdOnly</i> com os projetos alcançáveis do <i>tools/call</i> via <i>toolCallProjectIds</i> (tools/core/memory.ts:91-93; project-scope.ts:45-50).</li>
+          <li>Service filtra por <i>id</i> + <i>deletedAt</i> nulo + projeto vivo + escopo em <i>activeMemoryWhere</i> (memory.service.ts:287-288,326-327).</li>
+          <li>Ausente vira <i>NotFoundError</i>; presente retorna <i>memoryPayload</i> com <i>tags</i> como array (tools/core/memory.ts:93-95; memory.service.ts:41-43).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>memory_list</i> descobre o <i>id</i>; <i>memory_get</i> carrega o corpo sem <i>content</i> na lista (tools/core/memory.ts:51-53,86-88).</li>
+          <li><i>memory_update</i> usa o <i>version</i> lido como <i>expectedVersion</i> para escrita otimista (tools/core/memory.ts:138-140).</li>
+          <li><i>memory_versions_list</i> e <i>memory_version_get</i> auditam estados substituídos da mesma memória (tools/core/memory.ts:202-203,231-232).</li>
+          <li><i>memory_restore</i> recupera o 404 de memória na lixeira (tools/core/memory.ts:88,270-271).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>404 único: inexistente, deletada ou de outro projeto (DAT-14) são indistinguíveis (tools/core/memory.ts:10-12,94).</li>
+          <li>Leitura é <i>HINTS.read</i>: idempotente, nada muda, sem <i>expectedVersion</i> (tools/core/memory.ts:90).</li>
+          <li>Resposta sempre traz o <i>content</i> integral até 100 KB; não usar em varredura, usar <i>memory_list</i> (memory.service.ts:49-62; schemas/memory.ts:15-16).</li>
+          <li>Falha de domínio sai via <i>toolFailure</i>; erro fora de <i>AppError</i> é relançado, nunca exposto cru (tools/core/knowledge.ts:48-58).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5712,6 +5751,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>getByIdOnly</b> — busca só pelo <i>id</i> com escopo do chamador; fora do alcance retorna nulo como se não existisse (memory.service.ts:321-328).</li>
+          <li><b>DAT-14 / anti-BOLA</b> — memória de outro projeto vira NOT_FOUND igual a id inexistente (tools/core/memory.ts:10-12).</li>
+          <li><b>NotFoundError</b> — 404 único para desconhecida, deletada ou fora do projeto (tools/core/memory.ts:94).</li>
+          <li><b>memoryPayload</b> — espalha a linha e converte <i>tags</i> JSON em array via <i>toStringArray</i> (tools/core/memory.ts:41-43).</li>
         </ul>
       </div>
 

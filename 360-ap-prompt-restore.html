@@ -5689,6 +5689,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Receber os ids:</b> projectId e promptId uuid do item na lixeira (tools/core/prompts.ts:250).</li>
+          <li><b>2. Travar sem exigir ativo:</b> lockPrompt lê a linha com FOR UPDATE mesmo com deletedAt (services/prompt.service.ts:145-151; services/prompt.service.ts:304-305).</li>
+          <li><b>3. Recusar quem já está ativo:</b> sem deletedAt falha com 409 NOT_IN_TRASH; desconhecido é 404 (services/prompt.service.ts:306-307).</li>
+          <li><b>4. Limpar o carimbo:</b> writeAtVersion grava deletedAt null guardado pela versão (services/prompt.service.ts:308; services/prompt.service.ts:167-174).</li>
+          <li><b>5. Voltar ao jogo:</b> o prompt retorna às listas e ao contexto do agente com nome, conteúdo e versão do descarte (tools/core/prompts.ts:249).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>prompt_delete:</b> operação inversa que carimba deletedAt; restore limpa o mesmo campo (services/prompt.service.ts:293-300; services/prompt.service.ts:303-310).</li>
+          <li><b>prompt_list view trash:</b> onde se acha o candidato ao restore antes de trazê-lo (services/prompt.service.ts:138).</li>
+          <li><b>prompt_version_list:</b> o histórico sobrevive ao passeio pela lixeira e continua após o restore (services/prompt.service.ts:358-377).</li>
+          <li><b>Contexto do agente:</b> só listActive com isActive e sem deletedAt alimenta o agente; restore devolve a elegibilidade (services/prompt.service.ts:243-248).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Ativo não restaura:</b> chamar restore fora da lixeira é 409 NOT_IN_TRASH, não sucesso idempotente (services/prompt.service.ts:307).</li>
+          <li><b>Projeto precisa estar vivo:</b> a leitura exige projeto sem deletedAt via projectIdWhere (services/prompt.service.ts:145-151).</li>
+          <li><b>Toolset restrito:</b> restore fica em prompts-admin com o delete, fora do core (tools/core/prompts.ts:16-17).</li>
+          <li><b>Não recria versão:</b> restore só limpa deletedAt; não arquiva estado nem incrementa version (services/prompt.service.ts:303-310).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5707,7 +5747,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+        
+          <li><b>NOT_IN_TRASH</b> — 409 de restore em prompt ainda ativo: só apagado volta (services/prompt.service.ts:307).</li>
+          <li><b>lockPrompt</b> — trava que lê mesmo apagado, diferente de lockLivePrompt que exige ativo (services/prompt.service.ts:145-158).</li>
+          <li><b>listActive</b> — consulta de prompts com deletedAt null e isActive que alimenta o contexto do agente (services/prompt.service.ts:243-248).</li>
+          <li><b>Contexto do agente</b> — conjunto de prompts ativos do projeto lidos antes do trabalho, via briefings e checklists (tools/core/prompts.ts:152).</li>
+</ul>
       </div>
 
 </div>

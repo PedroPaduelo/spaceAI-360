@@ -5719,6 +5719,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Validar filtros e página:</b> projectId uuid mais search até 200, tags CSV até 1000, isActive e view active|trash, com page e pageSize (tools/core/prompts.ts:100-107; schemas/prompts.ts:102-114).</li>
+          <li><b>2. Montar o WHERE:</b> projectId mais projeto vivo, deletedAt por view, textSearch em nome/descrição/conteúdo e tagsAndClauses com escape (services/prompt.service.ts:129-142).</li>
+          <li><b>3. Paginar ordenado:</b> updatedAt desc e id asc com skip e take, mais count com o mesmo filtro para o total (services/prompt.service.ts:215-220).</li>
+          <li><b>4. Projetar sem corpo:</b> listItem com id, name, description, tags, isActive, version e updatedAt ISO, sem markdown (tools/core/prompts.ts:55-65).</li>
+          <li><b>5. Envelopar a página:</b> {items, total, page, pageSize, pages} com pages pelo teto de total/pageSize (tools/core/prompts.ts:109).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>prompt_get:</b> abre o corpo de um item da lista com janela de 12 KB; a lista nunca traz content (tools/core/prompts.ts:55-65; tools/core/prompts.ts:117-120).</li>
+          <li><b>prompt_create:</b> o contrato manda listar e buscar antes para atualizar em vez de duplicar (tools/core/prompts.ts:152).</li>
+          <li><b>view trash / restore:</b> apagados somem da lista padrão e reaparecem com view trash; restore traz de volta (services/prompt.service.ts:138; tools/core/prompts.ts:249).</li>
+          <li><b>search global:</b> o mesmo search textual da lista alimenta o índice search_tsv usado pela busca fundida (services/search.service.ts:254-269; prisma/schema.prisma:558).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Lista do MCP não traz taskCount:</b> o REST conta taskLinks por prompt, o listItem do MCP omite essa coluna (services/prompt.service.ts:54-66; schemas/prompts.ts:163-173).</li>
+          <li><b>Tags é E lógico:</b> CSV exige todas as tags no prompt; vírgula solta ou termo com escape muda o AND (services/prompt.service.ts:134).</li>
+          <li><b>Página tem teto:</b> pageSize padrão 50 e máximo 200; page mínima 1 (schemas/prompts.ts:97-98).</li>
+          <li><b>Apagado some por padrão:</b> sem view trash ou includeDeleted, deletedAt not null filtra tudo (services/prompt.service.ts:138).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5737,7 +5777,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+        
+          <li><b>view active|trash</b> — chave que escolhe ver ativos ou só apagados restauráveis (schemas/prompts.ts:100-111; services/prompt.service.ts:138).</li>
+          <li><b>textSearch</b> — busca casa-insensível em nome, descrição e corpo rodada pelo servidor (services/prompt.service.ts:131; schemas/prompts.ts:105).</li>
+          <li><b>tagsAndClauses</b> — conversor de CSV em cláusulas com escape, pois tags é String com JSON dentro (services/prompt.service.ts:132-134).</li>
+          <li><b>taskCount</b> — contagem de taskLinks por prompt, presente na lista REST e ausente no MCP (services/prompt.service.ts:65; schemas/prompts.ts:171).</li>
+</ul>
       </div>
 
 </div>

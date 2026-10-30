@@ -5642,6 +5642,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>A tool recebe projectId mais knowledgeId (raiz da subárvore) e page/pageSize (backend/src/tools/core/knowledge.ts:353-357; backend/src/schemas/knowledge.ts:83-86).</li>
+          <li>O handler chama getDescendants com skip/take (backend/src/tools/core/knowledge.ts:359-364).</li>
+          <li>O service resolve ids paginados via descendantIdsPage em CTE recursiva (backend/src/services/knowledge.service.ts:719-727; backend/src/services/knowledge-hierarchy.ts:137-175).</li>
+          <li>A CTE acumula sort_key (sort_order mais createdAt mais id) por nível para depth-first com irmãos em ordem manual; não atravessa a lixeira (backend/src/services/knowledge-hierarchy.ts:144-160).</li>
+          <li>Conta o total junto, fatia por LIMIT/OFFSET em ordem de sort_key, busca linhas sem content e devolve paginado (backend/src/services/knowledge-hierarchy.ts:162-174; backend/src/services/knowledge.service.ts:724-726).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li>knowledge_children é 1 nível; descendants cobre todos os níveis em tree order (backend/src/services/knowledge.service.ts:686-703, 719-727).</li>
+          <li>knowledge_ancestors faz o caminho inverso para cima (backend/src/services/knowledge.service.ts:709-713).</li>
+          <li>knowledge_move altera a ordem que o sort_key reflete (backend/src/services/knowledge.service.ts:746-791).</li>
+          <li>knowledge_get e version_get leem o corpo que aqui é omitido (backend/src/services/knowledge.service.ts:205).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>A raiz fica fora do resultado; só descendentes ativos contam (backend/src/services/knowledge-hierarchy.ts:150-152, 159).</li>
+          <li>Profundidade máxima 10; página além do fim vem vazia, sem erro (backend/src/services/knowledge-hierarchy.ts:23; backend/src/schemas/knowledge.ts:83-86).</li>
+          <li>A ordem depth-first depende de order/createdAt/id; empate resolve por id (backend/src/services/knowledge-hierarchy.ts:144-156).</li>
+          <li>Sem content; para corpo use get por id (backend/src/services/knowledge.service.ts:205, 724-726).</li>
+        </ul>
+      </div>
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5660,6 +5700,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+                  <li><b>depth-first</b> — pai antes dos filhos, irmãos em ordem (backend/src/services/knowledge-hierarchy.ts:132-136).</li>
+          <li><b>sort_key</b> — order com created_at e id por nível (backend/src/services/knowledge-hierarchy.ts:145-155).</li>
+          <li><b>COUNT OVER</b> — total junto da fatia (backend/src/services/knowledge-hierarchy.ts:158).</li>
+          <li><b>subtreeIds</b> — página mais tudo abaixo, com lixeira, para trash (backend/src/services/knowledge-hierarchy.ts:179-187).</li>
         </ul>
       </div>
 

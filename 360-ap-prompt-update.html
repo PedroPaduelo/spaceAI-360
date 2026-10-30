@@ -5734,6 +5734,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Validar o patch parcial:</b> projectId e promptId uuid mais name, description, content, tags e isActive opcionais, com expectedVersion (tools/core/prompts.ts:183-192; schemas/prompts.ts:75-82).</li>
+          <li><b>2. Travar a linha viva:</b> lockLivePrompt com SELECT FOR UPDATE; fora do projeto é 404 e na lixeira é 409 PROMPT_IN_TRASH (services/prompt.service.ts:153-158; services/prompt.service.ts:287).</li>
+          <li><b>3. Checar a versão lida:</b> checkVersion compara expectedVersion com a atual e falha com 409 VERSION_CONFLICT retryable (services/prompt.service.ts:160-164; services/prompt.service.ts:117-122).</li>
+          <li><b>4. Arquivar e incrementar:</b> updateLocked grava o substituído em agent_prompt_versions com ator e source e sobe version em 1 via updateMany guardado (services/prompt.service.ts:176-202).</li>
+          <li><b>5. Devolver o atualizado:</b> promptPayload com tags em array e templateSlug, sem reescrever o passado (tools/core/prompts.ts:196-201).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>prompt_get:</b> fornece version e corpo que o update exige como expectedVersion (tools/core/prompts.ts:117-120; tools/core/prompts.ts:182).</li>
+          <li><b>prompt_version_list / prompt_version_get:</b> leem os estados que cada update arquiva, do mais novo ao mais velho (tools/core/prompts.ts:272-275; tools/core/prompts.ts:300-303).</li>
+          <li><b>prompt_version_restore:</b> traz um estado antigo como versão nova, sem last-write-wins, com 428 sem expectedVersion (tools/core/prompts.ts:324; services/prompt.service.ts:396-398).</li>
+          <li><b>Escrita auditada:</b> o save entra na trilha append-only com entidade prompt e ação update, com diff redigido (services/audit.service.ts:300-304; services/audit.service.ts:311-341).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Tags substitui tudo:</b> omitido mantém, enviado troca a lista inteira; CSV vazio zera (tools/core/prompts.ts:182; services/prompt.service.ts:181).</li>
+          <li><b>Save sem mudança não versiona:</b> só name, description, content, tags e isActive criam versão; resto volta igual sem gravar (services/prompt.service.ts:101; services/prompt.service.ts:184-185).</li>
+          <li><b>Sem expectedVersion é last-write-wins:</b> omitido sobrescreve; para proteção envie a version lida (services/prompt.service.ts:160-164; schemas/prompts.ts:57-64).</li>
+          <li><b>Lixeira não edita:</b> prompt com deletedAt responde 409 PROMPT_IN_TRASH, não 404 (services/prompt.service.ts:125-127).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5752,7 +5792,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+        
+          <li><b>expectedVersion / VERSION_CONFLICT</b> — versão lida que guarda a escrita; divergente vira 409 com atual, esperada e retryable (services/prompt.service.ts:117-122; schemas/prompts.ts:57-64).</li>
+          <li><b>VERSIONED_FIELDS</b> — os cinco campos que geram histórico: name, description, content, tags e isActive (services/prompt.service.ts:101).</li>
+          <li><b>MCP_WRITER</b> — origem gravada nas linhas de versão de writes pelo gateway: agente sem id e source mcp (tools/core/prompts.ts:43).</li>
+          <li><b>PROMPT_IN_TRASH</b> — 409 de escrita em prompt apagado: existe, mas só volta com restore (services/prompt.service.ts:125-127).</li>
+</ul>
       </div>
 
 </div>

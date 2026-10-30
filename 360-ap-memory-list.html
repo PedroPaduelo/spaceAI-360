@@ -5736,6 +5736,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Gateway valida <i>projectId</i>, filtros <i>category/tags/search/includeSuperseded</i> e <i>page/pageSize</i> (tools/core/memory.ts:55-61; schemas/memory.ts:103).</li>
+          <li>Handler converte <i>tags</i> CSV com <i>csvList</i> e calcula <i>skip = (page-1) x pageSize</i> (tools/core/memory.ts:63-69).</li>
+          <li>Service monta <i>where</i> com <i>listWhere</i>: projeto vivo, fora da lixeira, <i>currentAt</i> e <i>tagsAndClauses</i> + busca textual (memory.service.ts:147-161,143-145).</li>
+          <li>Busca página ordenada e conta o total; sem <i>includeSuperseded</i> oculta invalidadas (memory.service.ts:292-309,153).</li>
+          <li>Retorna <i>items</i> via <i>toMemorySummary</i> sem <i>content</i> + <i>total/page/pageSize/pages = ceil(total/pageSize)</i> (tools/core/memory.ts:71-76).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>memory_get</i> carrega o corpo de um item listado (tools/core/memory.ts:86-88).</li>
+          <li><i>memory_update</i> usa o <i>version</i> do resumo como <i>expectedVersion</i> (tools/core/memory.ts:138-140).</li>
+          <li><i>memory_versions_list</i> mostra o histórico de uma memória ativa da lista (tools/core/memory.ts:202-203).</li>
+          <li>Busca global lê <i>search_tsv</i> em português (A título, C conteúdo); a tool <i>memory_list</i> filtra por projeto (schema.prisma:476-479).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Lista nunca traz <i>content</i>: resumo com id, title, category, tags, version, supersededById, validUntil e updatedAt (tools/core/memory.ts:51-53).</li>
+          <li><i>page/pageSize</i> do MCP com default 1/50 e máximo 200; <i>skip/take</i> paginam no banco (schemas/memory.ts:71-72; tools/core/memory.ts:68).</li>
+          <li><i>search</i> até 200 chars e <i>tags</i> CSV até 1000 chars; ordem <i>updatedAt desc + id asc</i> evita pular ou repetir (schemas/memory.ts:82-85; memory.service.ts:279-285).</li>
+          <li><i>includeSuperseded</i> default false: invalidadas e expiradas somem salvo pedido explícito (tools/core/memory.ts:59; memory.service.ts:153).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5754,6 +5794,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Resumo sem corpo</b> — <i>toMemorySummary</i> devolve o essencial para decidir se carrega via <i>memory_get</i>, sem os até 100 KB (utils/memory-summary.ts).</li>
+          <li><b>currentAt</b> — ainda válida: <i>supersededById</i> nulo E <i>validUntil</i> nulo ou futuro (memory.service.ts:142-145).</li>
+          <li><b>includeSuperseded</b> — quando falso, esconde invalidadas e expiradas da lista (memory.service.ts:153).</li>
+          <li><b>skip/take</b> — paginação por deslocamento: <i>skip = (page-1) x pageSize</i> (tools/core/memory.ts:68).</li>
         </ul>
       </div>
 

@@ -5743,6 +5743,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>A tool recebe só id com HINTS.remove, operação irreversível (backend/src/tools/core/knowledge.ts:202-210).</li>
+          <li>O handler chama knowledgeService.delete com projectIds do chamador (backend/src/tools/core/knowledge.ts:210-217).</li>
+          <li>O service confere via getByIdOnly com escopo; outro projeto ou inexistente é 404 (backend/src/services/knowledge.service.ts:669-671).</li>
+          <li>Executa hard delete por id (backend/src/services/knowledge.service.ts:672); filhas sobrevivem com parentId NULL SetNull (backend/prisma/schema.prisma:344) e versões/comments/links caem em cascata (backend/prisma/schema.prisma:392, 412, 438).</li>
+          <li>Sucesso devolve {deleted:true}; AppError vira {ok:false} via toolFailure e invalida cache da página e listas (backend/src/tools/core/knowledge.ts:213-216; backend/src/services/knowledge.service.ts:673-674).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li>knowledge_update reescreve sem apagar; softDelete/restore da lixeira preservam a subárvore com batchId, caminho que o MCP delete não usa (backend/src/services/knowledge.service.ts:595-649).</li>
+          <li>knowledge_get pós-delete vira 404; listas deixam de mostrar após invalidação L3 (backend/src/services/knowledge.service.ts:673-674, 291-301).</li>
+          <li>knowledge_children e descendants perdem o pai; órfãs de pai apagado viram raiz por SetNull (backend/prisma/schema.prisma:344; backend/src/services/knowledge.service.ts:226-234).</li>
+          <li>Links da página somem em cascata sem evento de unlink (backend/prisma/schema.prisma:438; backend/src/services/knowledge.service.ts:846-871).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>É hard delete, não lixeira: sem batch, sem restore e sem movedToRoot — irreversível (backend/src/services/knowledge.service.ts:669-675; backend/src/services/knowledge.service.ts:595-649).</li>
+          <li>Filhas não são apagadas: viram raiz com parentId NULL; não espere cascade da subárvore (backend/prisma/schema.prisma:344).</li>
+          <li>Repetir o mesmo id após apagar dá 404, não {deleted:true} (backend/src/services/knowledge.service.ts:669-671).</li>
+          <li>Falha de negócio preserva code/message via toolFailure; o resto sobe ao dispatcher (backend/src/tools/core/knowledge.ts:48-57).</li>
+        </ul>
+      </div>
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5761,6 +5801,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+                  <li><b>hard delete</b> — apaga a linha; lixeira é softDelete separado (backend/src/services/knowledge.service.ts:669-675).</li>
+          <li><b>SetNull</b> — filhas viram raiz ao apagar o pai (backend/prisma/schema.prisma:344).</li>
+          <li><b>Cascade</b> — versions/comments/links apagados juntos (backend/prisma/schema.prisma:392, 412, 438).</li>
+          <li><b>invalidateKnowledge</b> — limpa L1/L2 e listas pós-escrita (backend/src/services/knowledge.service.ts:673-674).</li>
         </ul>
       </div>
 

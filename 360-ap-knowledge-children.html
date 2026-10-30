@@ -5671,6 +5671,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>A tool recebe projectId, parentId ('root' é o topo) e page/pageSize (backend/src/tools/core/knowledge.ts:315-319; backend/src/schemas/knowledge.ts:83-86, 132-134).</li>
+          <li>O handler converte 'root' para nulo e chama getChildren com skip/take (backend/src/tools/core/knowledge.ts:321-326).</li>
+          <li>O service resolve o where por visibleChildrenWhere: filho direto ativo; no topo inclui órfãs de pai na lixeira (backend/src/services/knowledge.service.ts:226-234, 686-703).</li>
+          <li>Lê com omit WITHOUT_CONTENT em SIBLING_ORDER mais count (backend/src/services/knowledge.service.ts:692-701, 205, 215-219).</li>
+          <li>Mapeia para summary payload e devolve {items,total,page,pageSize,pages} via listPage (backend/src/tools/core/knowledge.ts:60-62, 327).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li>knowledge_list usa mesma ordem e forma, mas com filtros; children fixa o parentId (backend/src/services/knowledge.service.ts:291-327, 686-703).</li>
+          <li>ancestors sobe ao topo; descendants desce todos os níveis em ordem de árvore (backend/src/services/knowledge.service.ts:709-727).</li>
+          <li>knowledge_move reposiciona entre os irmãos que o children lista (backend/src/services/knowledge.service.ts:746-791).</li>
+          <li>knowledge_get carrega o content que o children omite (backend/src/services/knowledge.service.ts:368-378).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>'root' literal lista o topo; id de página lista filhos diretos — só 1 nível, sem neto (backend/src/tools/core/knowledge.ts:310-314).</li>
+          <li>Só ativas de projeto vivo; a lixeira não é atravessada, mas órfãs de pai em lixeira aparecem no topo (backend/src/services/knowledge.service.ts:226-234).</li>
+          <li>pageSize padrão 50 e teto 200; além do fim vem vazio (backend/src/schemas/knowledge.ts:83-86).</li>
+          <li>Sem content no item; para corpo use get por id (backend/src/services/knowledge.service.ts:205, 692-695).</li>
+        </ul>
+      </div>
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5689,6 +5729,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+                  <li><b>'root'</b> — apelido para parentId nulo, o topo (backend/src/schemas/knowledge.ts:132-134).</li>
+          <li><b>visibleChildrenWhere</b> — regra de quem aparece, com órfãs (backend/src/services/knowledge.service.ts:226-234).</li>
+          <li><b>SIBLING_ORDER</b> — order, createdAt, id (backend/src/services/knowledge.service.ts:215-219).</li>
+          <li><b>summary payload</b> — sem HTML, com tags e metadados (backend/src/tools/core/knowledge.ts:327).</li>
         </ul>
       </div>
 

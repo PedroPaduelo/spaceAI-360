@@ -5639,6 +5639,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Receber só id e offset:</b> a tool aceita Prompt ID uuid mais offset em bytes, default 0 até o teto de 200 KB (tools/core/prompts.ts:121; schemas/prompts.ts:41-49).</li>
+          <li><b>2. Resolver o escopo pelo principal:</b> getByIdOnly com toolCallProjectIds; prompt de outro projeto volta null e vira 404 igual a id desconhecido (tools/core/prompts.ts:125-129; services/prompt.service.ts:238-240).</li>
+          <li><b>3. Cortar a janela de 12 KB:</b> sliceUtf8 extrai até PROMPT_GET_CONTENT_MAX_BYTES sem partir caractere UTF-8 e calcula nextOffset (tools/core/prompts.ts:46; tools/core/prompts.ts:72-81).</li>
+          <li><b>4. Montar o payload:</b> promptPayload mais content, contentOffset, contentNextOffset, contentSize e contentTruncated (tools/core/prompts.ts:51-53; tools/core/prompts.ts:131-133).</li>
+          <li><b>5. Ajudar a paginar o corpo:</b> se truncou, anexa contentHint com o id e o offset seguinte para a próxima chamada (tools/core/prompts.ts:134-141).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>prompt_list:</b> lista sem corpo que entrega o id e a versão; o get carrega o markdown completo (tools/core/prompts.ts:96-109; tools/core/prompts.ts:117-120).</li>
+          <li><b>prompt_version_get:</b> lê um estado substituído com corpo; o get lê o estado atual com a mesma janela de leitura (tools/core/prompts.ts:300-303; services/prompt.service.ts:380-387).</li>
+          <li><b>prompt_update / prompt_version_restore:</b> pedem expectedVersion, que é a version devolvida por este get (tools/core/prompts.ts:182; tools/core/prompts.ts:324).</li>
+          <li><b>Catálogo core:</b> só prompt_list e prompt_get entram no toolset padrão; o resto fica em opt-ins (tools/core/prompts.ts:91; tools/core/index.ts:69).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Só id não basta fora do alcance:</b> sem projectIds do principal, prompt de outro projeto é NOT_FOUND, não 403 (services/prompt.service.ts:238-240).</li>
+          <li><b>Corpo grande exige duas chamadas:</b> acima de 12 KB vem com contentTruncated true; ignorar contentNextOffset perde o resto (tools/core/prompts.ts:72-81).</li>
+          <li><b>Offset fora do corpo:</b> o schema limita offset a 0–200 KB; valor maior é recusado pelo Zod antes do banco (schemas/prompts.ts:41-49).</li>
+          <li><b>Lixeira não aparece aqui:</b> getByIdOnly filtra deletedAt null; para ler apagado use list com view trash ou includeDeleted na REST (services/prompt.service.ts:204-231).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5657,7 +5697,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+        
+          <li><b>Janela de 12 KB</b> — PROMPT_GET_CONTENT_MAX_BYTES com sliceUtf8, que não parte caractere multibyte e devolve nextOffset (tools/core/prompts.ts:46; tools/core/prompts.ts:72-81).</li>
+          <li><b>contentNextOffset / contentHint</b> — cursor da próxima fatia e texto pronto com id e offset para continuar a leitura (tools/core/prompts.ts:134-141).</li>
+          <li><b>getByIdOnly</b> — leitura só pelo id com escopo do principal, molde memory_get e knowledge_get (services/prompt.service.ts:238-240).</li>
+          <li><b>PROMPT_READ_TOOL_NAMES</b> — conjunto com prompt_list e prompt_get que entra no toolset core padrão (tools/core/prompts.ts:91).</li>
+</ul>
       </div>
 
 </div>

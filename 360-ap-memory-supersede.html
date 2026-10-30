@@ -5722,6 +5722,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Gateway valida <i>id</i> + exatamente um de <i>replacementId</i> ou <i>replacement</i> + <i>expectedVersion</i> opcional (tools/core/memory.ts:172-179; schemas/memory.ts:114-123).</li>
+          <li>Handler chama <i>memoryService.supersede</i> com <i>writer MCP_WRITER</i> e projetos do <i>tools/call</i> (tools/core/memory.ts:181-187,37).</li>
+          <li>Transação trava a obsoleta com <i>lockActiveMemory</i>, confere versão e recusa já-superseded com 409 (memory.service.ts:441-449).</li>
+          <li><i>replacementId</i> é travado com FOR SHARE e validado como atual do mesmo projeto; ou <i>replacement</i> é criado na mesma transação sem <i>validUntil</i> (memory.service.ts:264-277,451-468).</li>
+          <li>Marca <i>supersededById + validUntil = now</i> via <i>writeAtVersion</i> e devolve <i>{ superseded, replacement }</i> (memory.service.ts:469; tools/core/memory.ts:188-191).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>memory_update</i> corrige; <i>supersede</i> invalida quando a memória ficou obsoleta (tools/core/memory.ts:138-140,169-171).</li>
+          <li><i>memory_get</i> ainda lê a superseded por id; <i>memory_list</i> a oculta sem <i>includeSuperseded</i> (tools/core/memory.ts:86-88,51-53).</li>
+          <li><i>memory_delete</i> remove para a lixeira; <i>supersede</i> mantém o vínculo de substituição (tools/core/memory.ts:252-253).</li>
+          <li>Via REST existe <i>POST .../memories/:id/supersede</i> com o mesmo service (routes/memories.ts:11,139-159).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Enviar os dois ou nenhum: <i>refine</i> exige exatamente um; no service vira 422 INVALID_REPLACEMENT (schemas/memory.ts:120; memory.service.ts:467).</li>
+          <li>Auto-substituição, deletada, superseded ou de outro projeto como alvo vira 422 INVALID_REPLACEMENT (memory.service.ts:264-277).</li>
+          <li>Já superseded vira 409 ALREADY_SUPERSEDED com o <i>supersededById</i> atual (memory.service.ts:444-449).</li>
+          <li><i>expectedVersion</i> omitido é last-write-wins; divergente vira 409 retryable (schemas/memory.ts:44; memory.service.ts:126-131).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5740,6 +5780,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>ALREADY_SUPERSEDED</b> — 409 quando a memória já aponta para uma substituta, com o <i>supersededById</i> atual (memory.service.ts:444-449).</li>
+          <li><b>INVALID_REPLACEMENT</b> — 422 para alvo inválido: si mesma, deletada, superseded ou de outro projeto (memory.service.ts:134-140,264-277).</li>
+          <li><b>FOR SHARE</b> — trava leitura do <i>replacementId</i> sem bloquear escritas concorrentes nele (memory.service.ts:266).</li>
+          <li><b>supersededById + validUntil</b> — invalidação: aponta a substituta e encerra a validade em <i>now</i> (memory.service.ts:469; schema.prisma:472-473).</li>
         </ul>
       </div>
 

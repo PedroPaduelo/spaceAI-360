@@ -5721,6 +5721,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Receber os ids:</b> projectId e promptId uuid, com projectId explícito exigido (tools/core/prompts.ts:233).</li>
+          <li><b>2. Travar e conferir:</b> lockLivePrompt com FOR UPDATE; fora do projeto é 404 e lixeira é 409 PROMPT_IN_TRASH (services/prompt.service.ts:153-158; services/prompt.service.ts:296).</li>
+          <li><b>3. Respeitar a versão:</b> checkVersion com expectedVersion opcional; divergente vira 409 VERSION_CONFLICT (services/prompt.service.ts:160-164; services/prompt.service.ts:297).</li>
+          <li><b>4. Carimbar a lixeira:</b> writeAtVersion grava deletedAt com guarda de versão, sem apagar linha nem histórico (services/prompt.service.ts:298; services/prompt.service.ts:167-174).</li>
+          <li><b>5. Confirmar:</b> devolve {deleted: true}; o prompt some das listas e leituras e fica em view trash (tools/core/prompts.ts:237-238; services/prompt.service.ts:138).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>prompt_restore:</b> desfaz este delete trazendo o prompt com nome, conteúdo e versão do momento do descarte (tools/core/prompts.ts:247-254).</li>
+          <li><b>prompt_list view trash:</b> único lugar onde o apagado volta a aparecer para inspeção e restauração (services/prompt.service.ts:138).</li>
+          <li><b>prompt_update na lixeira:</b> editar apagado é 409 PROMPT_IN_TRASH, não 404 (services/prompt.service.ts:125-127).</li>
+          <li><b>search global:</b> prompt com deletedAt some da busca, pelo filtro de lixeira do tipo prompt (services/search.service.ts:254-259).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Não é hard delete:</b> só carimba deletedAt; histórico em agent_prompt_versions continua (services/prompt.service.ts:293-300; prisma/schema.prisma:584-604).</li>
+          <li><b>Toolset restrito:</b> delete e restore ficam em prompts-admin, fora do core e do prompts comum (tools/core/prompts.ts:16-17).</li>
+          <li><b>Apagado some de tudo:</b> getById, listas e contexto ativo filtram deletedAt null (services/prompt.service.ts:204-240).</li>
+          <li><b>Repetir exige restore antes:</b> deletar de novo um item na lixeira cai em PROMPT_IN_TRASH via lockLivePrompt (services/prompt.service.ts:153-158).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5739,7 +5779,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+        
+          <li><b>Lixeira (deletedAt)</b> — carimbo que esconde sem apagar; null é ativo, preenchido é restaurável (services/prompt.service.ts:293-300; prisma/schema.prisma:555).</li>
+          <li><b>prompts-admin</b> — toolset opt-in de delete e restore, fora do catálogo padrão (tools/core/prompts.ts:16-17).</li>
+          <li><b>writeAtVersion</b> — gravação guardada pela versão lida via updateMany; corrida vira VERSION_CONFLICT (services/prompt.service.ts:167-174).</li>
+          <li><b>NOT_FOUND vs PROMPT_IN_TRASH</b> — desconhecido é 404, existente na lixeira é 409 não editável (services/prompt.service.ts:155-157).</li>
+</ul>
       </div>
 
 </div>

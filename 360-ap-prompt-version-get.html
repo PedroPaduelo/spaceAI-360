@@ -5670,6 +5670,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Receber os três ids:</b> projectId e promptId uuid mais version número a partir de 1 (tools/core/prompts.ts:304-307; schemas/prompts.ts:55).</li>
+          <li><b>2. Exigir prompt ativo:</b> o WHERE junta agent_prompt_versions com prompt vivo via activePromptWhere (services/prompt.service.ts:400-402).</li>
+          <li><b>3. Ler o substituído com corpo:</b> select com VERSION_SUMMARY mais content, diferente da lista que omite o corpo (services/prompt.service.ts:381-384).</li>
+          <li><b>4. Normalizar a resposta:</b> tags em array, actorId e restoredFrom nulos quando ausentes, createdAt em ISO (tools/core/prompts.ts:313).</li>
+          <li><b>5. Comparar antes de voltar:</b> o contrato manda confrontar com prompt_get antes de chamar prompt_version_restore (tools/core/prompts.ts:303).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>prompt_version_list:</b> página sem corpo que entrega os números de versão lidos aqui um a um (tools/core/prompts.ts:272-275).</li>
+          <li><b>prompt_get:</b> estado atual com janela de 12 KB; aqui é o estado substituído com corpo cheio (tools/core/prompts.ts:117-120; tools/core/prompts.ts:300-303).</li>
+          <li><b>prompt_version_restore:</b> consome a version vista aqui mais expectedVersion para voltar sem reescrever (tools/core/prompts.ts:321-329).</li>
+          <li><b>prompt_update:</b> cada escrita que gerou estas versões arquivou name, description, content, tags e isActive (services/prompt.service.ts:176-202).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Desconhecido é 404 único:</b> prompt fora do projeto ou versão inexistente viram o mesmo NOT_FOUND de versão (services/prompt.service.ts:385).</li>
+          <li><b>Lixeira esconde versão:</b> prompt com deletedAt não resolve activePromptWhere e a leitura falha (services/prompt.service.ts:381-384).</li>
+          <li><b>Número começa em 1:</b> version 0 ou além de MAX_VERSION é recusado pelo Zod antes do banco (schemas/prompts.ts:55).</li>
+          <li><b>Toolset opt-in:</b> leitura de versão fica em prompts-history, fora do core padrão (tools/core/prompts.ts:263-268).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5688,7 +5728,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+        
+          <li><b>Estado substituído</b> — linha em agent_prompt_versions com o que o prompt era na versão N, gravada pelo save que levou a N+1 (services/prompt.service.ts:14-18; prisma/schema.prisma:584-604).</li>
+          <li><b>restoredFrom</b> — coluna que aponta de qual versão veio um restore; nula em saves normais (services/prompt.service.ts:417; prisma/schema.prisma:593).</li>
+          <li><b>Ator e source</b> — quem salvou (actorType, actorId) e por onde (rest, mcp ou system) em cada versão (tools/core/prompts.ts:275; prisma/schema.prisma:594-596).</li>
+          <li><b>activePromptWhere</b> — filtro que exige prompt vivo e no escopo em leituras de versão (services/prompt.service.ts:204-206).</li>
+</ul>
       </div>
 
 </div>

@@ -5668,6 +5668,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Gateway valida <i>id</i> UUID + <i>page/pageSize</i> via <i>MemoryVersionsQuerySchema</i> (tools/core/memory.ts:204; schemas/memory.ts:103,71-72).</li>
+          <li>Handler calcula <i>skip = (page-1) x pageSize</i> e chama <i>listVersions</i> com projetos do <i>tools/call</i> (tools/core/memory.ts:206-212).</li>
+          <li>Service confere a memória ativa no escopo; ausente ou deletada vira <i>NotFoundError</i> (memory.service.ts:387-388).</li>
+          <li>Busca <i>memory_versions</i> em ordem <i>version desc</i> + total e lê <i>currentVersion</i> da memória (memory.service.ts:389-399).</li>
+          <li>Retorna <i>currentVersion + items</i> sem <i>content</i> + <i>total/page/pageSize/pages = ceil(total/pageSize)</i> (tools/core/memory.ts:213-219).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>memory_version_get</i> lê o corpo de uma versão listada (tools/core/memory.ts:231-232).</li>
+          <li><i>memory_get</i> mostra o estado atual para comparar com <i>currentVersion</i> (tools/core/memory.ts:86-88).</li>
+          <li><i>memory_update</i> gera cada entrada do histórico ao trocar title, content, category ou tags (memory.service.ts:230-262).</li>
+          <li>Via REST existe <i>GET .../memories/:id/versions</i> com envelope paginado (routes/memories.ts:12,163-189).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Resumo sem <i>content</i>: só versão, título, categoria, tags, autoria e data; corpo só em <i>version_get</i> (memory.service.ts:64-73,403-410).</li>
+          <li>Só troca de <i>VERSIONED_FIELDS</i> cria versão; só validade não versiona (memory.service.ts:110,230-262).</li>
+          <li>Memória apagada ou de outro projeto dá 404 igual a id inexistente (memory.service.ts:387-388).</li>
+          <li><i>page/pageSize</i> com default 1/50 e máximo 200 no MCP (schemas/memory.ts:71-72,103).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5686,6 +5726,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>currentVersion</b> — versão atual da memória; cada item lista um estado substituído anterior (memory.service.ts:387-399).</li>
+          <li><b>VERSION_SUMMARY_COLUMNS</b> — resumo sem corpo: version, title, category, tags, actorType, actorId, source e data (memory.service.ts:64-73).</li>
+          <li><b>Ordem version desc</b> — versões mais novas primeiro, com <i>pages = ceil(total/pageSize)</i> (memory.service.ts:390-397; tools/core/memory.ts:219).</li>
+          <li><b>Autoria do save</b> — quem trocou o estado (actor + source) e quando ele foi substituído (memory.service.ts:243-256).</li>
         </ul>
       </div>
 

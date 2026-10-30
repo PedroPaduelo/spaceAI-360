@@ -5649,6 +5649,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>A tool recebe id mais page/pageSize (backend/src/tools/core/knowledge.ts:232-235; backend/src/schemas/knowledge.ts:151, 83-86).</li>
+          <li>O handler confere a página no escopo (backend/src/tools/core/knowledge.ts:238-240); fora é 404 igual a inexistente.</li>
+          <li>Chama versionService.list com skip/take (backend/src/tools/core/knowledge.ts:241-244).</li>
+          <li>O service lê newest-first por version DESC omitindo content, mais count (backend/src/services/knowledge-version.service.ts:32-47).</li>
+          <li>Devolve {currentVersion,items,total,page,pageSize} sem corpo; version_get lê uma versão cheia (backend/src/tools/core/knowledge.ts:245).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li>version_get carrega o content que a lista omite (backend/src/services/knowledge-version.service.ts:28-56).</li>
+          <li>restore consome a version daqui; update produz as linhas listadas (backend/src/services/knowledge.service.ts:510-560, 568-588).</li>
+          <li>get mostra o currentVersion vivo que não está na tabela (backend/src/tools/core/knowledge.ts:245; backend/prisma/schema.prisma:371-376).</li>
+          <li>Paginação offset igual a list, children e descendants (backend/src/schemas/knowledge.ts:83-86).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Sem content na lista para ficar leve; não espere corpo (backend/src/services/knowledge-version.service.ts:28-31, 42).</li>
+          <li>currentVersion fica fora do histórico: toda linha tem version menor que o atual (backend/prisma/schema.prisma:371-376).</li>
+          <li>Página além do fim vem vazia; pageSize 50 default com teto 200 (backend/src/schemas/knowledge.ts:83-86).</li>
+          <li>Outro projeto dá 404 mesmo com histórico existente (backend/src/tools/core/knowledge.ts:238-240).</li>
+        </ul>
+      </div>
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5667,6 +5707,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+                  <li><b>currentVersion</b> — versão viva em knowledges (backend/src/tools/core/knowledge.ts:245).</li>
+          <li><b>newest-first</b> — version DESC (backend/src/services/knowledge-version.service.ts:39).</li>
+          <li><b>omit content</b> — lista leve, get carrega (backend/src/services/knowledge-version.service.ts:42).</li>
+          <li><b>offset</b> — skip/take; além do fim vem vazio (backend/src/services/knowledge-version.service.ts:32-47).</li>
         </ul>
       </div>
 

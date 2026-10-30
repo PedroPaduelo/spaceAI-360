@@ -5654,6 +5654,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>A tool recebe só id com HINTS.read, sem projectId na entrada (backend/src/tools/core/knowledge.ts:96).</li>
+          <li>O handler chama getByIdOnly com projectIds do tools/call, restrição DAT-14 (backend/src/tools/core/knowledge.ts:100; backend/src/tools/core/knowledge.ts:4-8).</li>
+          <li>Resultado nulo vira NotFoundError de Knowledge (backend/src/tools/core/knowledge.ts:101); AppError vira {ok:false} via toolFailure (backend/src/tools/core/knowledge.ts:103-105, 48-57).</li>
+          <li>Quando acha, devolve a linha FULL com content e tags JSON convertidas por safeJsonParse (backend/src/tools/core/knowledge.ts:102).</li>
+          <li>A leitura vai direto ao banco com filtro de projeto ativo e sem cache (backend/src/services/knowledge.service.ts:395-403).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li>knowledge_list e search mostram resumos sem content; get carrega o corpo para renderizar (backend/src/tools/core/knowledge.ts:64-89; backend/src/services/knowledge-search.service.ts:93-206).</li>
+          <li>knowledge_update e restore mudam o corpo que o get lê; versions_list e version_get mostram o histórico (backend/src/services/knowledge.service.ts:510-560, 568-588).</li>
+          <li>O mesmo escopo DAT-14 vale em update, delete e versões: página de outro projeto é 404 (backend/src/tools/core/knowledge.ts:4-8, 100, 194, 212, 239, 266).</li>
+          <li>getByIdFull (L1) inclui a lixeira para link direto; getByIdOnly do MCP exclui por escopo sem cache (backend/src/services/knowledge.service.ts:384-393, 395-403).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Id inexistente e página de outro projeto dão o mesmo 404 — não dá para distinguir (backend/src/tools/core/knowledge.ts:100-101; backend/src/services/knowledge.service.ts:401-402).</li>
+          <li>getByIdOnly não usa cache L1/L2; leitura repetida bate no banco (backend/src/services/knowledge.service.ts:368-393, 395-403).</li>
+          <li>tags é String com JSON no banco, convertida com safeJsonParse; não espere array nativo (backend/src/tools/core/knowledge.ts:102; backend/prisma/schema.prisma:321).</li>
+          <li>content pode ser html (iframe sandbox) ou markdown; renderize pelo format (backend/src/tools/core/knowledge.ts:94-95; backend/prisma/schema.prisma:302-304).</li>
+        </ul>
+      </div>
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5672,6 +5712,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+                  <li><b>getByIdOnly</b> — busca por id com filtro de escopo, sem cache (backend/src/services/knowledge.service.ts:401-402).</li>
+          <li><b>DAT-14</b> — página de outro projeto é NOT_FOUND igual a id inexistente (backend/src/tools/core/knowledge.ts:4-8).</li>
+          <li><b>safeJsonParse</b> — converte tags JSON em array (backend/src/tools/core/knowledge.ts:102).</li>
+          <li><b>FULL vs ROW</b> — FULL traz content (L1); listas omitem (backend/src/services/knowledge.service.ts:384-393, 205).</li>
         </ul>
       </div>
 

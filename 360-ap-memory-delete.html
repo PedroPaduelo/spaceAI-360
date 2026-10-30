@@ -5637,6 +5637,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Gateway valida <i>id</i> UUID e <i>expectedVersion</i> opcional (tools/core/memory.ts:254; schemas/memory.ts:44-46).</li>
+          <li>Handler chama <i>memoryService.delete</i> com <i>expectedVersion</i> e projetos do <i>tools/call</i> (tools/core/memory.ts:256-260).</li>
+          <li>Transação trava a linha com <i>SELECT ... FOR UPDATE</i> e exige memória ativa via <i>lockActiveMemory</i> (memory.service.ts:363-366,199-212).</li>
+          <li><i>checkVersion</i> recusa versão divergente com 409 VERSION_CONFLICT (memory.service.ts:214-218,126-131).</li>
+          <li><i>writeAtVersion</i> carimba <i>deletedAt = now</i> e retorna <i>{ deleted: true }</i> (memory.service.ts:367,221-228; tools/core/memory.ts:259).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>memory_restore</i> traz a memória da lixeira com conteúdo e histórico (tools/core/memory.ts:270-271; memory.service.ts:372-379).</li>
+          <li><i>memory_get</i> e <i>memory_list</i> passam a dar 404/ocultar a memória deletada (tools/core/memory.ts:88,53).</li>
+          <li><i>memory_versions_list</i> exige memória ativa: deletada dá 404 mesmo com histórico preservado (memory.service.ts:387-388).</li>
+          <li><i>task_memory_link</i> recusa memória na lixeira com 422 <i>in_trash</i> e esconde vínculos via <i>LIVE_MEMORY_LINK</i> (task-decision.service.ts:333-338,543-546).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Soft delete: só carimba <i>deletedAt</i>; nada é apagado, o histórico fica para o <i>restore</i> (memory.service.ts:14-15,363-367; schema.prisma:468-469).</li>
+          <li>Desconhecida, já deletada ou de outro projeto: 404 NOT_FOUND indistinguível (memory.service.ts:208-212).</li>
+          <li><i>expectedVersion</i> divergente vira 409 VERSION_CONFLICT com <i>retryable: true</i> (memory.service.ts:126-131).</li>
+          <li>Prefira <i>memory_supersede</i> quando a memória só está desatualizada, não para remover (tools/core/memory.ts:253,169-171).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5655,6 +5695,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Soft delete / deletedAt</b> — deletar só carimba a data; a linha e o histórico ficam e o <i>restore</i> limpa o carimbo (memory.service.ts:14-15,372-379).</li>
+          <li><b>lockActiveMemory</b> — trava com FOR UPDATE e exige <i>deletedAt</i> nulo, senão 404 (memory.service.ts:208-212).</li>
+          <li><b>HINTS.remove</b> — marca a tool como destrutiva e idempotente no catálogo MCP (mcp/tool-kit.ts:410-415).</li>
+          <li><b>LIVE_MEMORY_LINK</b> — vínculos de memória deletada ficam ocultos e voltam com o restore (task-decision.service.ts:333).</li>
         </ul>
       </div>
 

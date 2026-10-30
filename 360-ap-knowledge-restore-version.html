@@ -5653,6 +5653,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>A tool recebe id mais version da versions_list e expectedVersion opcional (backend/src/tools/core/knowledge.ts:285-289; backend/src/schemas/knowledge.ts:153-155, 36).</li>
+          <li>O handler chama restoreVersion com expectedVersion e projectIds (backend/src/tools/core/knowledge.ts:292-297).</li>
+          <li>O service confere a página no escopo primeiro: fora é 404 igual a id inexistente (backend/src/services/knowledge.service.ts:573-575; backend/src/tools/core/knowledge.ts:265-267).</li>
+          <li>Carrega o snapshot pela chave (knowledgeId,version); ausente é 404 de versão (backend/src/services/knowledge.service.ts:576-577; backend/src/services/knowledge-version.service.ts:52-56).</li>
+          <li>Chama update com title/summary/content/format do snapshot: arquiva o estado atual e vira nova versão; conteúdo idêntico não versiona (backend/src/services/knowledge.service.ts:578-587, 539-554).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li>versions_list lista sem content com currentVersion; version_get mostra o snapshot a restaurar (backend/src/tools/core/knowledge.ts:224-276).</li>
+          <li>update é o motor: restore é update com conteúdo antigo (backend/src/services/knowledge.service.ts:568-588, 510-560).</li>
+          <li>get relê a página após o restore; expectedVersion evita sobrescrever save concorrente (backend/src/schemas/knowledge.ts:43-45; backend/src/services/knowledge.service.ts:278-284).</li>
+          <li>Histórico append-only em knowledge_versions, nunca UPDATE/DELETE (backend/prisma/schema.prisma:371-396; backend/src/services/knowledge-version.service.ts:1-9).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Versão inexistente dá 404 de versão, não da página; confira os ids da list (backend/src/services/knowledge.service.ts:576-577).</li>
+          <li>expectedVersion divergente dá 409 VERSION_CONFLICT; omitido vale last-write-wins (backend/src/services/knowledge.service.ts:526-528, 278-284).</li>
+          <li>Restaurar estado idêntico não cria versão (backend/src/services/knowledge.service.ts:270-271, 539-541).</li>
+          <li>Nada é apagado: o atual vai para o histórico antes; restore sempre soma (backend/src/services/knowledge.service.ts:562-567).</li>
+        </ul>
+      </div>
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5671,6 +5711,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+                  <li><b>append-only</b> — versões nunca mudam (backend/prisma/schema.prisma:371-376).</li>
+          <li><b>snapshot</b> — linha (knowledgeId,version) com o estado N (backend/src/services/knowledge-version.service.ts:52-56).</li>
+          <li><b>currentVersion</b> — estado vivo em knowledges, fora do histórico (backend/src/tools/core/knowledge.ts:245).</li>
+          <li><b>last-write-wins</b> — sem expectedVersion o último grava (backend/src/schemas/knowledge.ts:39-42).</li>
         </ul>
       </div>
 

@@ -5674,6 +5674,45 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Gateway valida <i>projectId</i>, <i>title</i>, <i>content</i>, <i>category</i>, <i>tags</i> e <i>validUntil</i> via Zod antes de qualquer I/O (tools/core/memory.ts:109-116; schemas/memory.ts:20-31,48-54).</li>
+          <li>Handler converte <i>tags</i> CSV com <i>csvList</i> e chama <i>memoryService.create</i> com <i>content</i> default "" (tools/core/memory.ts:118-126).</li>
+          <li>Service abre transação, trava o projeto ativo com <i>lockActiveProject</i> e cria a memória em versão 1 com <i>tags</i> como JSON (memory.service.ts:330-346; schema.prisma:457-467).</li>
+          <li>Retorna a linha via <i>memoryPayload</i> com <i>tags</i> como array (tools/core/memory.ts:41-43,127).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>memory_list</i> antes de criar para não duplicar; a descrição da tool manda atualizar em vez de duplicar (tools/core/memory.ts:106-107).</li>
+          <li><i>memory_get</i> lê o corpo criado com <i>content</i>, <i>version</i> e validade (tools/core/memory.ts:86-88).</li>
+          <li><i>memory_update</i> corrige título/conteúdo/categoria/tags com <i>expectedVersion</i> em vez de recriar (tools/core/memory.ts:138-140).</li>
+          <li><i>task_memory_link</i> vincula a memória à task com relação context/decision/constraint/outcome (tools/core/tasks.ts:570-577; task-decision.service.ts:539-554).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Repetir a chamada cria outra memória: <i>HINTS.create</i> tem <i>idempotentHint: false</i> (mcp/tool-kit.ts:393-399; tools/core/memory.ts:117).</li>
+          <li><i>content</i> acima de 100 KB em UTF-8 recusa antes de gravar (schemas/memory.ts:15-16,22-26).</li>
+          <li>Projeto inexistente ou na lixeira vira 404 race-free contra trash/purge (memory.service.ts:330-334).</li>
+          <li><i>tags</i> CSV até 1000 chars na tool; no banco vira array JSON de até 50 x 100 chars (tools/core/memory.ts:114; schemas/memory.ts:28).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5692,6 +5731,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>validUntil</b> — quando a memória deixa de valer (ISO 8601 com offset); nulo = válida sem fim (schemas/memory.ts:31; memory.service.ts:143-145).</li>
+          <li><b>CSV de tags</b> — a tool recebe tags como string separada por vírgula e o service grava array JSON (tools/core/memory.ts:114; memory.service.ts:341).</li>
+          <li><b>HINTS.create</b> — marca a tool como não-idempotente: repetir cria outro registro (mcp/tool-kit.ts:393-399).</li>
+          <li><b>lockActiveProject</b> — trava o projeto dentro da transação para recusar 404 se ele sumiu ou foi para a lixeira (memory.service.ts:330-334).</li>
         </ul>
       </div>
 

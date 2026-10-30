@@ -5679,6 +5679,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>A tool valida projectId, title (1–500), summary, content, format html/markdown, category, scope, demandId, tags e order (backend/src/schemas/knowledge.ts:47-60) e recebe parentId para aninhar (backend/src/tools/core/knowledge.ts:123-126).</li>
+          <li>O handler chama knowledgeService.create com parentId nulo quando omitido e tags convertidas por csvList (backend/src/tools/core/knowledge.ts:138-151).</li>
+          <li>O service exige demandId quando scope é demand (backend/src/services/knowledge.service.ts:442-447) e sanitiza pelo formato: markdown grava cru, HTML passa por DOMPurify (backend/src/services/knowledge.service.ts:448-452).</li>
+          <li>Dentro de transação com lock de projeto e da árvore, valida o pai (mesmo projeto, fora da lixeira, sem ciclo, depth até 10) (backend/src/services/knowledge.service.ts:458-464; backend/src/services/knowledge-hierarchy.ts:62-108) e define order como maior do grupo +1 quando omitido (backend/src/services/knowledge.service.ts:469-476).</li>
+          <li>Grava a página em version 1 (backend/prisma/schema.prisma:325) com order, tags JSON e publishedAt/createdBy, depois invalida as listas do projeto (backend/src/services/knowledge.service.ts:477-495).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li>knowledge_get lê o corpo completo que o create gravou; knowledge_list mostra o resumo sem content (backend/src/tools/core/knowledge.ts:90-107, 64-89).</li>
+          <li>knowledge_update arquiva title/summary/content/format em KnowledgeVersion e incrementa; restore cria versão nova (backend/src/services/knowledge.service.ts:199, 510-560, 568-588).</li>
+          <li>knowledge_children/ancestors/descendants/move navegam e reposicionam a hierarquia criada via parentId/order (backend/src/services/knowledge.service.ts:686-727, 746-791).</li>
+          <li>knowledge_link_task e scope demand/demandId ligam a página a uma Task do mesmo projeto (backend/src/services/knowledge.service.ts:809-838; backend/prisma/schema.prisma:346).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>scope demand sem demandId falha 422; task de outro projeto dá INVALID_TASK, não 404 (backend/src/services/knowledge.service.ts:442-447, 82-93).</li>
+          <li>parentId inválido (inexistente, outro projeto, lixeira, ciclo ou depth maior que 10, MAX_KNOWLEDGE_DEPTH) falha INVALID_PARENT (backend/src/services/knowledge-hierarchy.ts:23, 35-39, 98-107).</li>
+          <li>format default é html por retrocompat (backend/prisma/schema.prisma:320); markdown não sanitiza, HTML sempre passa por DOMPurify — não confie só no cliente (backend/src/services/knowledge.service.ts:448-452).</li>
+          <li>order omitido faz append (max+1); criar em sequência já ordena, mas a escrita serializa no lock da árvore (backend/src/services/knowledge.service.ts:469-476; backend/src/services/knowledge-hierarchy.ts:48-50).</li>
+        </ul>
+      </div>
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5697,6 +5737,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+                  <li><b>DOMPurify</b> — sanitização server-side do HTML (backend/src/services/knowledge.service.ts:41, 452).</li>
+          <li><b>demandId</b> — Task exigida quando scope é demand (backend/src/schemas/knowledge.ts:57; backend/src/services/knowledge.service.ts:442-447).</li>
+          <li><b>SIBLING_ORDER</b> — order, createdAt, id; ordem dos irmãos (backend/src/services/knowledge.service.ts:215-219).</li>
+          <li><b>version 1</b> — página nasce em 1; update arquiva N e vai a N+1 (backend/prisma/schema.prisma:325; backend/src/services/knowledge.service.ts:542-554).</li>
         </ul>
       </div>
 

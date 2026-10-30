@@ -5699,6 +5699,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>A tool recebe knowledgeId mais taskId e relationType com default reference (backend/src/tools/core/knowledge.ts:399-403; backend/src/schemas/knowledge.ts:114-117; backend/prisma/schema.prisma:425-435).</li>
+          <li>O handler chama linkTask com projectIds e contexto do agente (backend/src/tools/core/knowledge.ts:405-414).</li>
+          <li>O service acha a página no escopo; fora é 404 (backend/src/services/knowledge.service.ts:816-820).</li>
+          <li>Exige task no mesmo projeto via assertTaskInProject, senão 422 INVALID_TASK (backend/src/services/knowledge.service.ts:821, 82-93).</li>
+          <li>Insere com createMany skipDuplicates idempotente: vínculo novo registra knowledge_linked e devolve o link; existente só atualiza relationType sem evento; links não usam cache (backend/src/services/knowledge.service.ts:822-837, 807).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li>unlink_task remove com knowledge_unlinked; ambos idempotentes (backend/src/services/knowledge.service.ts:846-871).</li>
+          <li>listLinkedTasks e listLinkedKnowledges listam vínculos filtrando o mesmo projeto (backend/src/services/knowledge.service.ts:877-904).</li>
+          <li>scope demand com demandId é vínculo FK opcional; TicketLink é N:N bidirecional (backend/prisma/schema.prisma:324, 346, 431-443).</li>
+          <li>Falha de negócio preserva code/message via toolFailure (backend/src/tools/core/knowledge.ts:48-57).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>taskId precisa ser UUID de task do projeto da página; outro projeto dá INVALID_TASK 422 (backend/src/schemas/knowledge.ts:114-117; backend/src/services/knowledge.service.ts:82-93).</li>
+          <li>Repetir o mesmo par não duplica: atualiza relationType; só vínculo novo gera evento (backend/src/services/knowledge.service.ts:822-830).</li>
+          <li>Concorrência usa ON CONFLICT DO NOTHING: dois links juntos geram um evento (backend/src/services/knowledge.service.ts:805-807, 824-827).</li>
+          <li>relationType só aceita reference, attachment ou solution; default reference (backend/src/schemas/knowledge.ts:22-26; backend/prisma/schema.prisma:425-435).</li>
+        </ul>
+      </div>
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5717,6 +5757,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+                  <li><b>N:N KnowledgeTicketLink</b> — página ligada a task (backend/prisma/schema.prisma:431-443).</li>
+          <li><b>relationType</b> — reference, attachment ou solution (backend/src/schemas/knowledge.ts:22-26).</li>
+          <li><b>skipDuplicates</b> — ON CONFLICT DO NOTHING idempotente (backend/src/services/knowledge.service.ts:824-827).</li>
+          <li><b>knowledge_linked</b> — evento só em vínculo novo (backend/src/services/knowledge.service.ts:829).</li>
         </ul>
       </div>
 

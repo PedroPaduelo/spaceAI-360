@@ -5706,6 +5706,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Receber origem e nome:</b> projectId e promptId uuid mais name opcional da cópia (tools/core/prompts.ts:213-217; schemas/prompts.ts:86-90).</li>
+          <li><b>2. Travar o projeto destino:</b> lockActiveProject garante projeto vivo antes de inserir (services/prompt.service.ts:321).</li>
+          <li><b>3. Escolher a fonte:</b> sem fromTemplate copia o prompt ativo do projeto; com fromTemplate copia o modelo do sistema pelo slug (services/prompt.service.ts:322-342).</li>
+          <li><b>4. Copiar os campos:</b> name, description, content, tags e isActive vêm da fonte; templateSlug só quando veio de modelo (services/prompt.service.ts:325-354).</li>
+          <li><b>5. Nascer zerado:</b> a cópia começa na versão 1, ativa, com histórico vazio e nome default com marca de cópia (services/prompt.service.ts:343-354).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>prompt_create:</b> alternativa quando não há original; duplicate é o reusar sem tocar no original (tools/core/prompts.ts:149-152; tools/core/prompts.ts:209-212).</li>
+          <li><b>prompt_get:</b> mostra a fonte e depois a cópia, cada uma com sua versão e corpo (tools/core/prompts.ts:117-120).</li>
+          <li><b>Modelos do sistema:</b> listTemplates expõe slug, name, description e content somente leitura (services/prompt.service.ts:435-440).</li>
+          <li><b>Vínculo com task:</b> a cópia nasce sem vínculos; o elo Task↔Prompt se faz depois por task_prompt_link (schemas/prompts.ts:131-138).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Fonte na lixeira não copia:</b> source com deletedAt ou desconhecido vira 404 Prompt (services/prompt.service.ts:342).</li>
+          <li><b>Modelo desconhecido é 404:</b> fromTemplate com slug fora do catálogo não cria nada (services/prompt.service.ts:323-324).</li>
+          <li><b>Nome default carrega marca:</b> sem name, a cópia herda o original com sufixo de cópia (services/prompt.service.ts:346).</li>
+          <li><b>Fora do core:</b> duplicate fica no toolset prompts opt-in, não no catálogo padrão (tools/core/prompts.ts:16; tools/core/index.ts:70).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5724,7 +5764,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+        
+          <li><b>fromTemplate</b> — slug opcional que troca a fonte do prompt pelo modelo do sistema (schemas/prompts.ts:88; services/prompt.service.ts:322-324).</li>
+          <li><b>Modelo do sistema</b> — linha em agent_prompt_builtin_templates, somente leitura, que se usa duplicando (services/prompt.service.ts:435-440).</li>
+          <li><b>Marca de cópia</b> — nome default que mantém o original com indicação de cópia quando name é omitido (services/prompt.service.ts:346).</li>
+          <li><b>Histórico zerado</b> — a cópia começa na versão 1 sem agent_prompt_versions, mesmo com fonte versionada (services/prompt.service.ts:343-354).</li>
+</ul>
       </div>
 
 </div>

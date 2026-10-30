@@ -5687,6 +5687,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>A tool recebe projectId, knowledgeId, newParentId nulo (vira raiz) e position 0-based opcional (backend/src/tools/core/knowledge.ts:375-381; backend/src/schemas/knowledge.ts:98-101).</li>
+          <li>O handler chama knowledgeService.move e converte AppError em {ok:false} via toolFailure (backend/src/tools/core/knowledge.ts:384-391, 48-57).</li>
+          <li>O service abre transação com lockProjectTree do projeto (backend/src/services/knowledge.service.ts:752-753; backend/src/services/knowledge-hierarchy.ts:48-50) e confere a página ativa (backend/src/services/knowledge.service.ts:754-759).</li>
+          <li>Valida o novo pai com assertParentIsValid: mesmo projeto, fora da lixeira, sem ciclo e depth até 10 (backend/src/services/knowledge.service.ts:760; backend/src/services/knowledge-hierarchy.ts:62-108).</li>
+          <li>Recalcula irmãos sem a página, insere na posição (omitido ou fora do intervalo anexa no fim), renumera 0..n-1 sem tocar updatedAt e grava parentId/order; depois invalida caches (backend/src/services/knowledge.service.ts:762-789).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li>knowledge_children lista a nova vizinhança; ancestors e descendants refletem o novo caminho (backend/src/services/knowledge.service.ts:686-727).</li>
+          <li>knowledge_update com parentId re-nesta com a mesma validação, mas move controla position explícita (backend/src/services/knowledge.service.ts:517, 529-533, 746-791).</li>
+          <li>knowledge_create com parentId/order usa a mesma regra de depth e append no fim (backend/src/services/knowledge.service.ts:458-476).</li>
+          <li>O trigger de path ltree reescreve o caminho da subárvore após o move (backend/prisma/schema.prisma:311-314).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>INVALID_PARENT cobre 6 casos: inexistente, outro projeto, lixeira, si mesmo, dentro da subárvore ou fundo além de 10 níveis (backend/src/services/knowledge-hierarchy.ts:35-39, 98-107).</li>
+          <li>Página na lixeira não move: restaure o batch antes (backend/src/services/knowledge.service.ts:759).</li>
+          <li>position fora do intervalo não falha: anexa no fim (backend/src/services/knowledge.service.ts:768-770).</li>
+          <li>Dois moves válidos isolados podem formar ciclo juntos; o lock por projeto serializa a árvore (backend/src/services/knowledge-hierarchy.ts:11-16).</li>
+        </ul>
+      </div>
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5705,6 +5745,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+                  <li><b>advisory lock</b> — trava transacional por projeto, sem bloquear leitura (backend/src/services/knowledge-hierarchy.ts:48-50).</li>
+          <li><b>assertParentIsValid</b> — regra do pai mais depth e ciclo (backend/src/services/knowledge-hierarchy.ts:62-108).</li>
+          <li><b>INVALID_PARENT</b> — 422 de pai inválido (backend/src/services/knowledge-hierarchy.ts:35-39).</li>
+          <li><b>renumeração</b> — irmãos 0..n-1 via unnest, sem updatedAt (backend/src/services/knowledge.service.ts:773-781).</li>
         </ul>
       </div>
 

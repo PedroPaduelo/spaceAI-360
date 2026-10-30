@@ -5647,6 +5647,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>A tool recebe projectId mais knowledgeId (backend/src/tools/core/knowledge.ts:336-340).</li>
+          <li>O handler chama getAncestors e devolve {items} de resumos (backend/src/tools/core/knowledge.ts:341-344).</li>
+          <li>O service resolve os ids via ancestorIds em CTE recursiva ancorada na folha (backend/src/services/knowledge.service.ts:709-713; backend/src/services/knowledge-hierarchy.ts:114-130).</li>
+          <li>A CTE sobe parent_id só no projeto, ignora lixeira, com trail anti-loop; level maior que 0 exclui a folha e ORDER BY level DESC põe a raiz primeiro (backend/src/services/knowledge-hierarchy.ts:116-128).</li>
+          <li>Busca as linhas sem content pelos ids e ordena pelo breadcrumb (backend/src/services/knowledge.service.ts:711-712, 730-737).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li>knowledge_children lista irmãos de cada nível do breadcrumb; descendants faz o inverso para baixo (backend/src/services/knowledge.service.ts:686-703, 719-727).</li>
+          <li>knowledge_move muda o breadcrumb; o ancestors seguinte reflete o novo pai (backend/src/services/knowledge.service.ts:746-791).</li>
+          <li>knowledge_get carrega a folha cujo caminho o ancestors resume (backend/src/tools/core/knowledge.ts:90-107).</li>
+          <li>A CTE compartilha o trail anti-ciclo com a validação de pai e descendants (backend/src/services/knowledge-hierarchy.ts:4-9, 74-88, 137-161).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Para no primeiro ancestral na lixeira: além dele a página aparece como raiz (backend/src/services/knowledge-hierarchy.ts:110-113, 124-125).</li>
+          <li>Folha inexistente ou de outro projeto ancora nada: volta {items:[]} sem 404 (backend/src/services/knowledge-hierarchy.ts:116-120).</li>
+          <li>Sem content nos itens; para corpo leia get ou version_get (backend/src/services/knowledge.service.ts:730-737, 205).</li>
+          <li>Sem paginação: breadcrumb completo até a raiz, com depth até 10 (backend/src/services/knowledge-hierarchy.ts:23).</li>
+        </ul>
+      </div>
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5665,6 +5705,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+                  <li><b>CTE up</b> — recursão por parent_id até a raiz (backend/src/services/knowledge-hierarchy.ts:74-88, 116-128).</li>
+          <li><b>trail</b> — array de visitados que impede loop (backend/src/services/knowledge-hierarchy.ts:8-9, 77-80).</li>
+          <li><b>breadcrumb</b> — raiz até o pai, sem a folha (backend/src/tools/core/knowledge.ts:333-335).</li>
+          <li><b>level DESC</b> — raiz primeiro (backend/src/services/knowledge-hierarchy.ts:128).</li>
         </ul>
       </div>
 

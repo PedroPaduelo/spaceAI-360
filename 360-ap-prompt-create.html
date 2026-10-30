@@ -5697,6 +5697,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Buscar antes de criar:</b> o contrato manda pesquisar com prompt_list e atualizar o existente em vez de duplicar (tools/core/prompts.ts:152).</li>
+          <li><b>2. Validar o input no MCP:</b> projectId uuid mais name curto, content markdown até 200 KB, description de uma linha, tags em CSV e isActive (tools/core/prompts.ts:153-159; schemas/prompts.ts:24-34).</li>
+          <li><b>3. Travar o projeto ativo:</b> lockActiveProject recusa projeto desconhecido ou na lixeira com 404 antes de gravar, sem corrida contra purge (services/prompt.service.ts:263-264).</li>
+          <li><b>4. Gravar o AgentPrompt na versão 1:</b> insert com tags em JSON, isActive e templateSlug nulo, sem linha de histórico ainda (services/prompt.service.ts:265-276; prisma/schema.prisma:545-555).</li>
+          <li><b>5. Devolver o criado:</b> promptPayload com tags em array e templateSlug, no envelope padrão da tool (tools/core/prompts.ts:51-53; tools/core/prompts.ts:164-171).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>prompt_list:</b> a busca prévia que evita duplicata; filtra por search, tags, isActive e view active|trash (tools/core/prompts.ts:96-109; services/prompt.service.ts:129-142).</li>
+          <li><b>prompt_get:</b> lê o corpo criado com janela de 12 KB e offset, com escopo pelo principal da chamada (tools/core/prompts.ts:117-130; services/prompt.service.ts:238-240).</li>
+          <li><b>prompt_update / prompt_duplicate:</b> evoluem ou copiam o que o create gravou; update arquiva o substituído e duplicate zera o histórico na cópia (tools/core/prompts.ts:179-182; tools/core/prompts.ts:209-212).</li>
+          <li><b>search global:</b> o prompt criado vira linha pesquisável em agent_prompts pelo FTS em português mais trigram no nome (services/search.service.ts:254-269; prisma/schema.prisma:558-570).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Teto de 200 KB UTF-8:</b> content acima de PROMPT_CONTENT_MAX_BYTES é recusado pelo Zod antes de qualquer I/O (schemas/prompts.ts:20-32).</li>
+          <li><b>Nome e descrição têm teto:</b> name 1–120 e description até 1024; tags até 50 itens de 100 caracteres (schemas/prompts.ts:24-34).</li>
+          <li><b>Projeto invisível não cria:</b> id desconhecido ou com deletedAt vira 404 Project dentro da transação (services/prompt.service.ts:261-264).</li>
+          <li><b>Não é idempotente:</b> repetir o create com HINTS.create grava outro prompt; para reaproveitar, use update ou duplicate (tools/core/prompts.ts:161).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5715,7 +5755,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+        
+          <li><b>isActive</b> — coluna que diz se o prompt entra no contexto do agente; inativos ficam listados (services/prompt.service.ts:243-248; schemas/prompts.ts:71).</li>
+          <li><b>templateSlug</b> — procedência da cópia a partir de um modelo do sistema; nulo quando criado do zero (services/prompt.service.ts:333; prisma/schema.prisma:553).</li>
+          <li><b>PROMPT_CONTENT_MAX_BYTES</b> — teto de 200 KB UTF-8 do corpo markdown, conferido pelo Zod (schemas/prompts.ts:20-32).</li>
+          <li><b>lockActiveProject</b> — trava que garante projeto vivo antes da escrita, sem corrida com lixeira ou purge (services/prompt.service.ts:263-264).</li>
+</ul>
       </div>
 
 </div>

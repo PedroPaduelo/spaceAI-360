@@ -5745,6 +5745,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Validar o filtro estrito:</b> projectId, actorType, actorId, source, entity, entityId, action, requestId e from/to ISO com offset, mais page e pageSize (services/audit.service.ts:350-385).</li>
+          <li><b>2. Exigir autenticado:</b> lê o actor do tool call atual; sem ele falha com 401 antes do service (tools/core/audit.ts:30-31).</li>
+          <li><b>3. Isolar por projeto:</b> com projectId a borda já barrou fora da chave; sem ele a lista filtra só pelos projetos alcançáveis (services/audit.service.ts:407-422).</li>
+          <li><b>4. Paginar do mais novo:</b> WHERE combinado com createdAt desc e id desc, mais count com o mesmo filtro (services/audit.service.ts:423-450).</li>
+          <li><b>5. Devolver sem auditar:</b> {items, total, page, pageSize, pages} com diff já redigido; esta leitura tem readOnlyHint e não gera linha (tools/core/audit.ts:32-39).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>GET /api/audit:</b> espelho REST com mesmos argumentos, mesmo service e mesma resposta do mais novo ao mais velho (tools/core/audit.ts:4-10).</li>
+          <li><b>record / recordToolCall:</b> escritas que geram estas linhas, com entidade e ação derivadas de entidade_verbo (services/audit.service.ts:190-224; services/audit.service.ts:300-341).</li>
+          <li><b>prompt_version_list:</b> histórico de conteúdo de um prompt; audit_list mostra quem, quando, por onde e com qual diff (services/prompt.service.ts:358-377; services/audit.service.ts:389-404).</li>
+          <li><b>Retenção:</b> purgeExpired apaga em lotes o que passou de AUDIT_RETENTION_DAYS; 0 guarda para sempre (services/audit.service.ts:460-472).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Schema estrito:</b> argumento fora de ListAuditQuerySchema é recusado antes do handler (services/audit.service.ts:350-385).</li>
+          <li><b>Chave restrita vê menos:</b> sem projectId, eventos sem projeto ficam de fora para chave de agente (services/audit.service.ts:24-26; services/audit.service.ts:417-422).</li>
+          <li><b>Diff nunca leva segredo:</b> chave com cara de credencial vira [Redacted] em qualquer profundidade, com tetos de nós e bytes (services/audit.service.ts:49-63; services/audit.service.ts:173).</li>
+          <li><b>Append-only:</b> o banco recusa UPDATE; só a retenção apaga, em lotes de 5.000 (services/audit.service.ts:17-18; services/audit.service.ts:69-70).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5763,7 +5803,13 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+        
+          <li><b>diff / [Redacted]</b> — entrada da escrita com segredos redigidos e tetos de tamanho, nunca o documento inteiro (services/audit.service.ts:41-63; services/audit.service.ts:121-132).</li>
+          <li><b>requestId</b> — x-request-id da resposta que liga a linha de auditoria ao log da escrita (services/audit.service.ts:88; services/audit.service.ts:208).</li>
+          <li><b>actorType / source</b> — quem (human, agent, system, anonymous) e por onde (rest, mcp, system) aconteceu a escrita (services/audit.service.ts:92-98; services/audit.service.ts:345-346).</li>
+          <li><b>Retenção em lotes</b> — purgeExpired com DELETE curto por createdAt e lote de 5.000 (services/audit.service.ts:460-472).</li>
+          <li><b>readOnlyHint</b> — marca de só leitura que impede o gateway de auditar esta própria chamada (tools/core/audit.ts:12-13).</li>
+</ul>
       </div>
 
 </div>

@@ -5648,6 +5648,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+            <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>1. Receber ids e página:</b> projectId e promptId uuid mais page e pageSize do envelope padrão (tools/core/prompts.ts:276; schemas/prompts.ts:124).</li>
+          <li><b>2. Conferir o prompt vivo:</b> busca só version do prompt ativo no escopo; fora disso é 404 (services/prompt.service.ts:364-365).</li>
+          <li><b>3. Paginar o append-only:</b> agent_prompt_versions do mais novo ao mais velho com skip e take, mais count do total (services/prompt.service.ts:366-375).</li>
+          <li><b>4. Projetar sem corpo:</b> VERSION_SUMMARY com name, description, tags, isActive, restoredFrom, ator, source e createdAt (services/prompt.service.ts:68-79).</li>
+          <li><b>5. Envelopar com a atual:</b> {currentVersion, items, total, page, pageSize, pages} com tags em array e datas ISO (tools/core/prompts.ts:285-292).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><b>prompt_version_get:</b> abre com corpo um item desta lista sem corpo (tools/core/prompts.ts:298-318).</li>
+          <li><b>prompt_version_restore:</b> usa currentVersion como expectedVersion para voltar sem last-write-wins (tools/core/prompts.ts:319-341).</li>
+          <li><b>prompt_update:</b> cada item aqui nasceu de um update que mudou um dos cinco campos versionados (services/prompt.service.ts:176-202).</li>
+          <li><b>audit_list:</b> trilha complementar com quem, quando e diff redigido de cada escrita rest ou mcp (services/audit.service.ts:389-404).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Sem corpo aqui:</b> a lista omite content; para comparar texto leia a versão uma a uma (services/prompt.service.ts:68-79).</li>
+          <li><b>Prompt zerado lista vazio:</b> criado agora tem total 0 até o primeiro update versionar (services/prompt.service.ts:184-185).</li>
+          <li><b>Critério de toolset:</b> lista e get de versão ficam em prompts-history; restore exige expectedVersion por não aceitar last-write-wins no admin (tools/core/prompts.ts:263-268).</li>
+          <li><b>Página padrão 50:</b> page e pageSize com máximo 200; além disso o Zod recusa (schemas/prompts.ts:97-98).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5666,7 +5706,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
-        </ul>
+        
+          <li><b>currentVersion</b> — versão do prompt agora, devolvida junto da página para usar como expectedVersion (tools/core/prompts.ts:285; services/prompt.service.ts:376).</li>
+          <li><b>VERSION_SUMMARY_COLUMNS</b> — projeção sem corpo das versões: metadados mais ator, source e restoredFrom (services/prompt.service.ts:68-79).</li>
+          <li><b>prompts-history</b> — toolset opt-in de version_list, version_get e version_restore, fora do core (tools/core/prompts.ts:263-268).</li>
+          <li><b>Append-only de versões</b> — histórico que só insere; UPDATE é recusado e restore vira linha nova (prisma/schema.prisma:581-604).</li>
+</ul>
       </div>
 
 </div>

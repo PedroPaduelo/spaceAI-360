@@ -5655,6 +5655,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Gateway valida <i>id</i> UUID, patch parcial e <i>expectedVersion</i> opcional (tools/core/memory.ts:141-149; schemas/memory.ts:57-64).</li>
+          <li>Handler converte <i>tags</i> CSV e repassa <i>writer = MCP_WRITER</i> + projetos do <i>tools/call</i> (tools/core/memory.ts:37,151-158).</li>
+          <li>Transação trava a linha com <i>SELECT ... FOR UPDATE</i> e exige memória ativa via <i>lockActiveMemory</i> (memory.service.ts:354-357,199-212).</li>
+          <li><i>checkVersion</i> compara a versão lida; divergente vira 409 VERSION_CONFLICT (memory.service.ts:214-218,126-131).</li>
+          <li><i>updateLocked</i> arquiva o estado em <i>memory_versions</i> e incrementa <i>version</i>; gravação guardada por <i>writeAtVersion</i> (memory.service.ts:230-262,221-228).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>memory_get</i> fornece o <i>version</i> a enviar como <i>expectedVersion</i> (tools/core/memory.ts:86-88).</li>
+          <li><i>memory_versions_list</i> e <i>memory_version_get</i> mostram os estados arquivados por cada <i>update</i> (tools/core/memory.ts:202-203,231-232).</li>
+          <li><i>memory_supersede</i> invalida quando obsoleta; <i>update</i> corrige quando ainda válida (tools/core/memory.ts:138-140,169-171).</li>
+          <li><i>memory_restore</i> recupera o 404 de memória na lixeira antes de atualizar (tools/core/memory.ts:270-271).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Omitir <i>expectedVersion</i> é last-write-wins: a última gravação vence sem 409 (schemas/memory.ts:40-43).</li>
+          <li>Só <i>title/content/category/tags</i> versionam; só mexer em <i>validUntil</i> não cria versão (memory.service.ts:110,230-262).</li>
+          <li><i>tags</i> substitui a lista inteira; nulo em <i>validUntil</i> limpa o fim da validade (tools/core/memory.ts:138,147).</li>
+          <li>Sem mudança retorna a linha sem gravar; concorrente no intervalo perde com 409 e relê (memory.service.ts:241,221-228).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5673,6 +5713,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>expectedVersion / VERSION_CONFLICT</b> — versão lida que a escrita exige; divergente vira 409 retryable para reler e reaplicar (memory.service.ts:126-131).</li>
+          <li><b>VERSIONED_FIELDS</b> — só title, content, category e tags arquivam estado e incrementam versão (memory.service.ts:110).</li>
+          <li><b>writeAtVersion</b> — <i>updateMany</i> guardado pela versão lida; corrida perde com 409 (memory.service.ts:221-228).</li>
+          <li><b>MCP_WRITER</b> — autoria registrada nas versões do MCP: agente sem id, fonte mcp (tools/core/memory.ts:37).</li>
         </ul>
       </div>
 

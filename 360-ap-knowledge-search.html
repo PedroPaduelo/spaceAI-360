@@ -5808,6 +5808,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>A busca recebe projectId obrigatório mais q/category/scope/demandId/tags e limit/offset/cursor (backend/src/schemas/knowledge.ts:103-112; backend/src/services/knowledge-search.service.ts:33-44).</li>
+          <li>O service aplica limit com default 20 e teto 100 e rejeita cursor com offset juntos com 422 (backend/src/services/knowledge-search.service.ts:94-97).</li>
+          <li>Monta filtros parametrizados Prisma.sql para category/scope/demand/tags/cursor sem concatenar o usuário (backend/src/services/knowledge-search.service.ts:108-109, 331-355).</li>
+          <li>Tenta FTS com websearch_to_tsquery em português, rank GREATEST de ts_rank, ILIKE no título e similaridade, mais snippet ts_headline do summary (backend/src/services/knowledge-search.service.ts:130-179); q vazio lista com rank 0 (backend/src/services/knowledge-search.service.ts:141-142).</li>
+          <li>Se faltar objeto FTS cai no fallback ILIKE com pesos 0.8/0.5/0.2 e snippet NULL na mesma forma; devolve {items,total,nextCursor} com cursor só em página cheia (backend/src/services/knowledge-search.service.ts:207-217, 224-300, 304-307).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li>knowledge_list filtra sem rank; search ranqueia com FTS e trigramas mais snippet (backend/src/services/knowledge.service.ts:291-327; backend/src/services/knowledge-search.service.ts:93-218).</li>
+          <li>knowledge_get carrega o content que o search não devolve (só id/title/summary/tags/rank/snippet) (backend/src/services/knowledge-search.service.ts:68-80; backend/src/tools/core/knowledge.ts:90-107).</li>
+          <li>Os mesmos enums e filtros de list são reaproveitados com cursor keyset em vez de page (backend/src/schemas/knowledge.ts:88-96; backend/src/services/knowledge-search.service.ts:46-66).</li>
+          <li>Falha de negócio preserva code/message via toolFailure; o resto sobe ao dispatcher (backend/src/tools/core/knowledge.ts:48-57).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>cursor é opaco base64url de [rank,id]; passe inalterado; cursor com offset juntos dá 422 (backend/src/services/knowledge-search.service.ts:55-66, 95-97).</li>
+          <li>nextCursor só existe em página cheia (items igual ao limit); ausente significa última página (backend/src/services/knowledge-search.service.ts:304-307).</li>
+          <li>snippet vem de ts_headline e não é seguro contra XSS: a UI precisa re-sanitizar (backend/src/services/knowledge-search.service.ts:8-9, 78-79, 149-157).</li>
+          <li>Ordem fixa rank DESC e id ASC; q vazio retorna tudo com rank 0 — pagine com cuidado (backend/src/services/knowledge-search.service.ts:175-178).</li>
+        </ul>
+      </div>
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5826,6 +5866,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+                  <li><b>websearch_to_tsquery</b> — parse de q em português (backend/src/services/knowledge-search.service.ts:6, 144).</li>
+          <li><b>ts_rank/ts_headline</b> — score e snippet; headline nunca é cacheado (backend/src/services/knowledge-search.service.ts:7-9, 141-157).</li>
+          <li><b>cursor keyset</b> — [rank,id] após o último item, na mesma ordem (backend/src/services/knowledge-search.service.ts:46-66, 351-353).</li>
+          <li><b>fallback ILIKE</b> — sem FTS, pesos 0.8/0.5/0.2 sem snippet (backend/src/services/knowledge-search.service.ts:224-300).</li>
+          <li><b>search_tsv</b> — vetor title A, summary B, content sem HTML C (backend/prisma/schema.prisma:339-341).</li>
         </ul>
       </div>
 
