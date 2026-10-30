@@ -1,0 +1,304 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>spaceAI — índice de diagramas</title>
+<style>
+:root{--bg:#0b0d12;--fg:#e8ecf4;--mut:#98a2b3;--line:#1e2530;--acc:#7dd3fc}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.6 ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif}
+.wrap{max-width:1080px;margin:0 auto;padding:48px 24px 96px}
+h1{font-size:30px;margin:0 0 6px;letter-spacing:-.02em}h1 span{color:var(--acc)}
+.sub{color:var(--mut);margin:0 0 36px;font-size:14px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:44px}
+.card{border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:#0f131b}
+.card b{display:block;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);font-weight:600}
+.card a{display:block;margin-top:6px;color:var(--acc);text-decoration:none;font-weight:600}
+.card a:hover{text-decoration:underline}
+section{margin-bottom:34px}h2{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);border-bottom:1px solid var(--line);padding-bottom:8px;margin:0 0 12px;display:flex;gap:10px;align-items:center}
+h2 .n{background:#182031;color:var(--fg);border-radius:20px;padding:1px 9px;font-size:11px}
+ul{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:2px}
+li a{display:block;padding:7px 10px;border-radius:7px;color:#cfd8e6;text-decoration:none;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+li a:hover{background:#161c26;color:#fff}
+</style></head><body><div class="wrap">
+<h1>spaceAI <span>360</span></h1>
+<p class="sub">Índice de todos os diagramas gerados — ambiente, bancos e cada tool de cada sistema. Todos passaram nos gates do Archify (validate / deliver / check / browser-check).</p>
+<div class="cards">
+<div class="card"><b>Comece aqui</b><a href="spaceai-360.html">Página-mãe do ambiente →</a><a href="360-tools-todas.html">Página-mãe de TODAS as tools →</a><a href="360-tools-mae.html">Página-mãe das tools do motor →</a></div>
+<div class="card"><b>Mapa da casa</b><a href="casa-geral.html">6 apps, deploy, dados</a><a href="spaceai-workspace.html">Zoom do motor</a></div>
+</div>
+<section><h2>Ambiente <span class='n'>12</span></h2><ul>
+<li><a href='360-deploy-arch.html'>spaceAI — topologia de deploy (self-hosted Docker) Diagram</a></li>
+<li><a href='360-df-lineage.html'>Linhagem de dados do spaceAI Diagram</a></li>
+<li><a href='360-df-streams.html'>SpaceAI — Eventos e filas: quem produz, por onde passa, quem consome Diagram</a></li>
+<li><a href='360-lc-deploy.html'>MyPanel — ciclo de um deploy Diagram</a></li>
+<li><a href='360-lc-object.html'>Task do agent-package — ciclo de vida Diagram</a></li>
+<li><a href='360-seq-api.html'>Pergunta no playground: do WS ao provedor Diagram</a></li>
+<li><a href='360-seq-async.html'>Volta assíncrona: enqueue, background, callbacks e retries Diagram</a></li>
+<li><a href='360-tools-mae.html'>Motor — as 24 tools nativas · Archify</a></li>
+<li><a href='360-wf-agent-loop.html'>Loop do agente num turno — spaceAI Diagram</a></li>
+<li><a href='360-wf-delivery.html'>Entrega sem CI — do commit à produção (spaceAI) Diagram</a></li>
+<li><a href='360-wf-incident.html'>Resposta a incidente no spaceAI — runbook do que existe Diagram</a></li>
+</ul></section>
+<section><h2>Bancos (ERD) <span class='n'>7</span></h2><ul>
+<li><a href='360-erd-agentpack.html'>Banco do Agent-Package — ERD completo (Postgres/Prisma) Diagram</a></li>
+<li><a href='360-erd-conta.html'>Conta-Central — ERD completo do banco (Postgres/Prisma, IdP) Diagram</a></li>
+<li><a href='360-erd-lb.html'>LOAD-BALANCE — ERD completo do banco do proxy de IA Diagram</a></li>
+<li><a href='360-erd-motor.html'>Motor — Núcleo conversacional e identidade Diagram</a></li>
+<li><a href='360-erd-motor-full.html'>Motor — ERD completo do banco (Postgres/Prisma) Diagram</a></li>
+<li><a href='360-erd-mypanel.html'>MyPanel — Esquema do banco (SQLite/Drizzle) Diagram</a></li>
+<li><a href='360-erd-render.html'>Render — modelo físico do banco (Postgres/Prisma) Diagram</a></li>
+</ul></section>
+<section><h2>Motor — tools nativas <span class='n'>24</span></h2><ul>
+<li><a href='360-tool-agent-abort.html'>Tool agent_abort — cancela subagente em cascata ou só este Diagram</a></li>
+<li><a href='360-tool-agent-list.html'>agent_list — listar subagentes da conversa Diagram</a></li>
+<li><a href='360-tool-agent-spawn.html'>agent_spawn: subagente em paralelo no motor Diagram</a></li>
+<li><a href='360-tool-agent-status.html'>agent_status: consulta de subagente e leitura paginada do resultado Diagram</a></li>
+<li><a href='360-tool-setup-create.html'>setup_create — criar setup da org (motor) Diagram</a></li>
+<li><a href='360-tool-setup-get.html'>setup_get — ler um setup por slug ou id Diagram</a></li>
+<li><a href='360-tool-setup-list.html'>setup_list — listar setups ativos da org Diagram</a></li>
+<li><a href='360-tool-setup-update.html'>setup_update — editar setup com gates de padrão e segredos Diagram</a></li>
+<li><a href='360-tool-tool-result-read.html'>tool_result_read: como o resto de um resultado cortado é lido Diagram</a></li>
+<li><a href='360-tool-workflow-add-step.html'>workflow_add_step — acrescentar um passo ao rascunho Diagram</a></li>
+<li><a href='360-tool-workflow-cancel.html'>workflow_cancel: cancelar um run em andamento Diagram</a></li>
+<li><a href='360-tool-workflow-create.html'>workflow_create — criar o objeto nomeado no motor Diagram</a></li>
+<li><a href='360-tool-workflow-decide.html'>workflow_decide — decidir o portão humano do run Diagram</a></li>
+<li><a href='360-tool-workflow-draft.html'>workflow_draft — abrir o rascunho do workflow Diagram</a></li>
+<li><a href='360-tool-workflow-get.html'>Tool workflow_get: versão publicada ou rascunho aberto Diagram</a></li>
+<li><a href='360-tool-workflow-list.html'>workflow_list — listar definições de workflow da org Diagram</a></li>
+<li><a href='360-tool-workflow-pause.html'>workflow_pause — pausar o run sem jogar fora trabalho já pago Diagram</a></li>
+<li><a href='360-tool-workflow-publish.html'>Tool workflow_publish — publicar versão imutável Diagram</a></li>
+<li><a href='360-tool-workflow-remove-step.html'>workflow_remove_step — tirar um passo do rascunho Diagram</a></li>
+<li><a href='360-tool-workflow-resume.html'>workflow_resume: retomar run pausado Diagram</a></li>
+<li><a href='360-tool-workflow-run.html'>Tool workflow_run: dispara, roda em background e avisa ao fim Diagram</a></li>
+<li><a href='360-tool-workflow-set-step.html'>workflow_set_step — trocar um passo do rascunho Diagram</a></li>
+<li><a href='360-tool-workflow-status.html'>workflow_status — detalhe de um run ou lista de runs Diagram</a></li>
+<li><a href='360-tool-workflow-validate.html'>workflow_validate: valida a definição sem executar nem salvar Diagram</a></li>
+</ul></section>
+<section><h2>Agent-package — core <span class='n'>83</span></h2><ul>
+<li><a href='360-ap-knowledge-ancestors.html'>knowledge_ancestors: breadcrumb da página até a raiz Diagram</a></li>
+<li><a href='360-ap-knowledge-children.html'>Tool knowledge_children: lista os filhos diretos de uma página Diagram</a></li>
+<li><a href='360-ap-knowledge-create.html'>knowledge_create: criar página da base de conhecimento Diagram</a></li>
+<li><a href='360-ap-knowledge-delete.html'>knowledge_delete: hard delete de página com escopo de projeto Diagram</a></li>
+<li><a href='360-ap-knowledge-descendants.html'>knowledge_descendants: subárvore completa de uma página Diagram</a></li>
+<li><a href='360-ap-knowledge-get.html'>Tool knowledge_get: busca página por id com escopo de projetos Diagram</a></li>
+<li><a href='360-ap-knowledge-link-task.html'>knowledge_link_task — vincular página de conhecimento a task Diagram</a></li>
+<li><a href='360-ap-knowledge-list.html'>knowledge_list: listar páginas de conhecimento Diagram</a></li>
+<li><a href='360-ap-knowledge-move.html'>knowledge_move: mover página na hierarquia do Knowledge Diagram</a></li>
+<li><a href='360-ap-knowledge-restore-version.html'>knowledge_restore_version: versão anterior vira a atual Diagram</a></li>
+<li><a href='360-ap-knowledge-search.html'>knowledge_search: busca full-text + fuzzy na base de conhecimento Diagram</a></li>
+<li><a href='360-ap-knowledge-unlink-task.html'>knowledge_unlink_task: desvincular página da task Diagram</a></li>
+<li><a href='360-ap-knowledge-update.html'>knowledge_update: atualizar página e versionar Diagram</a></li>
+<li><a href='360-ap-knowledge-version-get.html'>knowledge_version_get: ler uma versão específica Diagram</a></li>
+<li><a href='360-ap-knowledge-versions-list.html'>knowledge_versions_list: listar versões da página Diagram</a></li>
+<li><a href='360-ap-memory-create.html'>memory_create: criar memória persistente do projeto Diagram</a></li>
+<li><a href='360-ap-memory-delete.html'>Tool memory_delete: move a memória para a lixeira Diagram</a></li>
+<li><a href='360-ap-memory-get.html'>memory_get: buscar memória por id com escopo Diagram</a></li>
+<li><a href='360-ap-memory-list.html'>memory_list — listar memórias do projeto Diagram</a></li>
+<li><a href='360-ap-memory-restore.html'>memory_restore — restaurar memória da lixeira Diagram</a></li>
+<li><a href='360-ap-memory-supersede.html'>memory_supersede: invalida memória e aponta a substituta Diagram</a></li>
+<li><a href='360-ap-memory-update.html'>memory_update: atualiza memória com versão Diagram</a></li>
+<li><a href='360-ap-memory-version-get.html'>memory_version_get — lê uma versão anterior da memória Diagram</a></li>
+<li><a href='360-ap-memory-versions-list.html'>memory_versions_list: versões anteriores de uma memória Diagram</a></li>
+<li><a href='360-ap-project-context.html'>project_context — o que o agente lê ao chegar num projeto Diagram</a></li>
+<li><a href='360-ap-project-skill-add.html'>project_skill_add: vincular skill ao projeto Diagram</a></li>
+<li><a href='360-ap-project-skill-list.html'>project_skill_list: listar skills de um projeto Diagram</a></li>
+<li><a href='360-ap-project-skill-remove.html'>project_skill_remove: remover skill de um projeto Diagram</a></li>
+<li><a href='360-ap-project-skill-toggle.html'>project_skill_toggle: liga/desliga skill no projeto Diagram</a></li>
+<li><a href='360-ap-prompt-create.html'>prompt_create — criar prompt de agente no projeto Diagram</a></li>
+<li><a href='360-ap-prompt-duplicate.html'>prompt_duplicate — duplicar prompt do projeto Diagram</a></li>
+<li><a href='360-ap-prompt-get.html'>prompt_get: leitura de um prompt de agente por id Diagram</a></li>
+<li><a href='360-ap-prompt-list.html'>prompt_list — listar prompts de agente do projeto Diagram</a></li>
+<li><a href='360-ap-prompt-restore.html'>Tool prompt_restore: traz o prompt da lixeira de volta Diagram</a></li>
+<li><a href='360-ap-prompt-update.html'>prompt_update — atualiza prompt do projeto com versão Diagram</a></li>
+<li><a href='360-ap-prompt-version-get.html'>prompt_version_get: ler uma versão do prompt Diagram</a></li>
+<li><a href='360-ap-prompt-version-list.html'>prompt_version_list — listar histórico de versões de um prompt Diagram</a></li>
+<li><a href='360-ap-prompt-version-restore.html'>Tool prompt_version_restore: versão antiga vira a atual Diagram</a></li>
+<li><a href='360-ap-skill-create.html'>skill_create: criar skill no catálogo global Diagram</a></li>
+<li><a href='360-ap-skill-delete.html'>skill_delete: apagar skill do catálogo Diagram</a></li>
+<li><a href='360-ap-skill-duplicate.html'>skill_duplicate: duplicar skill em cópia editável Diagram</a></li>
+<li><a href='360-ap-skill-export.html'>Tool skill_export: exporta o pacote Agent Skills de uma skill Diagram</a></li>
+<li><a href='360-ap-skill-file-get.html'>skill_file_get: ler um arquivo da skill em janelas Diagram</a></li>
+<li><a href='360-ap-skill-get.html'>skill_get: buscar uma skill por id ou slug Diagram</a></li>
+<li><a href='360-ap-skill-import.html'>skill_import: importar pacote de skill Diagram</a></li>
+<li><a href='360-ap-skill-update.html'>skill_update: atualiza skill e grava nova versão Diagram</a></li>
+<li><a href='360-ap-skill-version-get.html'>skill_version_get: ler uma versão da skill Diagram</a></li>
+<li><a href='360-ap-task-attachment-add.html'>task_attachment_add: anexar arquivo a uma task Diagram</a></li>
+<li><a href='360-ap-task-attachment-get.html'>task_attachment_get: ler anexo de task por id Diagram</a></li>
+<li><a href='360-ap-task-attachment-list.html'>task_attachment_list: listar anexos de uma task Diagram</a></li>
+<li><a href='360-ap-task-claim.html'>Tool task_claim: pega ou renova o lease de uma task Diagram</a></li>
+<li><a href='360-ap-task-claim-next.html'>task_claim_next: pegar a próxima task pronta com lease Diagram</a></li>
+<li><a href='360-ap-task-context-bundle.html'>task_context_bundle — pacote de contexto da task Diagram</a></li>
+<li><a href='360-ap-task-create.html'>task_create: criar task com decisões e vínculos Diagram</a></li>
+<li><a href='360-ap-task-decision-cancel.html'>task_decision_cancel: fechar decisão humana sem resposta Diagram</a></li>
+<li><a href='360-ap-task-decision-create.html'>task_decision_create: cria decisão humana e aplica o portão HITL Diagram</a></li>
+<li><a href='360-ap-task-decision-list.html'>task_decision_list: listar decisões humanas de uma task Diagram</a></li>
+<li><a href='360-ap-task-decision-respond.html'>task_decision_respond — entregar a decisão ao humano (HITL) Diagram</a></li>
+<li><a href='360-ap-task-decision-supersede.html'>task_decision_supersede: trocar decisão humana por versão corrigida Diagram</a></li>
+<li><a href='360-ap-task-delete.html'>task_delete — exclusão permanente de task Diagram</a></li>
+<li><a href='360-ap-task-dependency-add.html'>task_dependency_add: adicionar dependência entre tasks Diagram</a></li>
+<li><a href='360-ap-task-dependency-list.html'>task_dependency_list — listar dependências de uma task Diagram</a></li>
+<li><a href='360-ap-task-dependency-remove.html'>task_dependency_remove: desfazer dependência entre tasks Diagram</a></li>
+<li><a href='360-ap-task-event-list.html'>task_event_list: histórico paginado da task Diagram</a></li>
+<li><a href='360-ap-task-get.html'>task_get: ler uma task pelo MCP Diagram</a></li>
+<li><a href='360-ap-task-knowledge-list.html'>task_knowledge_list: listar knowledge vinculada a uma task Diagram</a></li>
+<li><a href='360-ap-task-list.html'>task_list: listar até 200 tasks de um projeto Diagram</a></li>
+<li><a href='360-ap-task-memory-link.html'>task_memory_link: vincular memória à task Diagram</a></li>
+<li><a href='360-ap-task-memory-list.html'>task_memory_list: listar memórias vinculadas a uma task Diagram</a></li>
+<li><a href='360-ap-task-next.html'>Tool task_next: sugere as próximas prontas sem claimar Diagram</a></li>
+<li><a href='360-ap-task-prompt-link.html'>task_prompt_link: vincular prompt de agente à task Diagram</a></li>
+<li><a href='360-ap-task-prompt-list.html'>task_prompt_list: listar prompts vinculados a uma task Diagram</a></li>
+<li><a href='360-ap-task-prompt-unlink.html'>task_prompt_unlink — desvincular prompt da task Diagram</a></li>
+<li><a href='360-ap-task-release.html'>task_release: soltar o lease e voltar para a fila Diagram</a></li>
+<li><a href='360-ap-task-request-more-info.html'>Tool task_request_more_information — pede complemento, task aguarda e volta à decisão Diag</a></li>
+<li><a href='360-ap-task-return-to-decision.html'>task_return_to_decision — devolver task ao portão de decisão Diagram</a></li>
+<li><a href='360-ap-task-skill-link.html'>task_skill_link: vincular skill a uma task Diagram</a></li>
+<li><a href='360-ap-task-skill-list.html'>task_skill_list: listar skills vinculadas a uma task Diagram</a></li>
+<li><a href='360-ap-task-skill-unlink.html'>task_skill_unlink: desvincular skill da task Diagram</a></li>
+<li><a href='360-ap-task-timeline-list.html'>task_timeline_list — janela do roadmap do projeto Diagram</a></li>
+<li><a href='360-ap-task-update.html'>task_update: atualização de task com portão HITL Diagram</a></li>
+<li><a href='360-ap-todo-create.html'>todo_create: adicionar item ao checklist da task Diagram</a></li>
+<li><a href='360-ap-todo-update.html'>todo_update: atualização parcial de todo com 404 de domínio Diagram</a></li>
+</ul></section>
+<section><h2>Agent-package — render <span class='n'>28</span></h2><ul>
+<li><a href='360-apr-component-extract.html'>render_component_extract — extrair componente da tela Diagram</a></li>
+<li><a href='360-apr-component-instantiate.html'>render_component_instantiate: instancia peça do catálogo Diagram</a></li>
+<li><a href='360-apr-history-diff.html'>render_history_diff — diff entre revisões de tela Diagram</a></li>
+<li><a href='360-apr-history-get.html'>render_history_get: ler uma revisão de tela Diagram</a></li>
+<li><a href='360-apr-history-list.html'>render_history_list: listar revisões de uma tela Diagram</a></li>
+<li><a href='360-apr-history-pin.html'>render_history_pin — fixar revisão de tela Diagram</a></li>
+<li><a href='360-apr-history-restore.html'>render_history_restore: revisao antiga vira escrita nova Diagram</a></li>
+<li><a href='360-apr-library-get.html'>Tool render_library_get: lê biblioteca inteira com versão e herança Diagram</a></li>
+<li><a href='360-apr-library-put.html'>render_library_put: substituir uma biblioteca do catálogo Diagram</a></li>
+<li><a href='360-apr-map-apply.html'>render_map_apply: aplicar o mapa do projeto Diagram</a></li>
+<li><a href='360-apr-map-get.html'>render_map_get — ler mapa do projeto Diagram</a></li>
+<li><a href='360-apr-node-apply.html'>render_node_apply: editar nós da tela por chave Diagram</a></li>
+<li><a href='360-apr-node-get.html'>render_node_get: ler subárvore de nó por chave Diagram</a></li>
+<li><a href='360-apr-preview.html'>render_preview — URLs de uma tela de projeto Diagram</a></li>
+<li><a href='360-apr-project-create.html'>project_create: criar projeto AgentPack na org do principal Diagram</a></li>
+<li><a href='360-apr-project-delete.html'>project_delete: projeto para a lixeira, purge em 30 dias Diagram</a></li>
+<li><a href='360-apr-project-update.html'>project_update — renomear ou redescrever projeto Diagram</a></li>
+<li><a href='360-apr-render-help.html'>render_help: ajuda das tools de Render por tópico Diagram</a></li>
+<li><a href='360-apr-screen-compose.html'>render_screen_compose: nomes de componentes entram, tela posicionada sai Diagram</a></li>
+<li><a href='360-apr-screen-create.html'>render_screen_create: criar tela declarativa do projeto Diagram</a></li>
+<li><a href='360-apr-screen-delete.html'>render_screen_delete: excluir tela com guardas e cascata Diagram</a></li>
+<li><a href='360-apr-screen-get.html'>Tool render_screen_get: lê uma tela do projeto por projeção Diagram</a></li>
+<li><a href='360-apr-screen-list.html'>render_screen_list: listar telas de um projeto Diagram</a></li>
+<li><a href='360-apr-screen-screenshot.html'>render_screen_screenshot: fotografar uma tela do projeto Diagram</a></li>
+<li><a href='360-apr-screen-update.html'>Tool render_screen_update: atualiza tela com revs e revisões Diagram</a></li>
+<li><a href='360-apr-tailwind-compile.html'>render_tailwind_compile: classes entram, CSS com recibo sai Diagram</a></li>
+<li><a href='360-apr-usage.html'>Tool render_usage: rastreio de consumidores de componente, estilo ou token Diagram</a></li>
+<li><a href='360-apr-validate.html'>render_validate: valida catálogo e telas sem escrever Diagram</a></li>
+</ul></section>
+<section><h2>Agent-package — GitHub <span class='n'>80</span></h2><ul>
+<li><a href='360-gh-add-discussion-comment.html'>github_add_discussion_comment: POST comenta discussion Diagram</a></li>
+<li><a href='360-gh-add-issue-comment.html'>github_add_issue_comment: POST comenta issue ou PR Diagram</a></li>
+<li><a href='360-gh-add-labels.html'>github_add_labels: POST adiciona labels à issue Diagram</a></li>
+<li><a href='360-gh-add-project-item.html'>github_add_project_item: POST adiciona issue/PR ao Project V2 Diagram</a></li>
+<li><a href='360-gh-assign-issue.html'>github_assign_issue: POST define os assignees da issue, substituindo os atuais Diagram</a></li>
+<li><a href='360-gh-create-branch.html'>github_create_branch: POST cria a ref refs/heads/&lt;branch&gt; no SHA dado Diagram</a></li>
+<li><a href='360-gh-create-discussion.html'>github_create_discussion: POST cria a discussion com category_id, title e body Diagram</a></li>
+<li><a href='360-gh-create-gist.html'>github_create_gist: POST cria o gist com files, description e public Diagram</a></li>
+<li><a href='360-gh-create-issue.html'>github_create_issue: POST cria a issue com title, body, labels e assignees Diagram</a></li>
+<li><a href='360-gh-create-pull-request.html'>github_create_pull_request: POST abre a PR de head em base com title Diagram</a></li>
+<li><a href='360-gh-create-pull-request-review.html'>github_create_pull_request_review: POST submete a review (APPROVE, REQUEST_CHANGES ou COMM</a></li>
+<li><a href='360-gh-create-repository.html'>github_create_repository: criar repositório no GitHub Diagram</a></li>
+<li><a href='360-gh-delete-gist.html'>github_delete_gist: apagar gist Diagram</a></li>
+<li><a href='360-gh-download-workflow-logs.html'>github_download_workflow_logs — baixar logs de um run Diagram</a></li>
+<li><a href='360-gh-get-branch.html'>github_get_branch — ler uma branch pelo nome Diagram</a></li>
+<li><a href='360-gh-get-code-scanning-alert.html'>github_get_code_scanning_alert: GET lê o alerta pelo número e devolve o JSON Diagram</a></li>
+<li><a href='360-gh-get-commit.html'>github_get_commit: ler um commit pelo MCP Diagram</a></li>
+<li><a href='360-gh-get-discussion.html'>github_get_discussion: GET lê a discussion pelo número e devolve o JSON Diagram</a></li>
+<li><a href='360-gh-get-discussion-comments.html'>github_get_discussion_comments: listar comentários de uma discussion Diagram</a></li>
+<li><a href='360-gh-get-file-contents.html'>github_get_file_contents: lê arquivo ou lista pasta no GitHub Diagram</a></li>
+<li><a href='360-gh-get-gist.html'>github_get_gist: GET lê o gist pelo id e devolve o JSON Diagram</a></li>
+<li><a href='360-gh-get-issue.html'>github_get_issue: GET lê a issue pelo número e devolve o JSON Diagram</a></li>
+<li><a href='360-gh-get-latest-release.html'>github_get_latest_release: última release publicada de um repositório Diagram</a></li>
+<li><a href='360-gh-get-me.html'>github_get_me: ler o usuário autenticado via API Diagram</a></li>
+<li><a href='360-gh-get-notification.html'>github_get_notification: GET lê a thread pelo id e devolve o JSON Diagram</a></li>
+<li><a href='360-gh-get-org.html'>github_get_org: ler uma organização via API Diagram</a></li>
+<li><a href='360-gh-get-project.html'>github_get_project: GET lê o Project V2 pelo id e devolve o JSON Diagram</a></li>
+<li><a href='360-gh-get-pull-request.html'>github_get_pull_request: ler um PR pelo numero Diagram</a></li>
+<li><a href='360-gh-get-pull-request-diff.html'>github_get_pull_request_diff: ler o diff de um PR pelo MCP Diagram</a></li>
+<li><a href='360-gh-get-release.html'>github_get_release — buscar release por ID Diagram</a></li>
+<li><a href='360-gh-get-repository.html'>github_get_repository: ler um repositório via API Diagram</a></li>
+<li><a href='360-gh-get-tag.html'>github_get_tag — buscar tag do GitHub Diagram</a></li>
+<li><a href='360-gh-get-teams.html'>github_get_teams: listar times de uma org via API Diagram</a></li>
+<li><a href='360-gh-get-user.html'>github_get_user: ler um usuário via API Diagram</a></li>
+<li><a href='360-gh-get-user-orgs.html'>github_get_user_orgs: orgs públicas de um usuário Diagram</a></li>
+<li><a href='360-gh-get-workflow.html'>github_get_workflow: ler um workflow via API Diagram</a></li>
+<li><a href='360-gh-get-workflow-run.html'>github_get_workflow_run: GET lê o run pelo id e devolve o JSON Diagram</a></li>
+<li><a href='360-gh-list-branches.html'>github_list_branches — listar branches de um repositório Diagram</a></li>
+<li><a href='360-gh-list-code-scanning-alerts.html'>github_list_code_scanning_alerts — listar alertas de code scanning Diagram</a></li>
+<li><a href='360-gh-list-commits.html'>github_list_commits: listar commits pelo MCP Diagram</a></li>
+<li><a href='360-gh-list-discussion-categories.html'>github_list_discussion_categories: GET lê as categorias de discussion e devolve o JSON Dia</a></li>
+<li><a href='360-gh-list-discussions.html'>github_list_discussions: listar discussions pelo MCP Diagram</a></li>
+<li><a href='360-gh-list-followers.html'>github_list_followers — listar seguidores do usuário autenticado Diagram</a></li>
+<li><a href='360-gh-list-following.html'>github_list_following — listar quem o usuário autenticado segue Diagram</a></li>
+<li><a href='360-gh-list-gists.html'>github_list_gists: listar gists pelo MCP Diagram</a></li>
+<li><a href='360-gh-list-issue-comments.html'>Tool github_list_issue_comments Diagram</a></li>
+<li><a href='360-gh-list-issues.html'>github_list_issues: listar issues pelo MCP Diagram</a></li>
+<li><a href='360-gh-list-labels.html'>github_list_labels — listar labels de um repositório Diagram</a></li>
+<li><a href='360-gh-list-milestones.html'>github_list_milestones: listar milestones pelo MCP Diagram</a></li>
+<li><a href='360-gh-list-notifications.html'>github_list_notifications: listar notificações pelo MCP Diagram</a></li>
+<li><a href='360-gh-list-org-members.html'>github_list_org_members: listar membros de uma org via API Diagram</a></li>
+<li><a href='360-gh-list-project-items.html'>github_list_project_items: listar itens do Project V2 Diagram</a></li>
+<li><a href='360-gh-list-projects.html'>github_list_projects — listar Projects V2 do usuário autenticado Diagram</a></li>
+<li><a href='360-gh-list-pull-request-files.html'>github_list_pull_request_files — listar arquivos alterados do PR Diagram</a></li>
+<li><a href='360-gh-list-pull-request-reviews.html'>github_list_pull_request_reviews: listar reviews do PR pelo MCP Diagram</a></li>
+<li><a href='360-gh-list-pull-requests.html'>github_list_pull_requests — listar PRs de um repositório Diagram</a></li>
+<li><a href='360-gh-list-releases.html'>Tool github_list_releases Diagram</a></li>
+<li><a href='360-gh-list-secret-scanning-alerts.html'>github_list_secret_scanning_alerts — listar alertas de secret scanning Diagram</a></li>
+<li><a href='360-gh-list-starred.html'>github_list_starred: listar favoritos do usuário via API Diagram</a></li>
+<li><a href='360-gh-list-tags.html'>Tool github_list_tags: lista tags do repo Diagram</a></li>
+<li><a href='360-gh-list-workflow-jobs.html'>github_list_workflow_jobs: jobs de um run via MCP Diagram</a></li>
+<li><a href='360-gh-list-workflow-runs.html'>Tool github_list_workflow_runs: lista runs do workflow Diagram</a></li>
+<li><a href='360-gh-list-workflows.html'>github_list_workflows: listar workflows pelo MCP Diagram</a></li>
+<li><a href='360-gh-lock-issue.html'>github_lock_issue: travar a conversa de uma issue Diagram</a></li>
+<li><a href='360-gh-mark-all-notifications-read.html'>github_mark_all_notifications_read: marcar tudo como lido pelo MCP Diagram</a></li>
+<li><a href='360-gh-mark-notification-read.html'>github_mark_notification_read: marcar thread como lida pelo MCP Diagram</a></li>
+<li><a href='360-gh-merge-pull-request.html'>github_merge_pull_request: PUT faz merge do PR na base (merge/squash/rebase) Diagram</a></li>
+<li><a href='360-gh-remove-label.html'>github_remove_label: DELETE remove label da issue Diagram</a></li>
+<li><a href='360-gh-request-copilot-review.html'>github_request_copilot_review: pedir review do Copilot no PR Diagram</a></li>
+<li><a href='360-gh-search-code.html'>github_search_code — buscar código no GitHub Diagram</a></li>
+<li><a href='360-gh-search-issues.html'>github_search_issues — buscar issues e PRs no GitHub Diagram</a></li>
+<li><a href='360-gh-search-orgs.html'>github_search_orgs — buscar organizações no GitHub Diagram</a></li>
+<li><a href='360-gh-search-repositories.html'>github_search_repositories — buscar repositórios no GitHub Diagram</a></li>
+<li><a href='360-gh-search-users.html'>github_search_users — buscar usuários no GitHub Diagram</a></li>
+<li><a href='360-gh-star-repository.html'>github_star_repository: favoritar repositório Diagram</a></li>
+<li><a href='360-gh-unstar-repository.html'>github_unstar_repository — remover star de repositório Diagram</a></li>
+<li><a href='360-gh-update-gist.html'>github_update_gist: PATCH atualiza description e files do gist Diagram</a></li>
+<li><a href='360-gh-update-issue.html'>github_update_issue: PATCH atualiza title, body, state, labels e assignees Diagram</a></li>
+<li><a href='360-gh-update-issue-comment.html'>github_update_issue_comment: atualizar comentário de issue via API Diagram</a></li>
+<li><a href='360-gh-update-pull-request.html'>github_update_pull_request: atualizar um PR via API Diagram</a></li>
+</ul></section>
+<section><h2>MyPanel — MCP <span class='n'>4</span></h2><ul>
+<li><a href='360-mp-execute-destructive.html'>execute_destructive: delete irreversível com confirm e auditoria Diagram</a></li>
+<li><a href='360-mp-execute-mutation.html'>execute_mutation — escritas não-destrutivas via MCP Diagram</a></li>
+<li><a href='360-mp-execute-query.html'>execute_query: leitura só de leitura no MCP MiniPanel Diagram</a></li>
+<li><a href='360-mp-search-procedures.html'>search_procedures: descobrir as procedures do MiniPanel Diagram</a></li>
+</ul></section>
+<section><h2>Sandbox-agent (dentro da sandbox) <span class='n'>24</span></h2><ul>
+<li><a href='360-sb-bash.html'>Tool bash: executa, espera 45 s e mata a árvore no fim da vida Diagram</a></li>
+<li><a href='360-sb-bash-background.html'>bash_background: processo longo em background (sandbox-agent) Diagram</a></li>
+<li><a href='360-sb-batch-read.html'>batch_read: ler até 20 arquivos de uma vez Diagram</a></li>
+<li><a href='360-sb-edit.html'>edit: troca exata e única em arquivo na sandbox Diagram</a></li>
+<li><a href='360-sb-edit-and-check.html'>edit_and_check: edições transacionais + checks do repo Diagram</a></li>
+<li><a href='360-sb-glob.html'>glob — buscar arquivos por padrão no sandbox-agent Diagram</a></li>
+<li><a href='360-sb-grep.html'>Tool grep — busca de conteúdo com ripgrep no sandbox Diagram</a></li>
+<li><a href='360-sb-ls.html'>Tool ls do sandbox-agent Diagram</a></li>
+<li><a href='360-sb-pr-create.html'>pr_create: push + PR no GitHub Diagram</a></li>
+<li><a href='360-sb-preview.html'>preview: porta local vira URL pública na sandbox Diagram</a></li>
+<li><a href='360-sb-previews.html'>Tool previews do sandbox-agent Diagram</a></li>
+<li><a href='360-sb-process-kill.html'>process_kill: SIGTERM, espera 2 s e SIGKILL na árvore inteira Diagram</a></li>
+<li><a href='360-sb-process-list.html'>process_list: lista de processos do sandbox e seus status Diagram</a></li>
+<li><a href='360-sb-process-output.html'>process_output: leitura incremental do log de um processo Diagram</a></li>
+<li><a href='360-sb-process-wait.html'>process_wait — esperar o processo e entregar o trecho novo Diagram</a></li>
+<li><a href='360-sb-read.html'>read — ler arquivo dentro da sandbox Diagram</a></li>
+<li><a href='360-sb-run-steps.html'>run_steps: passos shell em ordem Diagram</a></li>
+<li><a href='360-sb-test-changed.html'>test_changed: só os testes dos arquivos mudados Diagram</a></li>
+<li><a href='360-sb-workspace-info.html'>workspace_info: onde o agente está na sandbox Diagram</a></li>
+<li><a href='360-sb-worktree-create.html'>worktree_create: uma branch, uma pasta por tarefa Diagram</a></li>
+<li><a href='360-sb-worktree-list.html'>worktree_list — listar clone principal e worktrees Diagram</a></li>
+<li><a href='360-sb-worktree-merge.html'>worktree_merge: fundir worktree com --no-ff Diagram</a></li>
+<li><a href='360-sb-worktree-remove.html'>Tool worktree_remove: remove a pasta e, por padrão, a branch se merged Diagram</a></li>
+<li><a href='360-sb-write.html'>write: criar ou substituir arquivo no sandbox-agent Diagram</a></li>
+</ul></section>
+<section><h2>Outros <span class='n'>3</span></h2><ul>
+</ul></section>
+</div></body></html>

@@ -15,12 +15,59 @@ h2 .n{background:#182031;color:var(--fg);border-radius:20px;padding:1px 9px;font
 ul{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:2px}
 li a{display:block;padding:7px 10px;border-radius:7px;color:#cfd8e6;text-decoration:none;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 li a:hover{background:#161c26;color:#fff}
-</style></head><body><div class="wrap">
+</style>
+<style id="enriquecimento-v2">
+.reader-rail .cards{font-size:16px !important;line-height:1.7 !important}
+.reader-rail .card h3{font-size:17px !important;line-height:1.4 !important}
+.reader-rail .card li{margin-bottom:8px !important}
+.reader-rail .card{padding:16px 18px !important}
+.diagram-guide,.node-finder{font-size:15px !important;line-height:1.65 !important}
+.reader-rail kbd{background:rgba(127,127,127,.18);border:1px solid rgba(127,127,127,.35);border-radius:4px;padding:0 5px;font-size:.85em}
+@media (max-width:900px){.reader-rail .cards{font-size:15px !important}}
+</style>
+</head><body><div class="wrap">
 <h1>spaceAI <span>360</span></h1>
 <p class="sub">Índice de todos os diagramas gerados — ambiente, bancos e cada tool de cada sistema. Todos passaram nos gates do Archify (validate / deliver / check / browser-check).</p>
 <div class="cards">
+      <div class="card" id="card-como-ler">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Como ler este diagrama</h3>
+        </div>
+        <ul>
+          <li><b>Enquadrar tudo na tela:</b> aperte <kbd>0</kbd> (ou o botao % do canto). Se ainda precisar rolar, o fluxo e grande — use <kbd>F</kbd> para o modo apresentacao em tela cheia.</li>
+          <li><b>Zoom com qualidade:</b> <kbd>+</kbd> e <kbd>-</kbd> ampliam sem borrar (e vetor, nao imagem). Para ver o geral, volte com <kbd>0</kbd>.</li>
+          <li><b>Achar um no:</b> <kbd>/</kbd> busca por nome, responsabilidade ou id estavel.</li>
+          <li><b>Seguir uma chamada:</b> <kbd>R</kbd> traca a rota entre dois nos na direcao documentada.</li>
+          <li><b>Claro/escuro:</b> <kbd>T</kbd> troca o tema. <kbd>E</kbd> exporta PNG/WebP/SVG.</li>
+          <li><b>Caixinhas clicaveis:</b> cada no abre detalhes (entradas, saidas, erros). As evidencias entre parenteses (arquivo:linha) apontam o codigo-fonte exato.</li>
+        </ul>
+      </div>
+
 <div class="card"><b>Comece aqui</b><a href="spaceai-360.html">Página-mãe do ambiente →</a><a href="360-tools-todas.html">Página-mãe de TODAS as tools →</a><a href="360-tools-mae.html">Página-mãe das tools do motor →</a></div>
 <div class="card"><b>Mapa da casa</b><a href="casa-geral.html">6 apps, deploy, dados</a><a href="spaceai-workspace.html">Zoom do motor</a></div>
+
+      <div class="card" id="card-glossario">
+        <div class="card-header">
+          <div class="card-dot slate"></div>
+          <h3>Glossario</h3>
+        </div>
+        <ul>
+          <li><b>MCP</b> — Model Context Protocol: o canal pelo qual o agente chama tools (pedido/resposta em JSON).</li>
+          <li><b>Tool / tool call</b> — funcao que o agente invoca; <i>handler</i> valida e executa, <i>service</i> contem a regra de negocio.</li>
+          <li><b>Escopo (scope)</b> — permissao exigida (<i>read</i> le, <i>write</i>/<i>github:write</i> escreve). Sem escopo, a chamada e recusada antes do banco.</li>
+          <li><b>Anti-BOLA</b> — checagem de que o chamador so enxerga objetos do proprio projeto (BOLA = acessar objeto alheio trocando o id).</li>
+          <li><b>Envelope / isError</b> — resposta padrao <i>{ok, data}</i> ou <i>{ok:false, error}</i>; <i>isError</i> avisa a interface que deu erro.</li>
+          <li><b>Zod</b> — validador dos argumentos (tipo, tamanho, formato) antes de qualquer I/O.</li>
+          <li><b>Prisma</b> — ORM do banco Postgres; <i>findUnique/findMany</i> leem, transacoes gravam tudo-ou-nada.</li>
+          <li><b>Transacao / FOR UPDATE</b> — trava a linha durante a escrita para duas execucoes nao se atropelarem.</li>
+          <li><b>Lease / claim</b> — reserva temporaria ("estou cuidando disso"); idempotente = repetir nao duplica.</li>
+          <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
+          <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
+          <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+        </ul>
+      </div>
+
 </div>
 <section><h2>Ambiente <span class='n'>12</span></h2><ul>
 <li><a href='360-deploy-arch.html'>spaceAI — topologia de deploy (self-hosted Docker) Diagram</a></li>
@@ -301,4 +348,9 @@ li a:hover{background:#161c26;color:#fff}
 </ul></section>
 <section><h2>Outros <span class='n'>3</span></h2><ul>
 </ul></section>
-</div></body></html>
+</div>
+<script id="enriquecimento-v2-js">
+(function(){var n=0;var t=setInterval(function(){try{var b=document.querySelector('[data-view="reset"]');if(b){b.click();clearInterval(t);}}catch(e){}if(++n>25)clearInterval(t);},400);})();
+</script>
+</body><!-- enriquecimento-v2: tipografia + como-ler + glossario + auto-fit -->
+</html>
