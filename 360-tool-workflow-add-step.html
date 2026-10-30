@@ -5712,6 +5712,50 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida os argumentos (motor/backend/src/tools/native/workflow.ts:1119): sem <i>step</i>, nem chega ao rascunho.</li>
+          <li>Exige rascunho aberto na conversa (motor/backend/src/tools/native/workflow.ts:1121-1122): sem ele, responde <i>Chame workflow_draft({name, ...}) primeiro</i>.</li>
+          <li>Lê <i>step</i> como objeto; texto JSON é lido, resto é recusado com nome do campo (motor/backend/src/tools/native/workflow.ts:1123, 319-346).</li>
+          <li>Recusa <i>step</i> vazio (motor/backend/src/tools/native/workflow.ts:1126-1131): se o passo é grande, encurte o <i>prompt</i> — um passo precisa caber num argumento.</li>
+          <li>Recusa <i>id</i> repetido (motor/backend/src/tools/native/workflow.ts:1132-1138): para trocar, use <i>workflow_set_step</i>; para novo, escolha outro <i>id</i>.</li>
+          <li>Acrescenta no FIM do array, renova o carimbo e invalida a última validada (motor/backend/src/tools/native/workflow.ts:1139-1141, 443-445).</li>
+          <li>Devolve <i>Passo N adicionado. Rascunho tem: id(kind) → ...</i> via <i>resumoDosPassos</i> (motor/backend/src/tools/native/workflow.ts:1142-1144, 360-369).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>workflow_draft</i> abre, <i>set_step</i> troca no lugar, <i>remove_step</i> tira, <i>validate()</i> confere tudo (motor/backend/src/tools/native/workflow.ts:1101-1110, 1149-1154, 1206-1210).</li>
+          <li>Toda mudança invalida a guardada para o <i>publish</i> sem <i>definition</i> (motor/backend/src/tools/native/workflow.ts:443-445, 1141, 1439-1446).</li>
+          <li>Rascunho vive em memória por (org, thread) com TTL de 30 min (motor/backend/src/tools/native/workflow.ts:390-427, 417-427).</li>
+          <li>A ordem das chamadas é a ordem do array, mas a dependência real é <i>${steps.id...}</i> ou <i>needs</i> (motor/backend/src/tools/native/workflow.ts:1108-1110).</li>
+          <li>Passo que age depois de <i>human</i> precisa de <i>needs:[id do human]</i>, senão roda antes da decisão (motor/backend/src/tools/native/workflow.ts:1109-1110).</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Só ACRESCENTA no fim (motor/backend/src/tools/native/workflow.ts:1103-1107): não insere no meio nem edita — para isso use <i>set/remove_step</i>.</li>
+          <li><i>id</i> repetido não sobrescreve em silêncio; é erro orientando <i>set_step</i> (motor/backend/src/tools/native/workflow.ts:1133-1136).</li>
+          <li><i>step</i> em texto que não é JSON vira erro <i>mande como OBJETO</i>, não <i>grande demais</i> (motor/backend/src/tools/native/workflow.ts:331-336, 1124).</li>
+          <li>Prompt longo demais estoura o argumento: encurte o <i>prompt</i> e tire opcionais (motor/backend/src/tools/native/workflow.ts:1126-1131, 257-304).</li>
+          <li>Sem rascunho nada é gravado; <i>validate()</i> com rascunho vazio cobra <i>add_step</i> antes (motor/backend/src/tools/native/workflow.ts:1122, 876-880).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5730,6 +5774,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>step</b> — um passo do grafo ({ id, kind, ...campos do kind }); aqui sempre um por chamada.</li>
+          <li><b>id (do passo)</b> — nome estável do passo no array; repetido é recusado.</li>
+          <li><b>needs</b> — ordem sem dado (ex.: depois do portão <i>human</i>); sem ele, o passo roda em paralelo.</li>
+          <li><b>resumoDosPassos</b> — lista curta <i>id(kind) → ...</i> que a resposta usa para mostrar o rascunho.</li>
+          <li><b>invalidarValidada</b> — esquece a definição aprovada a cada mudança; <i>publish</i> exige validar de novo.</li>
         </ul>
       </div>
 

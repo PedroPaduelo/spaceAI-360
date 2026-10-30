@@ -5701,6 +5701,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Escolhe a fonte: sem <i>definition</i> valida o rascunho da conversa via <i>lerRascunho</i> e <i>rascunhoComoDefinicao</i> (backend/src/tools/native/workflow.ts:419 e :429).</li>
+          <li>Com <i>definition</i>, faz <i>parseDefinition</i>; se veio vazio, orienta a montar por <i>draft</i> + <i>add_step</i> em vez de reenviar o grafo inteiro (backend/src/tools/native/workflow.ts:257).</li>
+          <li>Executa <i>validateDefinition</i> com o <i>orgId</i>: primeiro a forma (Zod), depois as regras de conteudo; cada erro traz <i>path</i> em JSON Pointer (backend/src/workflows/definition.ts:1340).</li>
+          <li>Se passou, guarda com <i>guardarValidada</i> por 30 min para o publish reusar sem reenviar (backend/src/tools/native/workflow.ts:447 e :390).</li>
+          <li>Se reprovou, chama <i>invalidarValidada</i> e devolve <i>valid: false</i> com <i>renderIssues</i> e dica de corrigir via <i>workflow_set_step</i> (backend/src/tools/native/workflow.ts:443 e :219).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlacoes</h3>
+        </div>
+        <ul>
+          <li><i>workflow_draft</i> abre o envelope e <i>workflow_add_step</i> acrescenta um passo por chamada, o caminho que evita argumento cortado (backend/src/tools/native/workflow.ts:935 e :1101).</li>
+          <li><i>workflow_set_step</i> e <i>workflow_remove_step</i> corrigem o passo apontado pelo <i>path</i> sem reabrir o rascunho do zero (backend/src/tools/native/workflow.ts:1149 e :1206).</li>
+          <li><i>workflow_get</i> mostra o rascunho ou a versao publicada para conferir antes de validar (backend/src/tools/native/workflow.ts:1241).</li>
+          <li><i>workflow_publish</i> consome a ultima validada; se o rascunho mudou depois, ele recusa e manda validar de novo (backend/src/tools/native/workflow.ts:1403).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Rascunho e guardada vivem em memoria do processo, por (org, thread), com TTL de 30 min e somem no restart (backend/src/tools/native/workflow.ts:390).</li>
+          <li>Qualquer mudanca no rascunho ou validate que reprova anula a guardada; publicar sem validar gravaria a definicao antiga (backend/src/tools/native/workflow.ts:443).</li>
+          <li>Definicao inteira num unico argumento chega vazia de forma nao deterministica quando e grande; valide sem argumento pelo rascunho (backend/src/tools/native/workflow.ts:824).</li>
+          <li>Erros de forma escondem os de conteudo: corrija a forma primeiro e valide de novo, em rodadas (backend/src/workflows/definition.ts:1340).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5719,6 +5759,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Rascunho incremental</b> — envelope + passos montados por <i>draft</i>/<i>add_step</i> em memoria por (org, thread) (backend/src/tools/native/workflow.ts:419).</li>
+          <li><b>Ultima validada</b> — definicao que passou, guardada 30 min para o publish reusar sem reenviar (backend/src/tools/native/workflow.ts:447).</li>
+          <li><b>JSON Pointer</b> — caminho do erro tipo <i>/steps/2</i>, onde 2 e o passo contando do zero (backend/src/tools/native/workflow.ts:824).</li>
+          <li><b>Forma x conteudo</b> — Zod primeiro; so sem erro de forma as regras de conteudo rodam (backend/src/workflows/definition.ts:1340).</li>
         </ul>
       </div>
 

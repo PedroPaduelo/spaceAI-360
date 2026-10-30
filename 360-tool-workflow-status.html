@@ -5686,6 +5686,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Sem <i>runId</i> lista os runs recentes via <i>listarRunsRecentes</i>, ordenados por <i>queuedAt</i> desc, com filtro opcional por workflow (backend/src/tools/native/workflow.ts:710).</li>
+          <li>Com <i>runId</i> valida UUID e org; fora da org volta erro sem vazar Prisma (backend/src/tools/native/workflow.ts:1644).</li>
+          <li>Conta passos por estado e lista ate 20 falhas com codigo, mensagem e <i>threadId</i> de passo de IA (backend/src/tools/native/workflow.ts:539).</li>
+          <li>Expoe portoes <i>human</i> em <i>waiting</i> com <i>stepKey</i>, <i>stepId</i> e comandos prontos de <i>decide</i> via <i>descreverPortaoHumano</i> (backend/src/tools/native/workflow.ts:597).</li>
+          <li>Se o run esta em <i>waiting</i> sem portao humano, descreve a divergencia e orienta a conferir de novo ou pausar/retomar/cancelar (backend/src/tools/native/workflow.ts:628).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlacoes</h3>
+        </div>
+        <ul>
+          <li><i>workflow_decide</i> exige <i>runId</i> + <i>stepId</i> que so este detalhe entrega; sem ele nao ha como decidir (backend/src/workflows/runs.ts:1393).</li>
+          <li><i>workflow_run</i> cria o run que este detalhe acompanha; <i>workflow_list</i> lista definicoes, nao execucoes (backend/src/workflows/runs.ts:694).</li>
+          <li><i>workflow_pause</i>, <i>resume</i> e <i>cancel</i> sao as saidas quando o run trava em divergencia (backend/src/workflows/runs.ts:977).</li>
+          <li>Portao <i>human</i> parado aparece tambem na lista recente como esperando pessoa, com dica para o detalhe (backend/src/tools/native/workflow.ts:710).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Nao consulte em laco: o aviso de fim ou de portao chega sozinho; status e para pedido do usuario (backend/src/tools/native/workflow.ts:1644).</li>
+          <li>Lista padrao 20 e teto 50; falhas e portoes cortam em 20 por resposta, com total indicado (backend/src/tools/native/workflow.ts:539).</li>
+          <li>Saida do run corta em 2000 caracteres e erro do run em 400; use o passo ou o evento para o inteiro (backend/src/tools/native/workflow.ts:1644).</li>
+          <li>Trocar definicoes por execucoes esconde o run; <i>workflow_list</i> nao mostra runs (backend/src/tools/native/workflow.ts:1644).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5704,6 +5744,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Dois modos</b> — com <i>runId</i> detalha um run; sem <i>runId</i> lista os recentes da org (backend/src/tools/native/workflow.ts:1644).</li>
+          <li><b>Divergencia waiting</b> — run em <i>waiting</i> sem portao humano em <i>waiting</i>; espera por sub-run nao poe o run em <i>waiting</i> (backend/src/tools/native/workflow.ts:628).</li>
+          <li><b>Teto de listagem</b> — 20 por padrao, 50 no maximo; falhas e portoes cortam em 20 (backend/src/tools/native/workflow.ts:539).</li>
+          <li><b>stepId do portao</b> — sem ele nao ha <i>decide</i>; o detalhe entrega o id e os comandos prontos (backend/src/tools/native/workflow.ts:597).</li>
         </ul>
       </div>
 

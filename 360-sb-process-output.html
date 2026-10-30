@@ -5715,6 +5715,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>Entrada:</b> handleProcessOutput le offset opcional e max_bytes, com padrao outputDefault de 32 KiB (internal/tools/exec/wait.go:27-42; internal/tools/exec/manager.go:54).</li>
+          <li><b>Localiza:</b> Manager.Output acha o processo via getProcLocked; id de outro boot ou inexistente vira ToolError (internal/tools/exec/proc.go:168-180).</li>
+          <li><b>Janela:</b> sem offset, start e max(0, size-maxBytes); com offset, start fica preso a [0, size] e next e min(size, start+maxBytes) (internal/tools/exec/output.go:195-202).</li>
+          <li><b>Leitura:</b> abre com openLog sem travar, recua para ultima linha completa se vivo via lastLineEnd e mascara via window (internal/tools/exec/output.go:204-215; internal/tools/exec/output.go:121-137).</li>
+          <li><b>Resposta:</b> devolve texto + [id: status; showing bytes X-Y de Z. next_offset=N] e avisa bytes restantes (internal/tools/exec/output.go:223-228).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Correlacoes</h3>
+        </div>
+        <ul>
+          <li><b>bash → output:</b> bash_background devolve o fim do log via Output logo apos 1,5 s do inicio (internal/tools/exec/proc.go:647-660).</li>
+          <li><b>output ↔ wait:</b> wait espera p.ended e depois le o mesmo trecho desde delivered; output le sem esperar, com offset manual (internal/tools/exec/proc.go:613-629; internal/tools/exec/output.go:188-202).</li>
+          <li><b>output → kill:</b> se a saida mostra detached ou running parado, process_kill encerra grupo e marca via killTree (internal/tools/exec/proc.go:331-343).</li>
+          <li><b>output → list:</b> process_list mostra o mesmo statusLineLocked resumido; output mostra o conteudo do log (internal/tools/exec/proc.go:467-482; internal/tools/exec/proc.go:493-524).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Sem offset e o fim:</b> sem offset a resposta traz o fim do log, nao o comeco; use next_offset para paginar (internal/tools/exec/output.go:195-202).</li>
+          <li><b>Linha cortada:</b> processo vivo para na ultima quebra \n ou \r nos ultimos 64 KiB; sem quebra entrega tudo (internal/tools/exec/output.go:121-137).</li>
+          <li><b>Mascara com margem:</b> window le margem secrets.MarginBytes antes de mascarar para nao partir token na borda (internal/tools/exec/output.go:92-105).</li>
+          <li><b>Log gigante:</b> acima de logMaxBytes (32 MB) fica so o fim com cabecalho [log truncated] (internal/tools/exec/output.go:143-183; internal/tools/exec/manager.go:73-74).</li>
+          <li><b>Log sumiu:</b> log apagado pelo reap conta como vazio; offset alem do fim e preso ao size (internal/tools/exec/output.go:15-22; internal/tools/exec/output.go:48-51).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5733,6 +5774,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>offset / next_offset</b> — ponto de leitura em bytes; sem offset volta o fim do log (internal/tools/exec/output.go:195-202).</li>
+          <li><b>max_bytes / outputDefault</b> — janela maxima por chamada, 32 KiB por padrao (internal/tools/exec/manager.go:54).</li>
+          <li><b>lastLineEnd</b> — recua ate a ultima linha completa em processo vivo (internal/tools/exec/output.go:121-137).</li>
+          <li><b>window / MarginBytes</b> — le margem antes de mascarar para nao vazar meio segredo (internal/tools/exec/output.go:92-105).</li>
+          <li><b>capLog / logMaxBytes</b> — acima de 32 MB guarda so o fim com aviso (internal/tools/exec/output.go:143-183).</li>
         </ul>
       </div>
 

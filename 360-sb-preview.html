@@ -5741,6 +5741,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>Entrada:</b> previewHandler le port, wait_ms (padrao 30 s) e slot opcional (internal/tools/preview/preview.go:37-54).</li>
+          <li><b>Reserva:</b> SetPort recusa porta reservada (MCP e preview) e sonda 127.0.0.1/::1 ate o prazo via waitFor (internal/preview/runtime.go:150-154; internal/preview/probe.go:63-82).</li>
+          <li><b>Sem app:</b> porta que nao abre vira Nothing is listening com dica de bash_background (internal/preview/runtime.go:158-160).</li>
+          <li><b>Publica:</b> no modo porta registra host e devolve PortURL; no modo vagas escolhe via pickSlotLocked (internal/preview/runtime.go:161-194; internal/preview/runtime.go:198-228).</li>
+          <li><b>Prova de vida:</b> GET / com Host localhost:porta e prazo total de 3 s vira Check OK ou WARNING (internal/preview/probe.go:157-193).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Correlacoes</h3>
+        </div>
+        <ul>
+          <li><b>bash → preview:</b> suba o servidor com bash_background e confira com process_output antes de chamar preview (internal/preview/runtime.go:158-160).</li>
+          <li><b>preview → previews:</b> previews lista LivePorts; no modo porta qualquer porta com LISTEN aparece, no modo vagas so a vaga ativa (internal/preview/runtime.go:280-305).</li>
+          <li><b>preview → workspace_info:</b> Describe resume vagas ou portas ja mostradas na linha previews do workspace_info (internal/preview/runtime.go:245-278).</li>
+          <li><b>preview → list:</b> o servidor segue como processo running/detached em process_list enquanto a porta responde (internal/tools/exec/proc.go:467-482).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Porta reservada:</b> portas do MCP e do preview sao recusadas com Invalid port (internal/preview/runtime.go:150-153).</li>
+          <li><b>Espera limitada:</b> wait e preso a 0–2 min via clampWait; wait_ms ate 120000 no schema (internal/preview/runtime.go:307-310).</li>
+          <li><b>WARNING nao e erro:</b> HTTP de erro ou GET lento/falho sai como Check WARNING no texto, sem isError (internal/preview/probe.go:188-202).</li>
+          <li><b>Vagas cheias:</b> sem vaga livre e com mais de uma vaga, erro lista o uso e pede slot=&lt;n&gt; (internal/preview/runtime.go:219-227).</li>
+          <li><b>Slot ignorado:</b> slot so vale no modo vagas; no modo porta e ignorado (internal/tools/preview/preview.go:37-54).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5759,6 +5800,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>SetPort</b> — liga a porta do app a vaga ou registra no modo porta e devolve URL + prova (internal/preview/runtime.go:150-194).</li>
+          <li><b>waitFor / pollEvery</b> — sonda a porta a cada 500 ms ate abrir ou o prazo acabar (internal/preview/probe.go:63-82).</li>
+          <li><b>checkPage / checkDeadline</b> — GET / com prazo total de 3 s; abaixo de 400 e OK, senao WARNING (internal/preview/probe.go:157-193).</li>
+          <li><b>pickSlotLocked</b> — escolhe vaga pedida, a que ja mostra a porta, livre ou a unica (internal/preview/runtime.go:198-228).</li>
+          <li><b>reserved</b> — portas do MCP e do preview nunca viram preview (internal/preview/runtime.go:109-131).</li>
         </ul>
       </div>
 

@@ -5757,6 +5757,51 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida os argumentos (motor/backend/src/tools/native/workflow.ts:1255): <i>workflowId</i> e <i>versionId</i> são opcionais.</li>
+          <li>Sem <i>workflowId</i>, mostra o rascunho da conversa (motor/backend/src/tools/native/workflow.ts:1258-1272): sem rascunho, erro com <i>expira em 30 min</i> e dica de <i>list</i>.</li>
+          <li>No rascunho, informa se a última validação segue válida e lista <i>Passos: id(kind) → ...</i> (motor/backend/src/tools/native/workflow.ts:1266-1270, 360-369).</li>
+          <li>Com <i>workflowId</i>, carrega via <i>carregarVersao</i>: id ou slug, filtra apagados, corrente ou <i>versionId</i> (motor/backend/src/tools/native/workflow.ts:1274, 675-696).</li>
+          <li>Monta o cabeçalho com <i>slug, workflowId, versão, versionId</i> e se é a corrente (motor/backend/src/tools/native/workflow.ts:1285-1287; prisma/schema.prisma:726-755).</li>
+          <li>Resolve a <i>description</i>: prefere a do grafo, senão a coluna da definição, senão avisa editar com <i>draft</i> (motor/backend/src/tools/native/workflow.ts:1277-1291).</li>
+          <li>Devolve o JSON com <i>limitarJson</i> em 40.000 caracteres (motor/backend/src/tools/native/workflow.ts:348-357, 1293): cortado, os ids seguem na linha <i>Passos</i>.</li>
+          <li>Orienta editar com <i>draft({ fromWorkflowId })</i> em vez de reescrever de memória (motor/backend/src/tools/native/workflow.ts:1245-1246, 1292).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>draft({ fromWorkflowId }) + set_step</i> é o laço seguro para corrigir o que o <i>get</i> mostrou (motor/backend/src/tools/native/workflow.ts:1245-1246, 1021-1037).</li>
+          <li><i>validate()</i> confere o rascunho que o <i>get</i> exibe; <i>list</i> acha o <i>workflowId</i> quando ele se perdeu (motor/backend/src/tools/native/workflow.ts:882-902, 1298-1318).</li>
+          <li><i>WorkflowVersion.graph</i> imutável + <i>graphHash</i>: republicar a corrente reaproveita, grafo antigo vira versão nova (prisma/schema.prisma:735-755).</li>
+          <li><i>WorkflowDefinition.description</i> (coluna) preenche grafo antigo sem <i>description</i> (motor/backend/src/tools/native/workflow.ts:1288-1291; prisma/schema.prisma:697-698).</li>
+          <li>Rascunho e última validada vivem em memória por (org, thread) com TTL de 30 min (motor/backend/src/tools/native/workflow.ts:390-427, 417-427).</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Sem argumento e sem rascunho não há o que mostrar (motor/backend/src/tools/native/workflow.ts:1260-1263): expira em 30 min e some no restart (motor/backend/src/tools/native/workflow.ts:894-895).</li>
+          <li>Grafo grande é cortado em 40.000 caracteres (motor/backend/src/tools/native/workflow.ts:348-357): confira os passos pela linha <i>Passos</i>, não pelo JSON.</li>
+          <li><i>versionId</i> ausente = corrente (<i>latestVersion</i>); indicar versão antiga mostra <i>a corrente é a N</i> (motor/backend/src/tools/native/workflow.ts:684-690, 1285-1287).</li>
+          <li>Apagados (<i>deletedAt</i>) não são encontrados: <i>workflow não existe, use list</i> (motor/backend/src/tools/native/workflow.ts:675-683; prisma/schema.prisma:707).</li>
+          <li>UUID inválido em <i>status/run</i> não vaza erro de banco: observação, sem confirmação neste <i>get</i> — o padrão <i>isUuid</i> está em <i>status/pause/resume/decide/cancel</i> (motor/backend/src/tools/native/workflow.ts:1676, 1753, 1790).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5775,6 +5820,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>workflowId (id ou slug)</b> — vazio mostra o rascunho; preenchido busca a versão publicada.</li>
+          <li><b>versionId</b> — versão específica; ausente mostra a corrente (<i>latestVersion</i>).</li>
+          <li><b>corrente</b> — a <i>WorkflowVersion</i> de número <i>latestVersion</i>; edições viram versão nova.</li>
+          <li><b>limitarJson (40.000)</b> — teto do JSON devolvido; acima disso, corta e avisa o total.</li>
+          <li><b>carregarVersao</b> — leitor compartilhado com o <i>draft</i>: acha definição e versão por id/slug.</li>
         </ul>
       </div>
 

@@ -5690,6 +5690,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>Entrada:</b> previewsHandler nao recebe argumento e chama LivePorts (internal/tools/preview/preview.go:66-83).</li>
+          <li><b>Varredura:</b> listening le /proc/net/tcp e tcp6 com cache de 2 s via listenTTL (internal/preview/probe.go:93-104).</li>
+          <li><b>Filtro:</b> readListening so aceita st 0A (LISTEN) em loopback e ignora portas reservadas e fora de 1–65535 (internal/preview/probe.go:106-135).</li>
+          <li><b>Modo porta:</b> qualquer porta LISTEN vira LivePort com PortURL; ordenadas (internal/preview/runtime.go:283-291).</li>
+          <li><b>Resposta:</b> com live devolve linhas port N -&gt; URL; sem live devolve No app yet / No preview is live (internal/tools/preview/preview.go:68-93).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Correlacoes</h3>
+        </div>
+        <ul>
+          <li><b>bash → previews:</b> app subido direto no bash sem preview aparece aqui se escutar no loopback (internal/preview/runtime.go:280-285).</li>
+          <li><b>preview → previews:</b> preview liga a porta a vaga/URL; previews confirma se ela ainda escuta (internal/preview/runtime.go:293-305).</li>
+          <li><b>previews → workspace_info:</b> o painel mostra as URLs no cartao da sandbox; workspace_info resume via Describe (internal/preview/runtime.go:245-278).</li>
+          <li><b>previews → list:</b> porta LISTEN aqui e processo running/detached em process_list sao duas vistas do mesmo servidor (internal/tools/exec/proc.go:493-524).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>So loopback:</b> so 0.0.0.0, 127.0.0.1, :: e ::1 contam; IP externo nao e alcancado pelo proxy (internal/preview/probe.go:84-91).</li>
+          <li><b>IPv4 vence:</b> a mesma porta aparece uma vez, com o host do primeiro registro, IPv4 antes de IPv6 (internal/preview/probe.go:106-135).</li>
+          <li><b>Cache de 2 s:</b> varredura repetida em polling usa listenTTL; mudanca imediata pode demorar 2 s (internal/preview/probe.go:33-34).</li>
+          <li><b>Sem URL publica:</b> no modo vagas sem template e sem URL, a linha avisa no public URL configured (internal/tools/preview/preview.go:73-82).</li>
+          <li><b>/proc ilegivel:</b> leitura que falha soma zero linhas e cai em No app yet (internal/preview/probe.go:110-114).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5708,6 +5749,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>LivePorts</b> — portas com app de verdade agora; no modo vagas so as vagas ativas (internal/preview/runtime.go:280-305).</li>
+          <li><b>readListening</b> — varre /proc/net/tcp e tcp6 e filtra por st 0A em loopback (internal/preview/probe.go:106-135).</li>
+          <li><b>loopbackHex</b> — traduz o endereco hex do /proc para 127.0.0.1 ou ::1 (internal/preview/probe.go:84-91).</li>
+          <li><b>listenTTL</b> — cache de 2 s da varredura para polling do painel (internal/preview/probe.go:33-34).</li>
+          <li><b>ByPort / PortURL</b> — modo porta: qualquer porta tem URL via template com {port} (internal/preview/runtime.go:136-145).</li>
         </ul>
       </div>
 

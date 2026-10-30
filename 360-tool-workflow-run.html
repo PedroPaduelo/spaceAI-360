@@ -5804,6 +5804,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Resolve a versao: sem <i>versionId</i> usa a maior publicada; com <i>versionId</i> de outro workflow recusa com <i>versao_nao_encontrada</i> (backend/src/workflows/runs.ts:694).</li>
+          <li>Valida a entrada com <i>validarEntradaDoRun</i> contra o <i>input</i> da versao antes de criar thread ou run; texto JSON e lido, resto e recusado (backend/src/workflows/runs.ts:676).</li>
+          <li>Confere setups: privado de outro dono ou inativo recusa o run antes de qualquer gasto, com snapshot congelado (backend/src/workflows/runs.ts:694).</li>
+          <li>Cria o run com <i>startRun</i> e chave de idempotencia por tool call, para reentrega nao disparar run duplo (backend/src/tools/native/workflow.ts:1535).</li>
+          <li>Devolve <i>runId</i> na hora e executa em background via filas; o aviso de fim ou de portao humano chega sozinho, sem polling (backend/src/queue/queues.ts:31).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlacoes</h3>
+        </div>
+        <ul>
+          <li><i>workflow_status</i> mostra custo, passos e falhas do run; e o caminho quando o usuario pede o andamento (backend/src/tools/native/workflow.ts:1644).</li>
+          <li><i>workflow_pause</i>, <i>resume</i> e <i>cancel</i> atuam sobre o run criado aqui; pausa segura gasto, cancel encerra (backend/src/workflows/runs.ts:977).</li>
+          <li><i>workflow_decide</i> destrava o portao <i>human</i> quando o run vai a <i>waiting</i> (backend/src/workflows/runs.ts:1393).</li>
+          <li>Fila <i>wf-reconcile</i> e o cerebro que materializa passos; <i>wf-step-ai</i> e <i>wf-step-det</i> executam IA e deterministico separados (backend/src/queue/queues.ts:31).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Sem <i>budget</i> na definicao nao ha teto; o padrao da instalacao so completa campo faltante de budget declarado (backend/src/tools/native/workflow.ts:1535).</li>
+          <li>Teto em USD e mole: conferido entre passos, com <i>concurrency</i> N o estouro pode chegar a N vezes o custo de um filho (backend/src/tools/native/workflow.ts:1535).</li>
+          <li><i>input</i> fica gravado e visivel no run: nao passe segredo que nao possa ficar la (backend/src/tools/native/workflow.ts:1535).</li>
+          <li>Passo <i>agent</i> dentro de run nao recebe <i>workflow_run</i>: governanca negada por autoridade (backend/src/tools/native/workflow.ts:503).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5822,6 +5862,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Admissao do run</b> — valida <i>input</i> e setups antes de qualquer gasto; recusa nao cobra (backend/src/workflows/runs.ts:676).</li>
+          <li><b>Idempotencia por tool call</b> — reentrega do mesmo <i>toolCallId</i> devolve o run existente em vez de duplicar (backend/src/tools/native/workflow.ts:1535).</li>
+          <li><b>Budget mole</b> — teto em USD conferido entre passos; passo em voo termina (backend/src/tools/native/workflow.ts:1535).</li>
+          <li><b>wf-reconcile</b> — fila cerebro: le o grafo, materializa o que desbloqueou e enfileira passos (backend/src/queue/queues.ts:31).</li>
         </ul>
       </div>
 

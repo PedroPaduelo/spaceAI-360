@@ -5761,6 +5761,50 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida os argumentos (motor/backend/src/tools/native/workflow.ts:1217): exige <i>id</i> do passo a tirar.</li>
+          <li>Exige rascunho aberto (motor/backend/src/tools/native/workflow.ts:1219-1220): sem ele, responde <i>Abra com workflow_draft</i>.</li>
+          <li>Normaliza o alvo e localiza por <i>findIndex</i> (motor/backend/src/tools/native/workflow.ts:1221-1222).</li>
+          <li>Alvo vazio ou inexistente é erro com a lista de passos (motor/backend/src/tools/native/workflow.ts:1223-1224).</li>
+          <li>Remove com <i>splice</i>, renova o carimbo e invalida a última validada (motor/backend/src/tools/native/workflow.ts:1226-1228, 443-445).</li>
+          <li>Varre quem ainda menciona o <i>id</i> por busca textual (motor/backend/src/tools/native/workflow.ts:1230-1232): só aviso, quem decide é o <i>validate</i>.</li>
+          <li>Devolve <i>Passo removido + Rascunho: ...</i> e manda corrigir com <i>set_step</i> e validar de novo (motor/backend/src/tools/native/workflow.ts:1233-1236).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>workflow_validate()</i> sem argumento acusa o que ficou órfão após a remoção (motor/backend/src/tools/native/workflow.ts:926-930, 1209-1210).</li>
+          <li><i>workflow_set_step</i> corrige quem citava o removido; <i>add_step</i> repõe se tirou errado (motor/backend/src/tools/native/workflow.ts:1149-1154, 1101-1110).</li>
+          <li><i>workflow_get()</i> mostra o rascunho resultante antes de validar (motor/backend/src/tools/native/workflow.ts:1258-1272).</li>
+          <li><i>publish</i> sem <i>definition</i> recusa se o rascunho mudou desde a última aprovação (motor/backend/src/tools/native/workflow.ts:1439-1446).</li>
+          <li>Citações que quebram: <i>${steps.id...}</i>, <i>needs</i>, <i>cases/default</i>, <i>onError.goto</i> (motor/backend/src/tools/native/workflow.ts:1208-1210).</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Remover não reescreve quem citava (motor/backend/src/tools/native/workflow.ts:1208-1210, 1230-1236): o aviso lista, mas o conserto é manual com <i>set_step</i>.</li>
+          <li>A busca por citantes é textual (<i>JSON.stringify includes</i>) (motor/backend/src/tools/native/workflow.ts:1230-1232): pode apontar menção em texto que não é referência — confirme no <i>get</i>.</li>
+          <li>Índices deslocam: <i>/steps/N</i> do próximo <i>validate</i> muda após o <i>splice</i> (motor/backend/src/tools/native/workflow.ts:1226, 926-930).</li>
+          <li>Sem rascunho ou com <i>id</i> errado nada muda; a resposta mostra os passos válidos (motor/backend/src/tools/native/workflow.ts:1220, 1224).</li>
+          <li>Detalhe de <i>cases/default/onError.goto</i> após remoção: observação, sem confirmação no código do pin além da lista de campos que quebram (motor/backend/src/tools/native/workflow.ts:1208-1210).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5779,6 +5823,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>splice</b> — remoção no array do rascunho; os índices seguintes (<i>/steps/N</i>) deslocam.</li>
+          <li><b>citação órfã</b> — referência que ficou apontando para o <i>id</i> removido.</li>
+          <li><b>needs / cases / default</b> — campos que podem citar o passo e quebrar com a remoção.</li>
+          <li><b>onError.goto</b> — desvio que, se mirava o removido, passa a apontar para o nada.</li>
+          <li><b>aviso textual</b> — lista de quem menciona o <i>id</i> por busca de texto; quem decide é o <i>validate</i>.</li>
         </ul>
       </div>
 

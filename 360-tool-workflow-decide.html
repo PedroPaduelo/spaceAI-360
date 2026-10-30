@@ -5732,6 +5732,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida <i>runId</i> e <i>stepId</i> como UUID e exige <i>decision</i> exatamente <i>approve</i> ou <i>reject</i> (backend/src/tools/native/workflow.ts:1814).</li>
+          <li>Chama <i>resolveHumanStep</i>, que tenta UPDATE atomico so sobre portao <i>human</i> em <i>waiting</i> com run vivo (backend/src/workflows/runs.ts:1393).</li>
+          <li>Se aprovou, grava saida <i>{decision:approve, payload}</i>; se rejeitou, grava erro <i>rejeitado</i> e o run segue pelo <i>onError</i> (backend/src/workflows/runs.ts:1393).</li>
+          <li>Publica <i>step_status</i>, grava evento <i>human.approved</i>/<i>rejected</i> e enfileira <i>reconcile</i> com motivo <i>human</i> (backend/src/workflows/runs.ts:1393).</li>
+          <li>So sai de <i>waiting</i> quando nenhum portao humano resta aberto; sem mudanca, devolve codigo <i>passo_nao_e_portao</i>, <i>run_terminal</i> ou <i>ja_decidido</i> (backend/src/workflows/runs.ts:1393).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlacoes</h3>
+        </div>
+        <ul>
+          <li><i>workflow_status</i> entrega <i>stepId</i>, titulo e payload do portao e os comandos prontos de aprovar e rejeitar (backend/src/tools/native/workflow.ts:597).</li>
+          <li>Passo <i>human</i> no grafo abre o portao; passo <i>workflow</i> em <i>waiting</i> espera sub-run e fecha sozinho, sem <i>decide</i> (backend/src/workflows/runs.ts:1393).</li>
+          <li>Passo seguinte ao portao precisa de <i>needs</i> do <i>human</i>, senao roda em paralelo antes da decisao (backend/src/tools/native/workflow.ts:1814).</li>
+          <li><i>workflow_pause</i> e <i>cancel</i> seguram ou encerram o run parado; <i>resume</i> com portao aberto volta a <i>waiting</i> (backend/src/workflows/runs.ts:1062).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Aprovar destrava trabalho que custa dinheiro e pode ser irreversivel; sem base para julgar, nao aprove (backend/src/tools/native/workflow.ts:1814).</li>
+          <li>O conteudo exibido nao e repassado: o passo seguinte le o passo anterior ao portao, nao o <i>payload</i> da decisao (backend/src/tools/native/workflow.ts:1814).</li>
+          <li>Passo <i>agent</i> dentro de run nao recebe <i>workflow_decide</i>; portao que o proprio grafo abre nao e portao (backend/src/tools/native/workflow.ts:503).</li>
+          <li>Sem prazo a espera e indefinida; com <i>timeoutMs</i>, <i>onTimeout fail</i> derruba e <i>continue</i> aprova por omissao (backend/src/tools/native/workflow.ts:1814).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5750,6 +5790,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Decisao atomica</b> — UPDATE condicional so sobre portao <i>human</i> em <i>waiting</i>; dois cliques nao gravam duas vezes (backend/src/workflows/runs.ts:1393).</li>
+          <li><b>Approve x reject</b> — aprovar segue o grafo; rejeitar mata o passo como falha e respeita <i>onError</i> (backend/src/workflows/runs.ts:1393).</li>
+          <li><b>Portao nao-portao</b> — passo <i>workflow</i> em <i>waiting</i> espera sub-run e fecha sozinho (backend/src/workflows/runs.ts:1393).</li>
+          <li><b>Governanca negada</b> — passo de IA nao recebe <i>decide</i>; so pessoa decide no chat (backend/src/tools/native/workflow.ts:503).</li>
         </ul>
       </div>
 

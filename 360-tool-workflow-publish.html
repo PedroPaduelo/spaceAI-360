@@ -5734,6 +5734,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Checa RBAC: so admin publica; <i>member</i> recebe recusa antes de qualquer leitura (backend/src/tools/native/workflow.ts:1430).</li>
+          <li>Escolhe a fonte: sem <i>definition</i> usa a ultima validada via <i>lerValidada</i>; com <i>definition</i> faz <i>parseDefinition</i> (backend/src/tools/native/workflow.ts:452 e :257).</li>
+          <li>Se o rascunho mudou depois do ultimo <i>valid:true</i>, recusa e manda validar de novo em vez de gravar a versao antiga (backend/src/tools/native/workflow.ts:1403).</li>
+          <li>Valida de novo com <i>validateDefinition</i>; se falhar, nada e gravado e a resposta traz a mesma lista do validate (backend/src/workflows/definition.ts:1340).</li>
+          <li>Publica em secao critica com <i>publicarVersao</i> (trava <i>FOR UPDATE</i>, confere hash da corrente, incrementa <i>latestVersion</i>) e atualiza a coluna <i>description</i> depois (backend/src/workflows/publicar.ts:71).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlacoes</h3>
+        </div>
+        <ul>
+          <li><i>workflow_validate</i> e a porta de entrada: sem <i>valid:true</i> guardado nao ha publish sem <i>definition</i> (backend/src/tools/native/workflow.ts:824).</li>
+          <li><i>workflow_draft</i> com <i>fromWorkflowId</i> reabre a versao corrente para editar sem reconstruir de memoria (backend/src/tools/native/workflow.ts:935).</li>
+          <li><i>workflow_get</i> e <i>workflow_list</i> mostram a versao corrente e a <i>description</i> que o publish gravou na coluna (backend/src/tools/native/workflow.ts:1241).</li>
+          <li><i>workflow_run</i> sem <i>versionId</i> usa a maior versao publicada e congela o grafo dela no run (backend/src/workflows/runs.ts:694).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Reenviar a definicao inteira expoe ao argumento cortado; o caminho preferido e publicar so com <i>workflowId</i> apos validar (backend/src/tools/native/workflow.ts:1403).</li>
+          <li>Republicar o grafo da corrente devolve <i>reused</i> sem versao nova; republicar grafo antigo vira versao nova crescente, nao desfaz no lugar (backend/src/workflows/publicar.ts:71).</li>
+          <li>Contencao de publicacoes paralelas vira <i>PublicacaoEmContencao</i>: nao e erro do grafo, repita em instantes (backend/src/workflows/publicar.ts:71).</li>
+          <li>Run em voo continua na versao dele; publicar de novo nao muda o que ja executa (backend/src/workflows/runs.ts:694).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5752,6 +5792,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Versao imutavel</b> — editar e publicar versao nova; a corrente nunca e reescrita (backend/src/workflows/publicar.ts:71).</li>
+          <li><b>Reused</b> — republicar o grafo da corrente devolve a versao existente sem criar gemea (backend/src/workflows/publicar.ts:71).</li>
+          <li><b>Secao critica</b> — trava <i>FOR UPDATE</i> da definicao para duas publicacoes nao calcularem o mesmo numero (backend/src/workflows/publicar.ts:71).</li>
+          <li><b>RBAC de publicacao</b> — so admin publica; membro recebe recusa antes de qualquer escrita (backend/src/tools/native/workflow.ts:1430).</li>
         </ul>
       </div>
 

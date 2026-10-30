@@ -5719,6 +5719,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>Entrada:</b> Create recebe name (branch) e base opcional e entra na fila gitQ (internal/tools/worktree/worktree.go:91-97).</li>
+          <li><b>Valida e resolve:</b> ValidateBranch em name e base; base vazia vira a principal via PrimaryRepo (internal/tools/worktree/worktree.go:100-112).</li>
+          <li><b>Pasta e teto:</b> caminho em .worktrees com / trocado por -; se existe recusa; linked conta e aplica WorktreeMax (internal/tools/worktree/worktree.go:114-125).</li>
+          <li><b>Escolha da branch:</b> local existente faz checkout; so remota cria com track de origin; senao cria nova de from via git worktree add (internal/tools/worktree/worktree.go:130-151).</li>
+          <li><b>Resposta:</b> devolve Worktree ready + ordem de trabalhar so ali e fundir via worktree_merge (internal/tools/worktree/worktree.go:155-160).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Correlacoes</h3>
+        </div>
+        <ul>
+          <li><b>create → bash:</b> trabalhe so no caminho devolvido, passando cwd ao bash e caminhos absolutos a read/edit/write/grep/glob (internal/tools/worktree/worktree.go:155-160).</li>
+          <li><b>create → merge/remove:</b> commit na worktree e funda via worktree_merge; remocao limpa pasta e branch (internal/tools/worktree/worktree.go:217-241; internal/tools/worktree/worktree.go:507-562).</li>
+          <li><b>create → list/info:</b> List mostra principal e worktrees com ahead/behind; workspace_info conta worktrees e aponta para worktree_list (internal/tools/worktree/worktree.go:177-212; internal/tools/info/info.go:109-111).</li>
+          <li><b>create → exec:</b> create, merge e remove passam pela mesma gitQ; List e so leitura fora da fila (internal/tools/worktree/worktree.go:91-97).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Pasta existente:</b> caminho ja existente recusa antes do git com already exists (internal/tools/worktree/worktree.go:114-117).</li>
+          <li><b>Teto de 20:</b> WorktreeMax padrao conta so nao-principais; no limite lista as existentes (internal/tools/worktree/worktree.go:122-125).</li>
+          <li><b>Exclude:</b> .worktrees entra no exclude do git para sair da busca e do status do clone (internal/tools/worktree/worktree.go:162-175).</li>
+          <li><b>Nome e base validados:</b> regex antes de qualquer escrita; base vazia vira a principal persistida (internal/tools/worktree/worktree.go:100-112).</li>
+          <li><b>Repo nao pronto:</b> clonando, com erro ou sem git recusa antes de criar (internal/tools/worktree/worktree.go:103-106).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5737,6 +5778,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>gitQ</b> — fila unica de create/merge/remove; List e so leitura fora dela (internal/tools/worktree/worktree.go:91-97).</li>
+          <li><b>PrimaryRepo / mainBranch</b> — clone principal e branch base quando base vem vazia (internal/tools/worktree/worktree.go:103-110).</li>
+          <li><b>linked / WorktreeMax</b> — worktrees nao-principais contra o teto padrao de 20 (internal/tools/worktree/worktree.go:122-125).</li>
+          <li><b>hideWorktrees</b> — .worktrees no exclude para sair de grep/busca/status (internal/tools/worktree/worktree.go:162-175).</li>
+          <li><b>show-ref local/remota</b> — decide entre checkout, track de origin ou branch nova de from (internal/tools/worktree/worktree.go:130-151).</li>
         </ul>
       </div>
 

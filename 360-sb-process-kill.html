@@ -5746,6 +5746,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>Entrada:</b> handleProcessKill repassa o id para killProcess (internal/tools/exec/tools.go:58-64).</li>
+          <li><b>Localiza e atualiza:</b> killProcess acha via getProcLocked e recalcula membros via refresh (internal/tools/exec/proc.go:429-436).</li>
+          <li><b>Confirma saida espontanea:</b> se settling (lider saiu, emptySince marcado), espera 100 ms via waitGone para nao creditar ao kill quem saiu sozinho (internal/tools/exec/proc.go:437-444).</li>
+          <li><b>Ja terminado:</b> se endedAt marcado, devolve already + statusLineLocked sem enviar sinal; senao marca killed e envia SIGTERM via killTree (internal/tools/exec/proc.go:446-455).</li>
+          <li><b>Escalada:</b> aguarda ate 2 s via waitGone; se vivo, SIGKILL e nova espera, e devolve id: status. (internal/tools/exec/proc.go:455-464; internal/tools/exec/manager.go:48-49).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Correlacoes</h3>
+        </div>
+        <ul>
+          <li><b>bash → kill:</b> bash e bash_background criam via startBackground com marca MYPANEL_PROC_TAG; kill mira grupo e marca (internal/tools/exec/proc.go:77-146; internal/proctags/proctags.go:20).</li>
+          <li><b>kill → wait/output:</b> apos o kill, wait e output mostram exited ou killed by SIGTERM/SIGKILL via statusLineLocked (internal/tools/exec/proc.go:493-524).</li>
+          <li><b>kill → list:</b> list reflete o mesmo estado; ja terminado responde already sem novo sinal (internal/tools/exec/proc.go:446-450; internal/tools/exec/proc.go:467-482).</li>
+          <li><b>kill → Close:</b> KillAll no encerramento mata o mesmo alvo — grupo de cada lider vivo e pids com a marca (internal/tools/exec/manager.go:147-175).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Fugiu do grupo:</b> setsid, nohup e cmd &amp; saem do grupo, mas a marca no environ atravessa e o scan de /proc acha ate quem foi adotado pelo PID 1 (internal/proctags/proctags.go:1-6).</li>
+          <li><b>Marca perdida:</b> quem reescreve o environ perde a marca e deixa de ser listado/morto pelo kill (internal/proctags/proctags.go:54-62).</li>
+          <li><b>Corrida de saida:</b> varredura vazia so encerra na segunda confirmacao apos emptyConfirm de 50 ms por causa do execve (internal/tools/exec/proc.go:280-297; internal/tools/exec/manager.go:50-52).</li>
+          <li><b>Id invalido:</b> id de boot anterior ou entrada podada apos 15 min vira ToolError com dica de process_list (internal/tools/exec/proc.go:168-180).</li>
+          <li><b>Ja terminado:</b> processo encerrado nao recebe sinal de novo; morto pelo kill sem sinal no lider responde stopped by process_kill (internal/tools/exec/proc.go:517-523).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5764,6 +5805,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>killTree</b> — manda o sinal ao grupo do lider e a cada pid com a marca (internal/tools/exec/proc.go:331-343).</li>
+          <li><b>MYPANEL_PROC_TAG</b> — marca no environ que acha quem fugiu do grupo via /proc (internal/proctags/proctags.go:20).</li>
+          <li><b>waitGone</b> — confirma o fim varrendo a cada 100 ms ate endedAt ou o prazo (internal/tools/exec/proc.go:345-362).</li>
+          <li><b>killAfter</b> — 2 s entre SIGTERM e SIGKILL para quem ignora o primeiro (internal/tools/exec/manager.go:48-49).</li>
+          <li><b>emptySince / emptyConfirm</b> — so encerra na segunda varredura vazia, 50 ms depois (internal/tools/exec/proc.go:280-297).</li>
         </ul>
       </div>
 

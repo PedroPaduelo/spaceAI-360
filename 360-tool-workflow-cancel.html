@@ -5772,6 +5772,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida <i>runId</i> como UUID da org; fora da org volta erro sem vazar Prisma (backend/src/tools/native/workflow.ts:1896).</li>
+          <li>Chama <i>requestCancel</i>, que levanta <i>cancelRequestedAt</i> e grava o motivo para auditoria (backend/src/workflows/runs.ts:1185).</li>
+          <li>Propaga aos sub-runs vivos via <i>propagarAosFilhos</i> antes de decidir o destino do pai (backend/src/workflows/runs.ts:932).</li>
+          <li>Checa batimento recente das tentativas: com vivo segue cooperativo e o executor ve a bandeira em ate 5 s; sem vivo encerra na hora (backend/src/workflows/runs.ts:1185 e backend/src/workflows/runner.ts:47).</li>
+          <li>Sem vivo, marca passos abertos como <i>canceled</i>, fecha o run e publica o aviso de fim sozinho na conversa (backend/src/workflows/runs.ts:1185).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlacoes</h3>
+        </div>
+        <ul>
+          <li><i>workflow_status</i> mostra <i>canceled</i> terminal e o motivo; <i>jaTerminal</i> separa ja fechado de fechado agora (backend/src/workflows/runs.ts:1185).</li>
+          <li><i>workflow_pause</i> segura gasto sem matar voo; <i>cancel</i> encerra de vez e nao volta com <i>resume</i> (backend/src/workflows/runs.ts:977).</li>
+          <li>Fila <i>wf-reconcile</i> fecha o run cooperativo quando o ultimo passo em voo sai (backend/src/queue/queues.ts:31).</li>
+          <li>Executor <i>runStepJob</i> relê a bandeira de cancel no intervalo de polling e aborta limpo (backend/src/workflows/runner.ts:57).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Passo de IA ja pago nao e recuperado; o custo entra mesmo com o passo fechado (backend/src/tools/native/workflow.ts:1896).</li>
+          <li>Cancelamento com voo e cooperativo: o run so vira <i>canceled</i> quando a ultima tentativa sai, em ate 5 s (backend/src/workflows/runner.ts:47).</li>
+          <li>Passo <i>agent</i> dentro de run nao recebe <i>workflow_cancel</i>: governanca negada por autoridade (backend/src/tools/native/workflow.ts:503).</li>
+          <li>Run travado sem batimento nao depende de tick: encerra aqui em vez de esperar o reconciliador (backend/src/workflows/runs.ts:1185).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5790,6 +5830,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Cancel cooperativo</b> — levanta a bandeira e o vivo aborta sozinho em ate 5 s (backend/src/workflows/runner.ts:47).</li>
+          <li><b>Cancel imediato</b> — sem batimento recente, marca passos e fecha o run na hora (backend/src/workflows/runs.ts:1185).</li>
+          <li><b>jaTerminal</b> — separa ja estava terminal de fechado agora por este pedido (backend/src/workflows/runs.ts:1185).</li>
+          <li><b>Cancel em cascata</b> — sub-runs vivos recebem o mesmo pedido via <i>propagarAosFilhos</i> (backend/src/workflows/runs.ts:932).</li>
         </ul>
       </div>
 

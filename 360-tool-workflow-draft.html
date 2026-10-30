@@ -5709,6 +5709,51 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida os argumentos (motor/backend/src/tools/native/workflow.ts:998): campos fora do envelope são apenas descartados com aviso, não erro.</li>
+          <li>Separa conhecidos de descartados (motor/backend/src/tools/native/workflow.ts:1002-1014): <i>steps/schema</i> no <i>draft</i> são descartados — passos entram só com <i>add_step</i>.</li>
+          <li>Com <i>fromWorkflowId</i>, carrega definição + versão corrente ou <i>versionId</i> (motor/backend/src/tools/native/workflow.ts:1021-1024, 668-697) e clona os passos.</li>
+          <li>Sem <i>fromWorkflowId</i> e com <i>keepSteps: true</i>, exige rascunho aberto e mantém os passos (motor/backend/src/tools/native/workflow.ts:1038-1043).</li>
+          <li>Exige <i>name</i> (ou herdado do publicado) (motor/backend/src/tools/native/workflow.ts:1046-1047): sem nome, o rascunho nem abre.</li>
+          <li>Trata <i>description</i> até 2.000 caracteres; vazio = não veio e <i>keepSteps</i> mantém a anterior; publicada preenche o grafo antigo sem ela (motor/backend/src/tools/native/workflow.ts:1053-1063, 1029-1034).</li>
+          <li>Lê <i>input/budget/defaults</i> como objeto (texto JSON é lido, resto é recusado) (motor/backend/src/tools/native/workflow.ts:1064-1069, 319-346): erro aqui = <i>Rascunho NÃO aberto</i>.</li>
+          <li>Grava em memória por (org, thread), invalida a validada e avisa se ficou sem <i>budget</i> = sem teto (motor/backend/src/tools/native/workflow.ts:1076-1077, 1092-1096, 443-445, 390-427).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>workflow_get()</i> sem argumento mostra o rascunho; <i>add/set/remove_step</i> ajustam; <i>validate()</i> confere (motor/backend/src/tools/native/workflow.ts:1080-1090, 1258-1272).</li>
+          <li><i>carregarVersao</i> é compartilhada com <i>workflow_get</i>: aceita id ou slug e filtra apagados (motor/backend/src/tools/native/workflow.ts:668-697, 675-682).</li>
+          <li><i>description</i> do envelope alimenta a coluna da definição no <i>publish</i> e aparece em <i>list/get</i> (motor/backend/src/tools/native/workflow.ts:947-950, 1502-1513).</li>
+          <li><i>budget { usd, wallClockMs, maxSteps }</i>: ausente = sem teto, nem o padrão completa (motor/backend/src/tools/native/workflow.ts:967-976, 1092-1096).</li>
+          <li><i>resumoDosPassos</i> resume como <i>id(kind) → ...</i> para conferir a ordem (motor/backend/src/tools/native/workflow.ts:360-369).</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Chamar de novo SUBSTITUI o rascunho (motor/backend/src/tools/native/workflow.ts:945, 1076): para trocar só o envelope mantendo passos, use <i>keepSteps: true</i>.</li>
+          <li><i>steps</i> e <i>schema</i> mandados no <i>draft</i> são ignorados com aviso (motor/backend/src/tools/native/workflow.ts:1008-1012): observação, sem confirmação de limite de tamanho neste trecho.</li>
+          <li><i>keepSteps</i> sem rascunho aberto é erro direto (motor/backend/src/tools/native/workflow.ts:1040).</li>
+          <li><i>budget</i> em texto que não é JSON recusa o <i>draft</i> em vez de seguir sem teto calado (motor/backend/src/tools/native/workflow.ts:1064-1074, 306-346).</li>
+          <li>Rascunho expira em 30 min sem uso e some no restart; <i>validate/publish</i> sem <i>definition</i> dependem dele (motor/backend/src/tools/native/workflow.ts:390-427, 894-895, 1439-1446).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5727,6 +5772,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>envelope</b> — capa do workflow (name, description, input, budget, defaults); sem os passos.</li>
+          <li><b>fromWorkflowId</b> — abre o rascunho a partir da versão publicada (corrente ou <i>versionId</i>).</li>
+          <li><b>keepSteps</b> — com <i>true</i>, troca só o envelope e mantém os passos já montados.</li>
+          <li><b>budget</b> — teto do run (usd, wallClockMs, maxSteps); ausente = sem teto.</li>
+          <li><b>defaults</b> — padrão dos passos (setupId, timeout, retry); o passo vence o padrão.</li>
         </ul>
       </div>
 

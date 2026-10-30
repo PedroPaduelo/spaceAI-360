@@ -5688,6 +5688,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>Entrada:</b> handleProcessList nao recebe id e devolve listProcesses direto (internal/tools/exec/tools.go:54-56).</li>
+          <li><b>Poda:</b> listProcesses trava mu e roda reapLocked antes de listar (internal/tools/exec/proc.go:467-474).</li>
+          <li><b>Linha por processo:</b> monta id + statusLineLocked + started em isoTime + comando cortado em 120 runas (internal/tools/exec/proc.go:475-481; internal/tools/exec/proc.go:484-491).</li>
+          <li><b>Estado:</b> statusLineLocked distingue running, detached com contagem de membros e exited com codigo/sinal (internal/tools/exec/proc.go:493-524).</li>
+          <li><b>Vazio:</b> sem entradas responde No background processes. (internal/tools/exec/proc.go:472-474).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Correlacoes</h3>
+        </div>
+        <ul>
+          <li><b>bash → list:</b> todo bash com espera estourada e todo bash_background entram na tabela via putLocked (internal/tools/exec/proc.go:182-189).</li>
+          <li><b>list → wait/output/kill:</b> o id da lista e a entrada de wait, output e kill; id de outro boot falha nessas tres (internal/tools/exec/proc.go:168-180).</li>
+          <li><b>list ↔ ticker:</b> tick atualiza membros de detached e corta logs; list so le sob mu sem varrer /proc (internal/tools/exec/proc.go:391-425).</li>
+          <li><b>list → preview:</b> servidor subido em background aparece aqui como running/detached e em previews como porta LISTEN (internal/tools/exec/proc.go:467-482; internal/preview/probe.go:106-135).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Nunca falha por id:</b> sem argumento id, nao ha id invalido ou expirado (internal/tools/exec/tools.go:54-56).</li>
+          <li><b>Foto com poda:</b> a listagem poda antes; encerrado ha mais de 15 min ja sumiu com o log (internal/tools/exec/proc.go:209-218).</li>
+          <li><b>Ids por boot:</b> apos restart os ids antigos nao existem; use a lista nova (internal/tools/exec/proc.go:172-176).</li>
+          <li><b>Comando cortado:</b> firstRunes limita a 120 caracteres sem partir UTF-8; o resto nao aparece (internal/tools/exec/proc.go:484-491).</li>
+          <li><b>Detached avisa prazo:</b> detached mostra quantos membros restam e em ~N min o timeout_ms os mata (internal/tools/exec/proc.go:509-515).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5706,6 +5747,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>statusLineLocked</b> — uma linha de estado: running, detached ou exited com codigo/sinal (internal/tools/exec/proc.go:493-524).</li>
+          <li><b>isoTime</b> — started em UTC com milissegundos, como o toISOString do JS (internal/tools/exec/proc.go:406-410).</li>
+          <li><b>firstRunes</b> — corta o comando em 120 runas sem partir UTF-8 (internal/tools/exec/proc.go:484-491).</li>
+          <li><b>reapLocked</b> — poda encerrados ha mais de 15 min e apaga o log (internal/tools/exec/proc.go:209-218).</li>
+          <li><b>order</b> — ordem de entrada na tabela, mantida ao trocar entrada encerrada (internal/tools/exec/proc.go:182-189).</li>
         </ul>
       </div>
 

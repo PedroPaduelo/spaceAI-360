@@ -5717,6 +5717,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida <i>runId</i> como UUID da org; fora da org volta erro sem vazar Prisma (backend/src/tools/native/workflow.ts:1775).</li>
+          <li>Chama <i>requestResume</i>, que so aceita <i>paused</i> ou <i>pausing</i> e decide pelo que esta chamada fez, nao so pelo status (backend/src/workflows/runs.ts:1062).</li>
+          <li>Limpa <i>pauseRequestedAt</i>, <i>pausedAt</i> e prazo de forma condicional; se houve cancelamento no meio, nao retoma (backend/src/workflows/runs.ts:1062).</li>
+          <li>Se ainda ha portao <i>human</i> em <i>waiting</i>, volta a <i>waiting</i> em vez de <i>running</i> (backend/src/workflows/runs.ts:1062).</li>
+          <li>Publica snapshot, enfileira <i>reconcile</i> com motivo <i>resume</i> e propaga aos filhos via <i>propagarAosFilhos</i> (backend/src/workflows/runs.ts:932).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlacoes</h3>
+        </div>
+        <ul>
+          <li><i>workflow_pause</i> e o par que cria <i>pausing</i>/<i>paused</i>; resume desfaz sem reexecutar o concluido (backend/src/workflows/runs.ts:977).</li>
+          <li><i>workflow_status</i> mostra se voltou a <i>running</i> ou a <i>waiting</i> por portao ainda aberto (backend/src/tools/native/workflow.ts:1644).</li>
+          <li><i>workflow_decide</i> resolve o portao que segurou o run em <i>waiting</i> apos o resume (backend/src/workflows/runs.ts:1393).</li>
+          <li><i>workflow_run</i> novo e o caminho para terminal ou cancelado; resume nao ressuscita terminal (backend/src/workflows/runs.ts:694).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Run que nem estava pausado devolve <i>running</i>/<i>waiting</i> com <i>retomou:false</i>; nao anuncie retomada sem checar o flag (backend/src/workflows/runs.ts:1062).</li>
+          <li>Cancelamento pedido barra a retomada pela guarda <i>cancelRequestedAt</i> (backend/src/workflows/runs.ts:1062).</li>
+          <li>Enquanto <i>pauseRequestedAt</i> existir, nada novo e promovido pelo reconciliador (backend/src/workflows/runs.ts:977).</li>
+          <li>Terminal ou cancelado nao volta; a tool manda usar <i>workflow_run</i> novo (backend/src/tools/native/workflow.ts:1775).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5735,6 +5775,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>retomou</b> — diz se esta chamada tirou o run da pausa; status sozinho nao basta (backend/src/workflows/runs.ts:1062).</li>
+          <li><b>Volta a waiting</b> — com portao <i>human</i> ainda aberto, resume devolve a <i>waiting</i>, nao a <i>running</i> (backend/src/workflows/runs.ts:1062).</li>
+          <li><b>Resume em cascata</b> — pai retomado acorda os filhos pausados juntos (backend/src/workflows/runs.ts:932).</li>
+          <li><b>Sem ressurreicao</b> — terminal ou cancelado exige <i>workflow_run</i> novo (backend/src/tools/native/workflow.ts:1775).</li>
         </ul>
       </div>
 

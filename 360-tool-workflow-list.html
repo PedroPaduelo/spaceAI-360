@@ -5668,6 +5668,49 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Recebe objeto vazio (motor/backend/src/tools/native/workflow.ts:1304): sem filtros por criador ou visibilidade.</li>
+          <li>Busca até 50 definições ativas da org ordenadas por <i>updatedAt desc</i> (motor/backend/src/tools/native/workflow.ts:1306-1310; prisma/schema.prisma:692-715).</li>
+          <li>Filtra apagados com <i>deletedAt: null</i> (motor/backend/src/tools/native/workflow.ts:1307; prisma/schema.prisma:707).</li>
+          <li>Sem nenhuma, responde <i>Nenhum workflow criado ainda. Use workflow_create...</i> (motor/backend/src/tools/native/workflow.ts:1311).</li>
+          <li>Com resultados, monta uma linha por workflow: <i>slug (id) + versão corrente + name — description</i> (motor/backend/src/tools/native/workflow.ts:1312-1318).</li>
+          <li>Versão corrente é <i>latestVersion</i> ou <i>(nenhuma publicada)</i> quando 0 (motor/backend/src/tools/native/workflow.ts:1315; prisma/schema.prisma:703).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>workflow_create</i> começa, <i>draft({ fromWorkflowId })</i> evolui sem duplicar o <i>slug</i> (motor/backend/src/tools/native/workflow.ts:1323-1331).</li>
+          <li><i>workflow_get(workflowId)</i> detalha a linha escolhida aqui; <i>status</i> sem <i>runId</i> lista execuções (motor/backend/src/tools/native/workflow.ts:1241-1246, 1644-1653).</li>
+          <li>Definições × execuções: <i>list</i> mostra o molde, <i>status</i> mostra os runs (motor/backend/src/tools/native/workflow.ts:1300-1303, 700-720).</li>
+          <li><i>WorkflowDefinition</i> guarda <i>name/slug/description/latestVersion</i>; o grafo mora na <i>WorkflowVersion</i> (prisma/schema.prisma:692-755).</li>
+          <li>Permitida dentro de passo <i>agent</i> (autoria), junto de <i>create/draft/add/set/remove/get/publish/status</i> (motor/backend/src/tools/native/workflow.ts:483-494).</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Só 50, só da org, só ativas e sem paginação declarada (motor/backend/src/tools/native/workflow.ts:1306-1310): observação, sem confirmação de <i>take/skip</i> além do <i>take: 50</i>.</li>
+          <li><i>(nenhuma publicada)</i> não é erro: o objeto existe mas ainda não tem versão para <i>run</i> (motor/backend/src/tools/native/workflow.ts:1315, 685-686).</li>
+          <li>Não lista runs: <i>quais runs rodaram / perdi o runId</i> é <i>workflow_status</i> sem <i>runId</i> (motor/backend/src/tools/native/workflow.ts:1302-1303, 1648-1653).</li>
+          <li>Apagado some daqui mas prende o <i>slug</i> até <i>liberarSlugDeApagados</i> no <i>create</i> (motor/backend/src/tools/native/workflow.ts:1307, 1359; prisma/schema.prisma:707).</li>
+          <li>Sem filtro por nome/criador: ache com busca da página (<i>/</i>) após carregar a lista — observação, sem confirmação no código do pin.</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5686,6 +5729,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>definição × execução</b> — <i>list</i> mostra moldes (definições); <i>status</i> sem <i>runId</i> mostra runs.</li>
+          <li><b>versão corrente</b> — número em <i>latestVersion</i>; <i>(nenhuma publicada)</i> quando 0.</li>
+          <li><b>take: 50</b> — teto da lista, ordenada por <i>updatedAt desc</i> (mais recentes primeiro).</li>
+          <li><b>deletedAt</b> — apagado lógico; some da lista mas mantém o <i>slug</i> no índice único.</li>
+          <li><b>slug + id</b> — use qualquer um como <i>workflowId</i> no <i>get/draft/run</i>.</li>
         </ul>
       </div>
 

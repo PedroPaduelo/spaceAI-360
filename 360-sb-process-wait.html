@@ -5685,6 +5685,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>Entrada:</b> handleProcessWait le <i>timeout_ms</i> ou usa o waitBudget do boot (internal/tools/exec/wait.go:46-50).</li>
+          <li><b>Localiza:</b> Manager.Wait acha o processo via getProcLocked; id de outro boot explica o restart (internal/tools/exec/proc.go:168-180).</li>
+          <li><b>Espera:</b> aguarda p.ended ate o teto clampDur(timeout, 0, maxWait), com maxWait de 600 s (internal/tools/exec/proc.go:613-621; internal/tools/exec/manager.go:43).</li>
+          <li><b>Leitura:</b> le o trecho novo desde delivered via readLogSliceLocked e avanca delivered (internal/tools/exec/proc.go:623-629; internal/tools/exec/output.go:47-52).</li>
+          <li><b>Resposta:</b> monta o tail — running com stillRunning, detached com statusLineLocked, exited com codigo/sinal (internal/tools/exec/proc.go:636-644; internal/tools/exec/proc.go:528-531).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Correlacoes</h3>
+        </div>
+        <ul>
+          <li><b>bash → wait:</b> bash cria via startBackground e segue como processo listado; wait espera o fim de tudo, lider e membros (internal/tools/exec/proc.go:77-146; internal/tools/exec/proc.go:546-572).</li>
+          <li><b>wait ↔ output:</b> ambos leem o mesmo log e avancam por delivered/next_offset; output mostra sem esperar, wait espera e depois mostra (internal/tools/exec/output.go:188-228; internal/tools/exec/proc.go:613-645).</li>
+          <li><b>wait → kill:</b> kill interrompe a espera via killTree + waitGone e marca killed; wait seguinte devolve exited (internal/tools/exec/proc.go:429-465).</li>
+          <li><b>wait → list:</b> list mostra a mesma tabela via listProcesses/statusLineLocked; entradas encerradas somem apos reap de 15 min (internal/tools/exec/proc.go:467-482; internal/tools/exec/proc.go:209-218).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Timeout nao mata:</b> estourar o timeout da chamada so devolve o parcial com dica de continuar; nada e morto (internal/tools/exec/proc.go:528-531).</li>
+          <li><b>Id por boot:</b> ids automaticos levam sufixo do bootID; apos restart o id antigo e invalido (internal/tools/exec/proc.go:172-176; internal/tools/exec/manager.go:117-121).</li>
+          <li><b>Reap em 15 min:</b> processo encerrado sai da tabela apos reapAfter e o log e apagado (internal/tools/exec/proc.go:209-218; internal/tools/exec/manager.go:75).</li>
+          <li><b>Linha parcial:</b> processo vivo so entrega ate a ultima linha completa via lastLineEnd (internal/tools/exec/output.go:121-137).</li>
+          <li><b>Teto de 600 s:</b> nenhuma chamada espera alem de maxWait; o padrao por chamada e 45 s (internal/tools/exec/manager.go:43; internal/tools/exec/wait.go:46-50).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5703,6 +5744,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>delivered</b> — ate onde process_wait ja entregou a saida; cada chamada avanca esse cursor (internal/tools/exec/proc.go:51).</li>
+          <li><b>ended / endedAt</b> — lider e membros terminaram; zero significa ainda vivo (internal/tools/exec/proc.go:46).</li>
+          <li><b>waitBudget / maxWait</b> — espera padrao do boot e teto de 600 s por chamada (internal/tools/exec/manager.go:43).</li>
+          <li><b>stillRunning</b> — resposta de quem nao terminou no orcamento: nada foi morto (internal/tools/exec/proc.go:528-531).</li>
+          <li><b>reapAfter</b> — 15 min apos o fim a entrada sai da lista e o log e apagado (internal/tools/exec/proc.go:209-218).</li>
         </ul>
       </div>
 

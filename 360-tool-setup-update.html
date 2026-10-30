@@ -5668,6 +5668,51 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida os argumentos da chamada (motor/backend/src/tools/native/setup.ts:457): se o formato estiver errado, devolve erro sem tocar no banco.</li>
+          <li>Procura segredo em texto no <i>configOverride</i> (motor/backend/src/tools/native/setup.ts:137-160, 463-464): <i>basic.apiKey</i>, <i>context.compactor.apiKey</i>, <i>mcps[].token/headers/env</i> — achou, recusa com <i>Erro: não envie segredos...</i>.</li>
+          <li>Exige a referência <i>setup</i> preenchida (motor/backend/src/tools/native/setup.ts:465-466): vazia, responde <i>setup não encontrado — chame setup_list</i>.</li>
+          <li>Localiza o setup com <i>findSetup</i> incluindo arquivados (motor/backend/src/tools/native/setup.ts:469): arquivado também pode ser editado; inexistente, orienta <i>setup_list</i>.</li>
+          <li>Trava do padrão: se <i>isDefault</i> e <i>confirmarPadrao !== true</i>, recusa (motor/backend/src/tools/native/setup.ts:471-476) e pede repetição com <i>confirmarPadrao: true</i>.</li>
+          <li>Monta o patch só com os campos enviados de <i>CAMPOS_UPDATE</i> (motor/backend/src/tools/native/setup.ts:163-167, 228-235): <i>setup</i> e <i>confirmarPadrao</i> ficam fora do corpo.</li>
+          <li>Trata a origem do segredo D12 (motor/backend/src/tools/native/setup.ts:484-493): se o novo endereço não recebe a chave guardada, pede chave nova na tela de Setups ou <i>descartarSegredos: true</i> com acordo.</li>
+          <li>Devolve <i>Setup slug atualizado para vN</i> com o <i>configOverride</i> redigido (motor/backend/src/tools/native/setup.ts:495-498): vale para as próximas conversas; runs em voo não mudam.</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li><i>setup_list</i> antes (achar slug) e <i>setup_get</i> antes (ler estado e <i>configOverride</i> redigido) — fluxo recomendado (motor/backend/src/tools/native/setup.ts:250-270, 322-368).</li>
+          <li>Mesma regra do REST em <i>setups/service.ts</i>: a tool só traduz o erro tipado para texto, sem vazar exceção (motor/backend/src/tools/native/setup.ts:32-35, 170-188).</li>
+          <li><i>redactConfig</i> com <i>•••</i>: o que sai redigido é o que não pode entrar em claro (motor/backend/src/tools/native/setup.ts:61, 125-126, 190-192).</li>
+          <li>Dentro de passo <i>agent</i> em run, <i>setup_create/update</i> são negadas; só <i>list/get</i> passam (motor/backend/src/tools/native/setup.ts:73-85, 507-526).</li>
+          <li><i>CAMPOS_UPDATE</i> sem visibilidade: a tool não troca visibilidade; público só admin, privado só o dono (motor/backend/src/tools/native/setup.ts:228-235, 459-460).</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><i>configOverride</i> SUBSTITUI o override inteiro (motor/backend/src/tools/native/setup.ts:426-429): mandar só <i>{ basic }</i> apaga MCPs e contexto — releia com <i>setup_get</i> e reenvie completo com <i>•••</i>.</li>
+          <li>Segredo em texto nunca grava: é recusado antes de validar (motor/backend/src/tools/native/setup.ts:405-406, 463-464); <i>•••</i>/vazio/omitido só mantém se a origem não mudou.</li>
+          <li>Padrão exige <i>confirmarPadrao: true</i> e nunca desativa com <i>isActive: false</i> (motor/backend/src/tools/native/setup.ts:430-432, 441, 471-476).</li>
+          <li>Edição vale para os próximos turnos; run de workflow já disparado congela o setup e não muda (motor/backend/src/tools/native/setup.ts:430-431, 495-498).</li>
+          <li>Quando a persona/config muda, a versão sobe (<i>version++</i>): observação, sem confirmação no código do pin — a regra mora em <i>setups/service.ts</i> citado em (motor/backend/src/tools/native/setup.ts:32), fora da evidência listada.</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5686,6 +5731,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>configOverride</b> — o que o setup define (rota, contexto, cache, MCPs, voz); no update, substitui o override inteiro.</li>
+          <li><b>••• (redação)</b> — placeholder que mantém a chave guardada; só vale se a origem (baseURL/url) não mudou.</li>
+          <li><b>confirmarPadrao</b> — trava do setup padrão: sem <i>true</i>, a edição é recusada.</li>
+          <li><b>descartarSegredos</b> — com <i>true</i>, salva sem a chave quando a nova origem não a recebe (só com acordo).</li>
+          <li><b>CAMPOS_UPDATE</b> — lista do que pode mudar (name, description, systemPrompt, configOverride, toolPolicy, isActive).</li>
         </ul>
       </div>
 

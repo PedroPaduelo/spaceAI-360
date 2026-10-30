@@ -5739,6 +5739,51 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida os argumentos (motor/backend/src/tools/native/workflow.ts:1164): exige <i>step</i> completo, não remendo.</li>
+          <li>Exige rascunho aberto (motor/backend/src/tools/native/workflow.ts:1166-1171): sem ele, orienta <i>draft({name})</i> ou <i>draft({ fromWorkflowId })</i>.</li>
+          <li>Lê <i>step</i> como objeto; texto JSON é lido, resto é recusado (motor/backend/src/tools/native/workflow.ts:1173-1176, 319-346); vazio é erro direto.</li>
+          <li>Resolve o alvo: <i>id</i> explícito ou <i>step.id</i> (motor/backend/src/tools/native/workflow.ts:1177-1183); sem nenhum, pede <i>id</i>.</li>
+          <li>Localiza a posição por <i>findIndex</i> (motor/backend/src/tools/native/workflow.ts:1184-1189): inexistente, lista <i>Passos: ...</i> e manda usar <i>add_step</i>.</li>
+          <li>Barra colisão de renomeio: novo <i>id</i> igual a outro passo é erro (motor/backend/src/tools/native/workflow.ts:1191-1194).</li>
+          <li>Troca no mesmo índice, renova o carimbo e invalida a validada (motor/backend/src/tools/native/workflow.ts:1195-1197, 443-445).</li>
+          <li>Devolve <i>Passo alvo trocado (posição i, /steps/i)</i> e avisa atualizar quem citava o nome antigo (motor/backend/src/tools/native/workflow.ts:1198-1201).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li>Corrige o passo que o <i>validate</i> apontou via <i>/steps/N</i> sem reabrir do zero (motor/backend/src/tools/native/workflow.ts:926-930, 1151-1152).</li>
+          <li><i>workflow_get()</i> mostra o rascunho para copiar o <i>step</i> certo antes de trocar (motor/backend/src/tools/native/workflow.ts:1258-1272).</li>
+          <li><i>add_step</i> cria novo, <i>remove_step</i> tira, <i>draft({ fromWorkflowId })</i> parte do publicado (motor/backend/src/tools/native/workflow.ts:1101-1110, 1206-1210, 1021-1037).</li>
+          <li>Toda troca invalida a guardada: <i>publish</i> sem <i>definition</i> passa a recusar até validar de novo (motor/backend/src/tools/native/workflow.ts:1197, 1439-1446).</li>
+          <li>Rascunho e validada vivem em memória por (org, thread) com TTL de 30 min (motor/backend/src/tools/native/workflow.ts:390-427).</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><i>step</i> é o passo COMPLETO novo (motor/backend/src/tools/native/workflow.ts:1153): mandar só o campo que mudou apaga o resto do passo.</li>
+          <li>Mudar o <i>id</i> renomeia (motor/backend/src/tools/native/workflow.ts:1154, 1198-1200): atualize quem citava o nome antigo, senão o <i>validate</i> acusa órfão.</li>
+          <li>Alvo inexistente não cria: é erro com a lista de passos (motor/backend/src/tools/native/workflow.ts:1185-1189) — para acrescentar, use <i>add_step</i>.</li>
+          <li>Troca renova o TTL de 30 min (motor/backend/src/tools/native/workflow.ts:1196, 419-427): observação, sem confirmação de renovação automática além do carimbo <i>em</i>.</li>
+          <li>Dentro de run, passo <i>agent</i> também pode chamar: autoria liberada, governança segue negada (motor/backend/src/tools/native/workflow.ts:483-494).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5757,6 +5802,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>/steps/N</b> — ponteiro do <i>validate</i> para o passo N (contando do 0) no rascunho.</li>
+          <li><b>step completo</b> — troca exige o objeto inteiro ({ id, kind, ... }), não só o campo alterado.</li>
+          <li><b>renomeio</b> — trocar com <i>id</i> novo muda o nome; quem citava o antigo precisa ser atualizado.</li>
+          <li><b>alvo (id)</b> — passo a trocar: <i>id</i> explícito ou, sem ele, o próprio <i>step.id</i>.</li>
+          <li><b>posição (índice)</b> — a troca mantém o lugar no array; a ordem só muda com remover + adicionar.</li>
         </ul>
       </div>
 

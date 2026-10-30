@@ -5819,6 +5819,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>vida x espera</b> — <i>timeout_ms</i> e a vida do comando (morre no fim); <i>wait_ms</i> e quanto a chamada espera sem matar (<i>internal/tools/exec/manager.go:41-42, 549-558</i>).</li>
+          <li><b>head/tail 16/48 KB</b> — saida guardada em memoria: comeco e fim, meio cortado com aviso (<i>internal/tools/exec/manager.go:33-37</i>; <i>internal/tools/exec/run.go:205-264</i>).</li>
+          <li><b>detached</b> — lider saiu mas membros com a marca seguem vivos; rastreado pelo mesmo id (<i>internal/tools/exec/manager.go:535-544</i>).</li>
+          <li><b>MYPANEL_PROC_TAG</b> — marca no ambiente que atravessa <i>&amp;/nohup/setsid</i> para achar fugitivos via <i>/proc</i> (<i>internal/tools/exec/manager.go:210-257</i>).</li>
+          <li><b>reapAfter (15 min)</b> — encerrado sai da lista apos 15 min e o log e apagado (<i>internal/tools/exec/manager.go:71-78, 209-218</i>).</li>
         </ul>
       </div>
 

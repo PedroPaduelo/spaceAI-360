@@ -5770,6 +5770,46 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida <i>runId</i> como UUID da org; fora da org volta erro sem vazar Prisma (backend/src/tools/native/workflow.ts:1730).</li>
+          <li>Chama <i>requestPause</i>, que fecha a porta primeiro com <i>pauseRequestedAt</i> e so depois conta o que esta em voo (backend/src/workflows/runs.ts:977).</li>
+          <li>Propaga aos filhos vivos via <i>propagarAosFilhos</i>: pai pausado com filho gastando nao e pausa (backend/src/workflows/runs.ts:932).</li>
+          <li>Conta tentativas <i>running</i> nao-expansoras: com voo vai a <i>pausing</i>, sem voo fecha <i>paused</i> na hora (backend/src/workflows/runs.ts:977).</li>
+          <li>Publica snapshot e enfileira <i>reconcile</i> com motivo <i>pause</i>; tempo parado nao conta no <i>wallClockMs</i> (backend/src/queue/queues.ts:31).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlacoes</h3>
+        </div>
+        <ul>
+          <li><i>workflow_resume</i> retoma de onde parou; nada concluido e reexecutado (backend/src/workflows/runs.ts:1062).</li>
+          <li><i>workflow_status</i> confirma <i>pausing</i> ou <i>paused</i> numa unica checagem, se o usuario pedir (backend/src/tools/native/workflow.ts:1644).</li>
+          <li><i>workflow_cancel</i> encerra de vez; pausa segura consumo para decidir sem matar trabalho pago (backend/src/workflows/runs.ts:1185).</li>
+          <li>Fila <i>wf-reconcile</i> aplica a pausa no tick seguinte; passo pronto em pausa volta a <i>pending</i> (backend/src/queue/queues.ts:31).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Pausa e graciosa: passo em voo termina e e gravado; abortar jogaria fora gasto ja pago (backend/src/workflows/runs.ts:977).</li>
+          <li>Sem aviso ao virar <i>paused</i>: nao consulte em laco, confira uma vez se o usuario pedir (backend/src/tools/native/workflow.ts:1730).</li>
+          <li>Em pausa o run nao fecha nem checa orcamento; retomada com portao aberto volta a <i>waiting</i> (backend/src/workflows/runs.ts:1062).</li>
+          <li>Prazo opcional por <i>WF_PAUSE_MAX_DAYS</i> (padrao 0 = desligado); vencida, a pausa vira <i>canceled</i> (backend/src/workflows/runs.ts:613).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5788,6 +5828,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>pausing x paused</b> — com voo fica <i>pausing</i> ate o ultimo sair; sem voo fecha <i>paused</i> na hora (backend/src/workflows/runs.ts:977).</li>
+          <li><b>Porta fechada primeiro</b> — <i>pauseRequestedAt</i> bloqueia novos claims antes da contagem (backend/src/workflows/runs.ts:977).</li>
+          <li><b>Pausa em cascata</b> — desce aos sub-runs vivos via <i>propagarAosFilhos</i> (backend/src/workflows/runs.ts:932).</li>
+          <li><b>Pausa vencida</b> — prazo por <i>WF_PAUSE_MAX_DAYS</i>; estourado, o run vira <i>canceled</i> (backend/src/workflows/runs.ts:613).</li>
         </ul>
       </div>
 

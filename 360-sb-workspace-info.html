@@ -5680,6 +5680,47 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>Entrada:</b> Register liga workspace_info sem argumentos; Text monta linha a linha como o agente Node (internal/tools/info/info.go:65-87; internal/tools/info/info.go:89-125).</li>
+          <li><b>Repo:</b> Status diz none, cloning, ready (url + branch + dir) ou FAILED; so em ready roda git status e conta worktrees (internal/tools/info/info.go:94-112).</li>
+          <li><b>Previews e runtimes:</b> adiciona Describe das vagas/portas e runtimes medidos uma vez por boot (internal/tools/info/info.go:113-114; internal/tools/info/info.go:139-158).</li>
+          <li><b>Sistema:</b> Detect do stack, memoryLine de /proc/meminfo e linha fixa de persistencia do workspace (internal/tools/info/info.go:115-123; internal/tools/info/info.go:165-190).</li>
+          <li><b>Resposta:</b> junta tudo com \n; probe falha vira texto, memoria ilegivel omite a linha sem quebrar (internal/tools/info/info.go:129-135; internal/tools/info/info.go:167-170).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Correlacoes</h3>
+        </div>
+        <ul>
+          <li><b>info → bash:</b> sondas rodam via RunBash com probeTimeout de 15 s, fora da tabela de processos do agente (internal/tools/info/info.go:23-24; internal/tools/exec/run.go:25-43).</li>
+          <li><b>info → preview:</b> a linha previews vem de Runtime.Describe, mesma fonte de preview/previews (internal/preview/runtime.go:245-278).</li>
+          <li><b>info → worktree:</b> conta worktrees via git worktree list e aponta para worktree_list (internal/tools/info/info.go:109-111).</li>
+          <li><b>info → list:</b> primeiro comando apos o boot costuma ser info e depois process_list para ver o que segue vivo (internal/tools/info/info.go:89-90).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Runtimes com cache parcial:</b> so sucesso vira cache; falha por falta de tempo tenta de novo na proxima (internal/tools/info/info.go:137-158).</li>
+          <li><b>Git cortado:</b> git status vai com head -20 para nao inundar a resposta (internal/tools/info/info.go:104-106).</li>
+          <li><b>Memoria opcional:</b> sem MemTotal/MemAvailable legivel a linha some em vez de falhar (internal/tools/info/info.go:165-180).</li>
+          <li><b>Sobrevive so o workspace:</b> npm -g e caches ficam em .sandbox; apt-get e resto do rootfs se perdem no restart (internal/tools/info/info.go:121-123).</li>
+          <li><b>Chame primeiro:</b> o texto e o mapa antes de agir; repo clonando ainda mostra is still cloning (internal/tools/info/info.go:99-100).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5698,6 +5739,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Phase (none/cloning/ready/error)</b> — estado do clone que decide o resto do texto (internal/tools/info/info.go:94-103).</li>
+          <li><b>probe / probeTimeout</b> — sonda via RunBash com 15 s; falha vira texto, nao erro (internal/tools/info/info.go:23-24).</li>
+          <li><b>runtimeVersions</b> — node/npm/python/git medidos uma vez por boot; falha vira unavailable (internal/tools/info/info.go:139-158).</li>
+          <li><b>memoryLine</b> — usados/total de /proc/meminfo; ilegivel omite a linha (internal/tools/info/info.go:165-190).</li>
+          <li><b>persistence</b> — so o workspace sobrevive; .sandbox guarda npm/caches fora do git (internal/tools/info/info.go:121-123).</li>
         </ul>
       </div>
 

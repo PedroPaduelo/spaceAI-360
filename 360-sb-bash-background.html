@@ -5735,6 +5735,50 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li><b>Valida e escolhe id:</b> <i>command</i> vazio recusa antes de I/O (<i>internal/tools/exec/proc.go:77-80</i>); <i>cwd</i> precisa ser diretorio (<i>internal/tools/exec/manager.go:261-271</i>); <i>pickIDLocked</i> usa <i>name</i> se livre e fora do formato <i>pN-xxxx</i>, senao <i>pN-bootID</i> (<i>internal/tools/exec/proc.go:150-164</i>).</li>
+          <li><b>Prepara log por tag:</b> cria <i>/var/tmp/sandbox-proc</i>, sorteia <i>tag=id-sufixo</i> e abre <i>tag.log</i> com <i>O_TRUNC|O_APPEND</i>; sem processo, o log sem dono e removido (<i>internal/tools/exec/proc.go:85-118</i>; <i>internal/config/config.go:36, 55</i>).</li>
+          <li><b>Spawna em grupo proprio:</b> <i>spawn</i> sobe <i>bash -c</i> com <i>Setpgid</i>, saida direto no log e <i>MYPANEL_PROC_TAG=tag</i> no ambiente (<i>internal/tools/exec/manager.go:194-208, 210-257</i>).</li>
+          <li><b>Registra e vigia:</b> <i>putLocked</i> registra, <i>ensureTickerLocked</i> sobe o ticker de 1 s e <i>waitLeader</i> espera o <i>bash -c</i> e conta membros pela marca (<i>internal/tools/exec/proc.go:184-189, 222-239</i>; <i>internal/tools/exec/manager.go:364-425</i>).</li>
+          <li><b>Devolve apos 1,5 s:</b> <i>startBackgroundTool</i> dorme 1500 ms, le o fim com <i>Output</i> e devolve <i>Started id (pid N)</i> (<i>internal/tools/exec/manager.go:647-660</i>; <i>internal/tools/exec/output.go:188-228</i>).</li>
+          <li><b>Acompanha pelo id:</b> <i>Output</i> le por <i>offset/next_offset</i> ate a ultima linha completa; <i>Wait</i> espera ate <i>timeout</i>; <i>killProcess</i> manda TERM e, em 2 s, KILL no grupo + pids marcados (<i>internal/tools/exec/wait.go:27-56</i>; <i>internal/tools/exec/proc.go:427-465</i>).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlacoes</h3>
+        </div>
+        <ul>
+          <li><b>bash_background → process_*:</b> o id vale em <i>process_list/output/wait/kill</i>; <i>process_output</i> sem <i>offset</i> mostra o fim, com <i>offset</i> mostra o novo (<i>internal/tools/exec/wait.go:13-23</i>; <i>internal/tools/exec/output.go:188-228</i>).</li>
+          <li><b>bash x bash_background:</b> <i>bash</i> tem vida e pode sumir da lista ao terminar; <i>background</i> nasce sem vida e segue ate <i>kill</i> ou fim do agente (<i>internal/tools/exec/manager.go:549-572, 647-660</i>).</li>
+          <li><b>tag x id:</b> o log leva a <i>tag</i> (unica), nao o <i>id</i>: reap de entrada antiga com mesmo nome nunca apaga o log novo (<i>internal/tools/exec/proc.go:101-104, 150-164</i>).</li>
+          <li><b>preview + servidor:</b> para HTTP, suba com <i>bash_background</i> e exponha com <i>preview</i>; o aviso <i>detached</i> do <i>bash</i> manda fazer o mesmo (<i>internal/tools/exec/manager.go:535-544</i>).</li>
+          <li><b>encerramento global:</b> <i>KillAll/Close</i> matam grupos + pids marcados no fim do agente; servidor ignora sinais de dentro, so <i>SIGUSR2</i> encerra (<i>internal/tools/exec/manager.go:149-186</i>; <i>main.go:199-203, 220-281</i>).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><b>Nome tem regra:</b> precisa casar <i>^[a-z0-9][a-z0-9_-]{0,31}$</i> e nao parecer <i>pN-xxxx</i>; fora disso vira automatico <i>pN-bootID</i> (<i>internal/tools/exec/proc.go:20-23, 150-164</i>).</li>
+          <li><b>Nome reuse apaga log antigo:</b> trocar dono de entrada encerrada remove o log dela na hora (<i>internal/tools/exec/proc.go:153-159, 191-198</i>).</li>
+          <li><b>Log 32 MB mantem 1 MB:</b> passou de 32 MB, fica so o fim com <i>[log truncated]</i>; leitura usa <i>O_NONBLOCK</i> para FIFO nao travar (<i>internal/tools/exec/manager.go:71-78</i>; <i>internal/tools/exec/output.go:24-42, 143-183</i>).</li>
+          <li><b>Ids morrem no restart:</b> id antigo orienta usar <i>process_list</i> e informa o boot (<i>internal/tools/exec/proc.go:168-180</i>).</li>
+          <li><b>Nao espere prompt:</b> entrada e <i>/dev/null</i> e <i>PYTHONUNBUFFERED=1</i> evita log parado por buffer (<i>internal/tools/exec/manager.go:188-193, 228-244</i>).</li>
+          <li><b>Sem vida nao e eterno:</b> sem <i>life</i>, vive ate <i>kill</i>, reap (15 min apos fim) ou fim do agente (<i>internal/tools/exec/proc.go:135-145, 209-218</i>).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5753,6 +5797,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>tag x id</b> — <i>tag=id-sufixo</i> identifica o log e os membros; <i>id</i> e o nome visivel no <i>process_list</i> (<i>internal/tools/exec/proc.go:101-104, 150-164</i>).</li>
+          <li><b>bootID</b> — sufixo sorteado no boot; ids automaticos levam ele para nao colidir apos restart (<i>internal/tools/exec/manager.go:117-121, 162-163</i>).</li>
+          <li><b>ticker 1 s</b> — varre membros, poda log e remove encerrados; so existe com processo na tabela (<i>internal/tools/exec/manager.go:71-78, 364-425</i>).</li>
+          <li><b>logMaxBytes/logKeepBytes</b> — 32 MB corta para 1 MB final com cabecalho <i>[log truncated]</i> (<i>internal/tools/exec/manager.go:71-78</i>; <i>internal/tools/exec/output.go:143-183</i>).</li>
+          <li><b>next_offset</b> — cursor do <i>process_output</i> para ler so o novo sem repetir (<i>internal/tools/exec/output.go:188-228</i>).</li>
         </ul>
       </div>
 

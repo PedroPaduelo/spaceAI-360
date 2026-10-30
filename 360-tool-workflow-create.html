@@ -5737,6 +5737,51 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>Valida os argumentos (motor/backend/src/tools/native/workflow.ts:1341): sem <i>name</i>, recusa antes de qualquer I/O.</li>
+          <li>Exige papel admin (motor/backend/src/tools/native/workflow.ts:1343-1344): membro recebe <i>Recusado: só administradores...</i>, igual ao REST.</li>
+          <li>Normaliza o nome e deriva o <i>slug</i> com <i>slugify</i> (motor/backend/src/tools/native/workflow.ts:231-241, 1345-1347).</li>
+          <li>Checa duplicado ativo por org+slug (motor/backend/src/tools/native/workflow.ts:1348-1350): se existe, orienta <i>workflow_draft({ fromWorkflowId })</i> em vez de criar outro.</li>
+          <li>Libera slug de apagados no índice único (motor/backend/src/tools/native/workflow.ts:1358-1359): apagado mantém o slug (WF-BUG-L5-01).</li>
+          <li>Cria a linha <i>WorkflowDefinition</i> com <i>latestVersion 0</i> e <i>description</i> opcional (motor/backend/src/tools/native/workflow.ts:1362-1370; prisma/schema.prisma:692-714).</li>
+          <li>Abre o rascunho vazio com envelope <i>{ name, description }</i> só se não havia um aberto; senão mantém o atual e avisa (motor/backend/src/tools/native/workflow.ts:1382-1390).</li>
+          <li>Invalida a última validada e orienta o próximo passo: <i>add_step → validate() → publish(workflowId)</i> sem <i>definition</i> (motor/backend/src/tools/native/workflow.ts:1389, 1396-1398, 443-445).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li>Ordem canônica: <i>create → draft → add_step × N → validate() → publish → run</i> (motor/backend/src/tools/native/workflow.ts:1327-1328).</li>
+          <li><i>workflow_list</i> evita duplicar: mostra <i>slug, id</i> e versão corrente para reaproveitar (motor/backend/src/tools/native/workflow.ts:1298-1318).</li>
+          <li><i>description</i> do envelope vira a coluna da definição lida por <i>list/get</i> e pela UI (motor/backend/src/tools/native/workflow.ts:1329-1330, 1502-1513).</li>
+          <li><i>WorkflowDefinition.latestVersion</i> começa em 0 = sem versão publicada (prisma/schema.prisma:703, 714; motor/backend/src/tools/native/workflow.ts:1315).</li>
+          <li><i>workflow_draft({ fromWorkflowId })</i> é o caminho para evoluir sem criar outro objeto (motor/backend/src/tools/native/workflow.ts:1330-1331, 1021-1037).</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li><i>create</i> não cria versão executável: o que roda é a <i>WorkflowVersion</i> publicada; sem <i>publish</i>, <i>run</i> não tem o que apontar (motor/backend/src/tools/native/workflow.ts:1325-1326; prisma/schema.prisma:726-755).</li>
+          <li>Slug colidido não sobrescreve: ou reaproveita o existente ou escolhe outro nome (motor/backend/src/tools/native/workflow.ts:1351-1356, 1372-1373).</li>
+          <li>Apagado (<i>deletedAt</i>) some da lista mas prende o slug até liberar (motor/backend/src/tools/native/workflow.ts:1307, 1359; prisma/schema.prisma:707).</li>
+          <li>Clobber jamais: criar no meio de outro rascunho não mexe no aberto (motor/backend/src/tools/native/workflow.ts:1375-1395) — abra o rascunho deste workflow com <i>draft({ name })</i>.</li>
+          <li>Org e user vêm do turno, nunca dos argumentos; corrida de criação cai no erro de slug duplicado (motor/backend/src/tools/native/workflow.ts:20-23, 1371-1373).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5755,6 +5800,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>slug</b> — apelido derivado do nome (minúsculas, hífens); único por org entre ativos.</li>
+          <li><b>WorkflowDefinition</b> — objeto nomeado (nome, slug, description); o que executa é a versão publicada.</li>
+          <li><b>latestVersion</b> — contador de versões; 0 = ainda sem versão publicada.</li>
+          <li><b>rascunho</b> — envelope + passos em memória por (org, thread); só vira versão no <i>publish</i>.</li>
+          <li><b>liberarSlugDeApagados</b> — libera o slug preso no índice único por definição apagada.</li>
         </ul>
       </div>
 
