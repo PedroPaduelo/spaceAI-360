@@ -5775,6 +5775,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo de leitura</h3>
+        </div>
+        <ul>
+            <li><b>1. Operador envia mensagem com anexos na thread;</b> mailbox faz drain e agrupa N notificações em 1 turno.</li>
+            <li><b>2. prepareTurn congela a config efetiva</b> (thread &gt; setup &gt; env) e bootstrap monta MCPs, toolPolicy e escopo.</li>
+            <li><b>3. Confira tetos do turno:</b> 100 steps e 5M billable vazios valem o default (motor/compose.prod.yml:58-62); relógio 60 min e stall 5 min (motor/compose.prod.yml:77-84).</li>
+            <li><b>4. streamText roda em steps com stopWhen stepCountIs;</b> tools MCP executam e devolvem tool_result por step.</li>
+            <li><b>5. Dreno mid-turn injeta notificação no contexto sem novo turno.</b></li>
+            <li><b>6. Compactação na fronteira ou no estouro faz checkpoint e refaz a chamada uma vez.</b></li>
+            <li><b>7. Backoff, stall, timeout e POST /abort viram AbortError com parcial gravado; finishTurn fecha done, errored ou aborted.</b></li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+            <li><a href="360-seq-api.html">360-seq-api.html</a> — a chamada ao modelo que este loop repete a cada step.</li>
+            <li><a href="360-seq-async.html">360-seq-async.html</a> — quando o loop roda em background: enqueue, retries e entrega.</li>
+            <li><a href="360-df-streams.html">360-df-streams.html</a> — onde cada evento do loop trafega até o navegador.</li>
+            <li><a href="spaceai-workspace.html">spaceai-workspace.html</a> — o playground que abre e acompanha este loop.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+            <li>Teto de steps é pós-hoc (detectado no último step com tool pendente); teto de tokens é ponderado por custo, não contagem crua.</li>
+            <li>Passo de workflow não tem teto duro de relógio por decisão pendente; só o turno de conversa tem 60 min (motor/compose.prod.yml:77-84).</li>
+            <li>Webhooks thread.turn.* e thread.compaction.* são fire-and-forget e nunca derrubam o turno.</li>
+            <li>Resultado de tool é cortado só no prepareStep para o modelo; o gravado e o lido via tool_result_read seguem íntegros (motor/compose.prod.yml:85-91).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5793,6 +5835,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+            <li><b>Mailbox / drain</b> — serializa por thread e agrupa notificações em um turno, sem debounce.</li>
+            <li><b>prepareTurn / bootstrapTurn</b> — congela config efetiva e monta MCPs, toolPolicy e escopo antes do stream.</li>
+            <li><b>Teto de steps / tokens</b> — 100 steps e 5M billable por default; vazios no compose viram default do código (motor/compose.prod.yml:58-62).</li>
+            <li><b>Compactação</b> — poda de histórico na fronteira ou no estouro, com checkpoint antes de refazer a chamada.</li>
+            <li><b>Stall</b> — 5 min de silêncio do modelo sem tool em voo; 0 desliga (motor/compose.prod.yml:77-84).</li>
+            <li><b>AbortError</b> — erro de POST /abort com parcial gravado; finishTurn fecha aborted.</li>
         </ul>
       </div>
 

@@ -7430,6 +7430,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo de leitura</h3>
+        </div>
+        <ol>
+          <li>Confirme o recorte: 24 tabelas no diagrama ante 25 sqliteTables do schema; cert_approvals em (mypanel/packages/server/src/db/schema.ts:378) existe no código e não aparece no mapa.</li>
+          <li>Leia a identidade: users (:145) no topo com project_members (:267), team_members (:260) e api_keys (:94) abaixo.</li>
+          <li>Siga o núcleo: projects (:17), deployments (:55), managed_servers (:26) e services (:40); services é o hub com 10 filhos.</li>
+          <li>Confira config: env_vars (:72), domains (:82), scheduled_tasks (:237) e backups (:117); deployments.status em (:58) tem 7 valores.</li>
+          <li>Siga operação: preview_environments (:305), service_stats (:177), service_status_events (:218) e sandboxes (:334).</li>
+          <li>Feche com plataforma e sistema: settings, branding, tunnels e channels sem FK, isoladas por desenho; PKs e UKs no card Chaves e unicidades.</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li>O HTML atual não declara links relativos internos; as correlações abaixo são arquivos irmãos existentes em /workspace (abrir manualmente).</li>
+          <li><a href="./360-lc-deploy.html">360-lc-deploy.html</a> — ciclo de vida cujos estados persistem em deployments (mypanel/packages/server/src/db/schema.ts:55) e services (:40).</li>
+          <li><a href="./360-df-lineage.html">360-df-lineage.html</a> — coleta mypanel grava stats_history (:162) e executa scheduled_tasks (:237) por cron.</li>
+          <li><a href="./360-deploy-arch.html">360-deploy-arch.html</a> — arquitetura do deploy para situar services, deployments e domínios.</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>cert_approvals em (mypanel/packages/server/src/db/schema.ts:378) não aparece no diagrama; não presuma que o mapa cobre todo o schema.</li>
+          <li>backups.parent_id não tem references() no código: sem aresta e sem FK inventada; service_uptime_daily também não declara PK no Drizzle.</li>
+          <li>audit_log.user_id não tem references() para users; sandboxes.created_by e api_keys.key_prefix/last_used_at são campos soltos sem FK.</li>
+          <li>Booleanos do Drizzle (is_secret, ssl_enabled) são integer 0/1 no SQLite; enums (type, status, role) são text sem constraint no tipo.</li>
+          <li>Não mostra cron, valores de runtime nem conteúdo de stats_history; service_status_events e uptime_daily guardam fatos, não a política de coleta.</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -7448,6 +7490,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Service</b> — container gerenciado em (mypanel/packages/server/src/db/schema.ts:40); hub com deployments, env_vars, domains, stats e sandboxes.</li>
+          <li><b>Deployment</b> — tentativa de deploy em (:55); status em (:58) com pending, building, pulling, deploying, running, failed e cancelled.</li>
+          <li><b>Sandbox</b> — ambiente isolado em (:334); created_by é campo solto sem FK para users.</li>
+          <li><b>Backup</b> — cópia em (:117); parent_id não tem references(), sem aresta no diagrama.</li>
+          <li><b>Preview_environment</b> — ambiente efêmero em (:305); status com pending, building, running, closed e failed.</li>
         </ul>
       </div>
 

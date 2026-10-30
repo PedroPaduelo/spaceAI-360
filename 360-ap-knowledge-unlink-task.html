@@ -5696,6 +5696,45 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>A tool recebe knowledgeId mais taskId, ambos strings sem projectId no input (backend/src/tools/core/knowledge.ts:421-429).</li>
+          <li>O handler chama unlinkTask com projectIds do chamador e contexto do agente para a trilha (backend/src/tools/core/knowledge.ts:431-435).</li>
+          <li>A anotação HINTS.remove marca a chamada como destrutiva e idempotente (backend/src/tools/core/knowledge.ts:430).</li>
+          <li>O sucesso volta em envelope jsonContent com { removed }; falha de domínio volta via toolFailure com code/message/details (backend/src/tools/core/knowledge.ts:433-438; backend/src/tools/core/knowledge.ts:48-57).</li>
+          <li>A irmã link_task cria o mesmo par N:N com relationType default reference; unlink desfaz esse par (backend/src/tools/core/knowledge.ts:393-403; backend/src/tools/core/knowledge.ts:421-429).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li>link_task cria KnowledgeTicketLink N:N com relationType; unlink_task remove o mesmo par, ambos idempotentes (backend/src/tools/core/knowledge.ts:393-403; backend/src/tools/core/knowledge.ts:421-429).</li>
+          <li>Ambas restringem a página aos projetos do principal via toolCallProjectIds, regra DAT-14 (backend/src/tools/core/knowledge.ts:4-8; backend/src/tools/core/knowledge.ts:434).</li>
+          <li>Ambas passam MCP_AGENT_CONTEXT para registrar o evento na história da task (backend/src/tools/core/knowledge.ts:26; backend/src/tools/core/knowledge.ts:431-435).</li>
+          <li>Falha prevista preserva code e message via toolFailure; o resto sobe ao dispatcher que mapeia como o REST (backend/src/tools/core/knowledge.ts:48-57; backend/src/tools/core/knowledge.ts:36-42).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Sem projectId no input, o escopo vem do principal: página de outro projeto não remove e devolve removed false (backend/src/tools/core/knowledge.ts:426-429; backend/src/tools/core/knowledge.ts:434).</li>
+          <li>Repetir o mesmo par não erra: a descrição promete Idempotent, a segunda vez devolve removed false sem evento (backend/src/tools/core/knowledge.ts:425).</li>
+          <li>HINTS.remove é destrutiva: remove só o vínculo N:N, não apaga a página nem a task (backend/src/tools/core/knowledge.ts:430; backend/src/tools/core/knowledge.ts:425).</li>
+          <li>Zod valida antes de qualquer I/O; AppError vira isError com code/message, resto vira INTERNAL_ERROR com errorId (backend/src/tools/core/knowledge.ts:48-57; backend/src/tools/core/knowledge.ts:36-42).</li>
+        </ul>
+      </div>
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5714,6 +5753,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>KnowledgeTicketLink N:N</b> — vínculo entre página e task criado pela irmã link_task (backend/src/tools/core/knowledge.ts:398).</li>
+          <li><b>toolCallProjectIds (DAT-14)</b> — projetos do principal que limitam a página visível; fora dele é NOT_FOUND (backend/src/tools/core/knowledge.ts:4-8; backend/src/tools/core/knowledge.ts:434).</li>
+          <li><b>MCP_AGENT_CONTEXT</b> — contexto do agente repassado para registrar o evento na trilha (backend/src/tools/core/knowledge.ts:26; backend/src/tools/core/knowledge.ts:434).</li>
+          <li><b>HINTS.remove</b> — anotação de tool destrutiva e idempotente (backend/src/tools/core/knowledge.ts:430).</li>
         </ul>
       </div>
 

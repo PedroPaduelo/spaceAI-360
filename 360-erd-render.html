@@ -7119,6 +7119,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo de leitura</h3>
+        </div>
+        <ol>
+          <li>Confirme o escopo: 17 tabelas do schema (render/backend/prisma/schema.prisma:56 a :535), tipos físicos TEXT, INTEGER, BOOLEAN, TIMESTAMP(3), TEXT[], JSONB e 8 enums.</li>
+          <li>Leia a identidade: organizations (:143), users (:56), memberships (:167), user_sessions (:197) e oidc_provisioning_events (:223) com PK em event_id.</li>
+          <li>Siga acesso e trilha: agent_keys (:95), audit_events (:314) e render_project_events (:276) com só ids lógicos para sobreviver à purga.</li>
+          <li>Leia projetos: render_projects (:250) como espelho único; dele pendem designs, bibliotecas e sistemas.</li>
+          <li>Siga o render: designs (:374), screens (:410), libraries (:428), design_systems (:448), versions (:477), ports (:493), revisions (:519) e assets (:535).</li>
+          <li>Feche com regras: linha cheia é FK obrigatória, tracejada é opcional (catálogo da empresa ou porte sem sistema); CHECK one_owner e parciais estão na migration.</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li>O HTML atual não declara links relativos internos; as correlações abaixo são arquivos irmãos existentes em /workspace (abrir manualmente).</li>
+          <li><a href="./360-erd-agentpack.html">360-erd-agentpack.html</a> — origem das tabelas render (RenderDesign :1355 a RenderAsset :1508); espelhos separados, sem FK cruzada.</li>
+          <li><a href="./360-df-lineage.html">360-df-lineage.html</a> — PGs de conteúdos (agent-package, render) declarados fora do foco do mapa de linhagem.</li>
+          <li><a href="./360-erd-conta.html">360-erd-conta.html</a> — IdP que provisiona users e orgs via OIDC; compare identidades sem presumir sincronia.</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Não mostra a purga de projeto; audit_events e render_project_events guardam só ids para sobreviver, sem aresta para o projeto.</li>
+          <li>Catálogo com dono único (CHECK one_owner) e índices parciais por empresa só existem na migration; o Prisma não expressa a regra.</li>
+          <li>Não mostra suspensão, lixeira, chave admin nem versões positivas por CHECK; são regras fora do tipo Prisma.</li>
+          <li>Não mostra o conteúdo de revisions, screens nem assets; storage_key é UK, mas bytes e composição de tela estão fora do ERD.</li>
+          <li>E-mail canônico sem citext e auditoria append-only por trigger não aparecem como tipo; confira a migration antes de presumir unicidade.</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -7137,6 +7179,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Render_project</b> — espelho do projeto em (render/backend/prisma/schema.prisma:250); designs, bibliotecas e sistemas pendem dele.</li>
+          <li><b>Design_system</b> — sistema visual em (:448) com versions em (:477); catálogo com dono único por CHECK na migration.</li>
+          <li><b>Port</b> — porte em (:493); RenderPortSourceKind em (:368) classifica a origem, opcional quando é catálogo.</li>
+          <li><b>Revision</b> — revisão em (:519); revisions guardam o histórico junto do desenho.</li>
+          <li><b>Asset</b> — anexo em (:535) com storage_key UK; bytes ficam fora do banco.</li>
         </ul>
       </div>
 

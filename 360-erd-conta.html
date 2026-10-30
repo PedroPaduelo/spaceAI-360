@@ -7418,6 +7418,49 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo de leitura</h3>
+        </div>
+        <ol>
+          <li>Confirme o escopo: 21 tabelas e 196 colunas físicas, tipos fiéis às migrations, sem colunas inventadas.</li>
+          <li>Leia sessão e tokens: auth_sessions em (conta-central/backend/prisma/schema.prisma:159), refresh_tokens em (:189) e oidc_signing_keys em (:140) isolada.</li>
+          <li>Siga MFA e verificação: totp_credentials com PK em userId (:404), mfa_recovery_codes (:420), email_tokens (:444) e external_identities (:558).</li>
+          <li>Leia identidade e orgs: users (:17), organizations (:61), memberships junção (:88) e invites (:108).</li>
+          <li>Siga apps e OIDC: apps (:218) como hub, org_apps (:263), member_app_access (:284), app_access_requests (:312), consents (:342), grants (:359) e refresh (:381).</li>
+          <li>Feche com auditoria: audit_logs (:469), notifications (:502) e provisioning_deliveries (:529); aresta sólida é FK obrigatória, tracejada é anulável.</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li>O HTML atual não declara links relativos internos; as correlações abaixo são arquivos irmãos existentes em /workspace (abrir manualmente).</li>
+          <li><a href="./360-df-lineage.html">360-df-lineage.html</a> — PG conta-central como cofre (User, Org, Grant) e Conta OIDC com JIT como fonte.</li>
+          <li><a href="./360-erd-motor.html">360-erd-motor.html</a> — ContaEvent em (motor/backend/prisma/schema.prisma:1160) espelha este IdP; bancos separados, sem FK cruzada.</li>
+          <li><a href="./360-erd-motor-full.html">360-erd-motor-full.html</a> — versão completa do motor para situar o espelho de identidade.</li>
+          <li><a href="./360-erd-lb.html">360-erd-lb.html</a> — outra identidade (users, organizations, memberships) em banco separado; compare sem presumir sincronia.</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Não mostra expiração, rotação nem hashing de tokens; tokenHash e codeHash são UKs, mas o algoritmo está fora do ERD.</li>
+          <li>Não mostra o fluxo OIDC fora do schema; grants, consents e refresh_tokens guardam o resultado, não a negociação.</li>
+          <li>pendingKey vale org:user:app só enquanto PENDING e é nulo depois; múltiplos nulos são permitidos no Postgres — não leia como duplicata.</li>
+          <li>Sem FK de propósito (auth_sessions.organizationId, invites.invitedByUserId e demais no card de FKs) significa coluna lógica; não desenhe aresta presumida.</li>
+          <li>Não mostra entrega real de provisioning_deliveries e notifications; seq SERIAL e status existem, mas retry e transporte estão fora do mapa.</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -7436,6 +7479,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>OIDC / grant / consent</b> — login federado com grants em (conta-central/backend/prisma/schema.prisma:359) e consents em (:342); refresh em (:381).</li>
+          <li><b>TOTP / recovery code</b> — segundo fator em (:404) com PK em userId e códigos em (:420); EmailTokenPurpose em (:438) classifica o e-mail.</li>
+          <li><b>Invite</b> — convite para organization em (:108); tokenHash é UK e invitedByUserId é coluna lógica sem FK.</li>
+          <li><b>Org_app / member access</b> — junção empresa-app em (:263) e acesso membro-app em (:284) pendendo de memberships.</li>
+          <li><b>Provisioning delivery</b> — entrega em (:529) com seq SERIAL; audit_logs em (:469) guardam a trilha por organization.</li>
         </ul>
       </div>
 

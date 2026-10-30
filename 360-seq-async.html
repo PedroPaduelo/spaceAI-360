@@ -5739,6 +5739,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo de leitura</h3>
+        </div>
+        <ul>
+            <li><b>1. POST /runs só com identidade {runId, stepId, attempt};</b> Postgres guarda grafo e estado (motor/CLAUDE.md:56).</li>
+            <li><b>2. jobId determinístico step:&lt;id&gt;:&lt;attempt&gt; deduplica;</b> concluído removido permite reenfileirar.</li>
+            <li><b>3. 202 + runId libera a conexão;</b> o trabalho segue em background na fila BullMQ prefixo motorq.</li>
+            <li><b>4. Worker dá deliver e pede chave ao pool do LB;</b> 429 vira cooldown filtrado no snapshot, só não-429 desabilita (contrato §59).</li>
+            <li><b>5. Progresso sai no runbus Redis Pub/Sub efêmero;</b> estado final fica no Postgres; WS run entrega parcial a 2 Hz.</li>
+            <li><b>6. Webhook assinado HMAC com retry e SSRF por endereço;</b> entrega é fire-and-forget.</li>
+            <li><b>7. GET /runs/:id reconcilia:</b> polling converge para o mesmo estado final do push.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+            <li><a href="360-seq-api.html">360-seq-api.html</a> — o caminho síncrono que este fluxo continua em background.</li>
+            <li><a href="360-df-streams.html">360-df-streams.html</a> — transporte de cada evento: filas, RunBus e replay só no handshake.</li>
+            <li><a href="360-wf-agent-loop.html">360-wf-agent-loop.html</a> — o que o worker executa: steps de IA e determinísticos.</li>
+            <li><a href="360-wf-incident.html">360-wf-incident.html</a> — quando o background falha: triar run, conter e repor.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+            <li>RunBus é efêmero: frame sem ouvinte se perde por desenho; a verdade é o Postgres (motor/CLAUDE.md:56).</li>
+            <li>Contagens de retry por fila e backoffs são do recorte do diagrama; o código de filas está em queue/queues.ts (motor/CLAUDE.md:50).</li>
+            <li>Tempos e provedor exato são ilustrativos; não use durações do desenho como SLA.</li>
+            <li>Varredura de órfãos, purga e retenção estão omitidas neste recorte; vivem no worker, não na API.</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5757,6 +5799,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+            <li><b>Ack 202</b> — aceite imediato com runId; conexão libera e o trabalho segue em background.</li>
+            <li><b>JobId determinístico</b> — step:&lt;id&gt;:&lt;attempt&gt;; repetição não duplica, conclusão permite reenfileirar.</li>
+            <li><b>Attempt / backoff</b> — tentativa numerada com espera progressiva; 429 respeita Retry-After.</li>
+            <li><b>RunBus</b> — Pub/Sub Redis efêmero por run (runbus:&lt;runId&gt;); perdeu sem ouvinte, o durável já está no Postgres.</li>
+            <li><b>HMAC / SSRF</b> — webhook assinado com verificção de rede privada por endereço antes de entregar.</li>
         </ul>
       </div>
 

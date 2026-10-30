@@ -5652,6 +5652,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo de leitura</h3>
+        </div>
+        <ul>
+            <li><b>1. Pergunta entra por WS user_message (/ws)</b> na sessão do playground.</li>
+            <li><b>2. Eco imediato + mailbox:</b> dispatcher agrupa itens em um turno só (motor/CLAUDE.md:45).</li>
+            <li><b>3. Bootstrap antes do modelo:</b> config efetiva, MCPs e escopo; user_id estável por conversa roteia o cache (motor/backend/docs/contrato-load-balancer.md:36-40).</li>
+            <li><b>4. streamText faz POST /v1/messages com model proxy-managed e stream:true</b> (motor/backend/docs/contrato-load-balancer.md:29,57).</li>
+            <li><b>5. LB resolve rota, troca auth e transpila por provider;</b> max_tokens 64000 é default (motor/backend/docs/contrato-load-balancer.md:30).</li>
+            <li><b>6. SSE volta com tokens + usage;</b> janela e custo usam o último step, somando escrita de cache 2x o input (motor/backend/docs/contrato-load-balancer.md:58).</li>
+            <li><b>7. Broadcast difunde eventos e persiste turno:</b> live + replay pós-F5 na mesma origem (motor/CLAUDE.md:140).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+            <li><a href="360-seq-async.html">360-seq-async.html</a> — a volta assíncrona do mesmo fluxo: filas, retries e webhooks.</li>
+            <li><a href="360-wf-agent-loop.html">360-wf-agent-loop.html</a> — dentro do turno: steps, tools MCP e compactação.</li>
+            <li><a href="360-df-streams.html">360-df-streams.html</a> — por onde cada evento deste fluxo trafega: BullMQ, RunBus e WS.</li>
+            <li><a href="spaceai-workspace.html">spaceai-workspace.html</a> — contexto do playground e do motor que executam este fluxo.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+            <li>Recorte síncrono: sem tools, subagentes, compactação, tetos, stall ou abort — estão no loop, não aqui.</li>
+            <li>Provedor exato e durações são ilustrativos; o motor não raciocina sobre modelo (motor/backend/docs/contrato-load-balancer.md:29).</li>
+            <li>Falhas 429/5xx e retentativas foram omitidas para manter o foco; o tratamento real está na página assíncrona.</li>
+            <li>Cache só funciona com breakpoints até 4 por request e tools sem cache_control (motor/backend/docs/contrato-load-balancer.md:41-44).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5670,6 +5712,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+            <li><b>proxy-managed</b> — placeholder de modelo; a rota do LB define o modelo real (motor/backend/docs/contrato-load-balancer.md:29).</li>
+            <li><b>customUrl</b> — segmento da URL que escolhe rota, provider e credencial no proxy (motor/backend/docs/contrato-load-balancer.md:22).</li>
+            <li><b>streamText / SSE</b> — resposta por eventos ao vivo message_start → message_stop; stream:true é sempre (motor/backend/docs/contrato-load-balancer.md:57).</li>
+            <li><b>user_id estável</b> — JSON com device, org e thread; nunca aleatório por request para não quebrar o cache (motor/backend/docs/contrato-load-balancer.md:36-40).</li>
+            <li><b>Breakpoint de cache</b> — ponto com cache_control TTL 1h (system e último bloco do último user); tools ficam sem (motor/backend/docs/contrato-load-balancer.md:41-44).</li>
+            <li><b>usage</b> — input + cache_read + cache_creation + output; contexto é a soma dos três primeiros (motor/backend/docs/contrato-load-balancer.md:58).</li>
         </ul>
       </div>
 

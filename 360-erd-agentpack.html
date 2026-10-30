@@ -9454,6 +9454,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo de leitura</h3>
+        </div>
+        <ol>
+          <li>Confirme o escopo: 44 tabelas do schema (agent-package/backend/prisma/schema.prisma:44 a :1508), todas as colunas fisicas com pk, fk, uk e references reais.</li>
+          <li>Comece pelo centro: projects em (agent-package/backend/prisma/schema.prisma:219); dele partem tarefas (:732), conhecimentos (:307), memorias (:457), prompts, skills e MCPs.</li>
+          <li>Siga as tarefas: tasks (:732), dependencies (:797), decisions (:843), options (:880), responses (:898) e events (:921); TaskStatus em (:650) tem 7 valores.</li>
+          <li>Leia os vinculos: todos (:1042), attachments (:1019), memory_task_links (:975), task_skill_links (:1002) e demais juncoes entre os pais.</li>
+          <li>Siga conhecimento e prompts-skills: knowledges, versions e comments; agent_prompts (:545), skills (:1090) e project_skills (:1207).</li>
+          <li>Feche com integracoes e render: mcp_servers (:1235), mcp_tools (:1289), project_mcps (:1310) e o bloco render de designs (:1355) a assets (:1508).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlacoes</h3>
+        </div>
+        <ul>
+          <li>O HTML atual nao declara links relativos internos; as correlacoes abaixo sao arquivos irmaos existentes em /workspace (abrir manualmente).</li>
+          <li><a href="./360-lc-object.html">360-lc-object.html</a> — ciclo de vida da Task cujo estado persiste em tasks (agent-package/backend/prisma/schema.prisma:732) com TaskStatus em (:650).</li>
+          <li><a href="./360-erd-render.html">360-erd-render.html</a> — espelho de render: RenderDesign em (:1355) e demais tabelas render aparecem nos dois bancos, sem FK cruzada.</li>
+          <li><a href="./360-df-lineage.html">360-df-lineage.html</a> — PGs de conteudos (agent-package, render) declarados fora do foco do mapa de linhagem.</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Ressalva de densidade: 44 tabelas em 7 dominios exigem zoom com qualidade (+/-), enquadrar com 0 e busca com /; nao tente ler tudo em um enquadramento so.</li>
+          <li>Nao mostra o conteudo de payloads JSONB nem a semantica de cada relacao; juncoes ficam entre os pais, mas o significado esta no codigo.</li>
+          <li>Auto-referencias (parent_id, superseded_by_id) ficam so como coluna fk, sem aresta; nao presuma hierarquia visivel.</li>
+          <li>Tipos LTREE, TSVECTOR, CITEXT e TEXT[] aparecem como tipos, sem explicar FTS, trigram ou hierarquia; confira docs/data-model.md sem presumir comportamento.</li>
+          <li>Historicos append-only (versions, events) ficam junto do pai, mas a politica de retencao e purga esta fora do ERD.</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -9472,6 +9514,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Task</b> — unidade de trabalho em (agent-package/backend/prisma/schema.prisma:732); TaskStatus em (:650) com 7 valores.</li>
+          <li><b>Knowledge</b> — base de conhecimento em (:307) com versions (:378) e comments (:403).</li>
+          <li><b>Memory</b> — memoria persistente em (:457) com versions (:507); vinculo em (:975).</li>
+          <li><b>Skill</b> — habilidade em (:1090) com versions (:1146); vinculo com task em (:1002).</li>
+          <li><b>MCP server</b> — integracao em (:1235) com tools (:1289) e vinculo project_mcps (:1310).</li>
         </ul>
       </div>
 

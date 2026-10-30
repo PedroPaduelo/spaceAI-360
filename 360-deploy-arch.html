@@ -5823,6 +5823,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo de leitura</h3>
+        </div>
+        <ul>
+            <li><b>1. Operador chega por HTTPS no Caddy :80/:443 com TLS automático</b> (mypanel/docker-compose.yml:137-138).</li>
+            <li><b>2. Caddy faz reverse_proxy para o frontend de cada app;</b> o frontend serve a SPA e proxy de /api na mesma origem via BACKEND_UPSTREAM (motor/compose.prod.yml:238).</li>
+            <li><b>3. Backend responde em be :4000 com migrate deploy no boot; worker consome filas</b> (motor/compose.prod.yml:4-5; motor/CLAUDE.md:61).</li>
+            <li><b>4. Confira exceção:</b> frontend do load-balance é express :3016 com API_ORIGIN, não nginx.</li>
+            <li><b>5. Desça aos dados:</b> Postgres ×5 (um por app) e mypanel em SQLite /data; backups em volume próprio (mypanel/docker-compose.yml:27-31).</li>
+            <li><b>6. Redes e Caddy interno:</b> mypanel_default é nome fixo; relay MCP :8089 só nessa rede; preview por porta sb-&lt;nome&gt;-p&lt;porta&gt; (mypanel/docker-compose.yml:63-68,163-164).</li>
+            <li><b>7. Feche com segurança:</b> conta-central :4100 é o IdP OIDC; mesma origem é obrigatória pelo cookie httpOnly (motor/compose.prod.yml:6-8).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+            <li><a href="casa-geral.html">casa-geral.html</a> — visão lógica dos mesmos blocos sem o detalhe de proxy e volumes.</li>
+            <li><a href="spaceai-workspace.html">spaceai-workspace.html</a> — o que roda dentro do bloco motor deste mapa.</li>
+            <li><a href="360-wf-delivery.html">360-wf-delivery.html</a> — como cada app deste mapa sai do commit até o painel sem CI.</li>
+            <li><a href="360-wf-incident.html">360-wf-incident.html</a> — o que conferir neste mapa quando algo cai: /healthz, /readyz e repor.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+            <li>Limites de CPU/mem por serviço em prod não estão evidenciados; não invente números a partir deste mapa.</li>
+            <li>Redis em prod fora do motor, nomes exatos dos volumes PG de prod e região/cloud não são declarados — é self-hosted Docker.</li>
+            <li>Dívida conhecida: load-balance e mypanel sem USER/HEALTHCHECK; digest só em agent-package e render (AGENTS.md:214).</li>
+            <li>Motor tem dois arquivos (compose.prod.yml e fragmento); a raiz inclui um só para não dar conflito de serviços be/worker/fe (AGENTS.md:193-195).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5841,6 +5883,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+            <li><b>Reverse proxy</b> — Caddy na borda :80/:443 que escolhe o container pelo domínio e targetPort (mypanel/docker-compose.yml:137-138).</li>
+            <li><b>BACKEND_UPSTREAM</b> — destino do proxy do frontend (be:4000); sem ele o fe responde 503 em vez de subir quebrado (motor/compose.prod.yml:238).</li>
+            <li><b>Rede mypanel_default</b> — nome fixo da rede do painel; serviços se resolvem por minipanel-&lt;serviço&gt; (mypanel/docker-compose.yml:163-164).</li>
+            <li><b>Volume</b> — dado que sobrevive à recriação: minipanel-data, backups, caddy-data e caddy-config (mypanel/docker-compose.yml:166-170).</li>
+            <li><b>Healthcheck</b> — prova de vida do container (wget /healthz); sem ele o orquestrador nunca sabe quando está pronto (AGENTS.md:206; motor/compose.prod.yml:116-121).</li>
+            <li><b>Digest</b> — hash da imagem base pinada; tag flutuante muda o deploy sem commit (AGENTS.md:207).</li>
         </ul>
       </div>
 

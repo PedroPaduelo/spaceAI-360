@@ -5715,6 +5715,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo de leitura</h3>
+        </div>
+        <ul>
+            <li><b>1. Trabalhe na branch feature/* ou fix/*;</b> a main fica como base validada.</li>
+            <li><b>2. Orquestrador delega; subagente executa, commita e dá push só na branch.</b></li>
+            <li><b>3. Rode npm run gates local na sandbox:</b> check-lock, typecheck, lint, teste, build e cycles (motor/CLAUDE.md:206-212).</li>
+            <li><b>4. Vermelho volta para a branch e repete;</b> verde segue para revisão humana do diff.</li>
+            <li><b>5. Merge --no-ff + push com o resultado do gate colado na mensagem;</b> sem CI, push não dispara nada (AGENTS.md:218).</li>
+            <li><b>6. Deploy do app: painel clona e constrói, um app por vez, sem arrastar outro (AGENTS.md:20).</b></li>
+            <li><b>7. Healthcheck + smoke: /healthz e conferência na tela fecham a entrega.</b></li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+            <li><a href="360-deploy-arch.html">360-deploy-arch.html</a> — o alvo do deploy: containers, redes e volumes por app.</li>
+            <li><a href="casa-geral.html">casa-geral.html</a> — a regra que este fluxo cumpre: banco, container e ciclo próprios.</li>
+            <li><a href="360-wf-incident.html">360-wf-incident.html</a> — quando este fluxo falha em prod: conter, isolar e repor.</li>
+            <li><a href="spaceai-workspace.html">spaceai-workspace.html</a> — onde conferir o app do motor após o deploy.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+            <li>Sem CI por decisão do dono: não existe workflow para religar; git push só sobe se o painel receber o webhook (motor/CLAUDE.md:263-279).</li>
+            <li>Gate é por app, sem agregador na raiz; cinco apps têm gates, outros usam tabela do pacote (AGENTS.md:219).</li>
+            <li>Conflito ou achado grave resolve na branch; não há atalho por cima da revisão.</li>
+            <li>USER, HEALTHCHECK e digest são exigidos por app novo, mas há dívida nos legados (AGENTS.md:214,227).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5733,6 +5775,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+            <li><b>Sem CI</b> — nenhum .github/workflows por decisão de custo; verificação é local e manual (motor/CLAUDE.md:263-279).</li>
+            <li><b>Gates</b> — check-lock, typecheck, lint, teste, build e cycles; o autoritativo é npm run gates (motor/CLAUDE.md:206).</li>
+            <li><b>Merge --no-ff</b> — merge com commit explícito e gates colados na mensagem; só com verde.</li>
+            <li><b>Healthcheck / smoke</b> — wget /healthz no container e conferência na tela após o deploy (motor/compose.prod.yml:116-121).</li>
+            <li><b>Deploy por app</b> — banco, containers e ciclo independentes; apps falam só por HTTP (AGENTS.md:17-20).</li>
         </ul>
       </div>
 

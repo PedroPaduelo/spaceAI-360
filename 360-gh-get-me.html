@@ -5793,6 +5793,45 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>A tool não recebe argumento: input vazio, nada para validar em Zod (backend/src/tools/github/users.ts:7-15).</li>
+          <li>O handler delega ao wrapper gh com GET /user, o usuário do próprio token (backend/src/tools/github/users.ts:14).</li>
+          <li>O wrapper resolve o id do McpServer GitHub; sem cadastro ou sem token, devolve GITHUB_NOT_CONFIGURED (backend/src/tools/github/shared.ts:39-48; backend/src/services/github-tools.service.ts:54-66).</li>
+          <li>O callGitHubApi confere escopo read, monta https://api.github.com/user e chama fetch com o PAT em até 15 s (backend/src/services/github-tools.service.ts:132-135; backend/src/services/github-tools.service.ts:37-40; backend/src/services/github-tools.service.ts:232-249).</li>
+          <li>Sucesso volta como jsonContent; falha prevista vira errorContent isError com code e métrica error_type (backend/src/tools/github/shared.ts:49-53).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li>get_user lê outro login em /users/{username}; get_me lê o dono do token em /user (backend/src/tools/github/users.ts:17-27; backend/src/tools/github/users.ts:7-15).</li>
+          <li>get_user_orgs e list_org_members partem do login/org para listar vínculos públicos (backend/src/tools/github/users.ts:29-79).</li>
+          <li>Todas usam GH.read e pedem só escopo read, com dupla checagem no catálogo e no service (backend/src/tools/github/shared.ts:20-21; backend/src/tools/github/shared.ts:96-101).</li>
+          <li>O token aceita Authorization ou token e é auditado a cada uso com tool e actor (backend/src/services/github-tools.service.ts:195-205; backend/src/services/github-tools.service.ts:229-231).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Sem McpServer GitHub ou sem segredo legível, a tool falha com 409 GITHUB_NOT_CONFIGURED antes da rede (backend/src/services/github-tools.service.ts:78-80; backend/src/tools/github/shared.ts:42-46).</li>
+          <li>Fora de um tools/call não há principal: o token nem é tocado, recusa FORBIDDEN (backend/src/services/github-tools.service.ts:141-143).</li>
+          <li>Timeout de 15 s vira GITHUB_TIMEOUT; HTTP com erro vira GITHUB_API_ERROR com 500 chars (backend/src/services/github-tools.service.ts:248-262).</li>
+          <li>Resposta não-JSON não quebra: vira { status, location, text } para redirects como logs (backend/src/services/github-tools.service.ts:264-275).</li>
+        </ul>
+      </div>
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5811,6 +5850,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>/user</b> — usuário do próprio PAT, sem argumento de entrada (backend/src/tools/github/users.ts:7-15).</li>
+          <li><b>GH.read</b> — anotação de leitura que pede só escopo read (backend/src/tools/github/shared.ts:20-21).</li>
+          <li><b>GITHUB_NOT_CONFIGURED</b> — McpServer GitHub ausente ou sem token legível (backend/src/services/github-tools.service.ts:78-80).</li>
+          <li><b>authorizeTokenUse</b> — confere principal e escopo antes de decifrar o token (backend/src/services/github-tools.service.ts:141-153).</li>
+          <li><b>User-Agent agentpack</b> — header fixo com API version 2022-11-28 e timeout 15 s (backend/src/services/github-tools.service.ts:37-40).</li>
         </ul>
       </div>
 

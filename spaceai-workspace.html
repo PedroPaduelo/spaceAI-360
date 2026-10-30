@@ -5743,6 +5743,49 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo de leitura</h3>
+        </div>
+        <ul>
+            <li><b>1. Operador digita no playground (Agent Workbench):</b> console do motor com chat, setups e runs (motor/CLAUDE.md:18-19).</li>
+            <li><b>2. Desce por WS /ws até o turno no Motor API :4000:</b> Fastify REST+WS; worker BullMQ é processo separado (motor/CLAUDE.md:15).</li>
+            <li><b>3. Motor chama o LB em Anthropic Messages canônico, stream SSE:</b> stream:true sempre; LB transpila por provider (motor/backend/docs/contrato-load-balancer.md:57).</li>
+            <li><b>4. Conta-central valida o login OIDC:</b> IdP da casa; sem provisionamento JIT a sessão não entra (AGENTS.md:169).</li>
+            <li><b>5. Sandbox remota via MCP executa tools:</b> relay interno :8089 só na rede mypanel_default (mypanel/docker-compose.yml:63-65).</li>
+            <li><b>6. Worker consome filas wf-* sobre Redis e persiste no Postgres:</b> filas com hífen em queue/queues.ts; Postgres é a verdade, fila é transporte (motor/CLAUDE.md:50,56).</li>
+            <li><b>7. Resposta volta ao vivo na thread:</b> mesma origem /api e /ws preserva o cookie de sessão (motor/CLAUDE.md:139-141).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+            <li><a href="casa-geral.html">casa-geral.html</a> — mapa-mãe com os 6 blocos e as fronteiras entre apps.</li>
+            <li><a href="360-seq-api.html">360-seq-api.html</a> — passo a passo da pergunta síncrona: WS, bootstrap e SSE.</li>
+            <li><a href="360-wf-agent-loop.html">360-wf-agent-loop.html</a> — o que acontece dentro do turno: mailbox, bootstrap e tools.</li>
+            <li><a href="360-df-lineage.html">360-df-lineage.html</a> — onde cada entidade deste fluxo persiste: threads, events e blobs.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+            <li>Voz (Groq Whisper e Fish TTS) aparece como extra; credenciais e modelos de voz não estão neste diagrama.</li>
+            <li>Agent-package e render são irmãs sem chamada runtime com o motor; não leia seta entre elas.</li>
+            <li>Tetos de turno (100 steps, 5M billable, 60 min, 5 min stall) vivem em envs do compose.prod.yml:58-84 — vazios valem o default do código.</li>
+            <li>Socket.io ao lado do /ws só existe com SOCKET_IO_ENABLED=1 e VITE_USE_SOCKETIO=1 (motor/CLAUDE.md:43; motor/compose.prod.yml:96-106).</li>
+            <li>Tempos, provedor exato e chaves LB são ilustrativos; o motor nunca vê credencial (motor/backend/docs/contrato-load-balancer.md:15).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5761,6 +5804,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+            <li><b>Workbench (playground)</b> — frontend do motor: chat, setups, workflows e runs sobre a mesma origem do backend (motor/CLAUDE.md:18-19).</li>
+            <li><b>Turno</b> — unidade de execução do agente: dispatcher, turn-runner e orchestrator com late binding em engine/index.ts (motor/CLAUDE.md:45).</li>
+            <li><b>Mailbox</b> — fila que serializa e agrupa notificações em um turno só.</li>
+            <li><b>Bootstrap</b> — preparação do turno: config efetiva, MCPs, toolPolicy e escopo antes do streamText.</li>
+            <li><b>BullMQ (wf-*)</b> — filas com hífen wf-reconcile, wf-step-ai, wf-step-det, wf-notify e wf-maintenance (motor/CLAUDE.md:50).</li>
         </ul>
       </div>
 

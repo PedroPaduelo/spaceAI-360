@@ -7787,6 +7787,49 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo de leitura</h3>
+        </div>
+        <ol>
+          <li>Confirme o escopo total: 21 tabelas do schema, sem recorte, com 258 colunas físicas e tipos fiéis ao schema.prisma.</li>
+          <li>Leia a identidade: users (:1077), organizations (:1098), memberships (:1116), sessions (:1137) e conta_events (:1160) isolada ao fim.</li>
+          <li>Siga as conversas: agents (:94), threads (:160) como hub, turns (:278), events (:335), mailbox (:371) e attachments (:525).</li>
+          <li>Siga os workflows: definitions (:692), versions (:726), runs (:762, hub com 39 colunas), events do run (:1035), steps (:884) e attempts (:960).</li>
+          <li>Confira webhooks (:576, :607) e plataforma (:473, :489) como faixas sem FK, só escopo por org_id.</li>
+          <li>Feche com regras: org_id e user_id sem FK por desenho; WorkflowRunStatus em (:664) e WorkflowStepStatus em (:680) viram tipos.</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li>O HTML atual não declara links relativos internos; as correlações abaixo são arquivos irmãos existentes em /workspace (abrir manualmente).</li>
+          <li><a href="./360-erd-motor.html">360-erd-motor.html</a> — recorte de 10 tabelas (identidade + conversas); este mapa é a versão completa de 21.</li>
+          <li><a href="./360-df-lineage.html">360-df-lineage.html</a> — PG motor como cofre e turn-runner como processamento; workflows executam sobre threads e turns.</li>
+          <li><a href="./360-erd-conta.html">360-erd-conta.html</a> — IdP que origina ContaEvent (:1160); bancos separados, sem FK cruzada.</li>
+          <li><a href="./360-erd-lb.html">360-erd-lb.html</a> — proxy de IA que serve aos providers do motor; observabilidade separada em outro banco.</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Não mostra o conteúdo de steps e attempts; runs é o hub, mas a semântica de cada WorkflowStepStatus em (:680) está no código, não no nó.</li>
+          <li>Não mostra a regra de is_default parcial (WHERE is_default AND archived_at IS NULL) fora da migration; o Prisma não expressa o parcial.</li>
+          <li>Não mostra colunas lógicas como aresta: owner_user_id, installation_id, spawned_by_turn_id, parent_run_id e setup_id são escopo sem FK.</li>
+          <li>Não mostra retenção, reaper/sweeper nem GC de attachments; retention_until existe, mas a política de purga está fora do ERD.</li>
+          <li>Não presuma ordem temporal por posição no grid; a sequência de runs, steps e attempts vem de seq e timestamps, não da coluna visual.</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -7805,6 +7848,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Workflow definition / version</b> — molde e versão em (motor/backend/prisma/schema.prisma:692) e (:726); unicidade por org_id+slug.</li>
+          <li><b>Workflow run</b> — execução em (motor/backend/prisma/schema.prisma:762); WorkflowRunStatus em (:664) vira tipo.</li>
+          <li><b>Webhook delivery</b> — entrega em (motor/backend/prisma/schema.prisma:607); webhooks em (:576) guardam só escopo e segredo redigido.</li>
+          <li><b>Installation / org_config</b> — plataforma em (:473) e (:489); limitam reaper e sweeper por instalação, sem FK.</li>
+          <li><b>ContaEvent</b> — espelho do IdP em (motor/backend/prisma/schema.prisma:1160); event_id é PK, sem FK para conta-central.</li>
         </ul>
       </div>
 

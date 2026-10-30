@@ -5751,6 +5751,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo de leitura</h3>
+        </div>
+        <ul>
+            <li><b>1. Sinais: /healthz liveness e /readyz com Postgres+Redis;</b> HEALTHCHECK no Dockerfile do motor (motor/compose.prod.yml:116-121).</li>
+            <li><b>2. Logs com LOG_LEVEL e /metrics com METRICS_TOKEN;</b> alerta webhook dispara key.auto_disabled no LB.</li>
+            <li><b>3. Abra painel e reaper: SystemPanel decide o escopo antes de tocar.</b></li>
+            <li><b>4. Trie run e thread pelos events do run;</b> deliveries contam a entrega de webhook.</li>
+            <li><b>5. Contenha: pause, resume e cancel no run; abort na thread com parcial gravado.</b></li>
+            <li><b>6. Isole chave em cooldown de 60s no 429 com auto-disable só em não-429 e reativação manual.</b></li>
+            <li><b>7. Reponha restart na API antes do worker e rollback no mesmo commit; confira verde em /metrics e /readyz 200.</b></li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+            <li><a href="360-wf-delivery.html">360-wf-delivery.html</a> — o fluxo que repõe o serviço: gates, merge e deploy por app.</li>
+            <li><a href="360-deploy-arch.html">360-deploy-arch.html</a> — onde cada sinal deste runbook é coletado: Caddy, be, worker e redes.</li>
+            <li><a href="360-df-streams.html">360-df-streams.html</a> — o transporte que explica fila parada: BullMQ, RunBus e replay.</li>
+            <li><a href="360-seq-async.html">360-seq-async.html</a> — o comportamento esperado do background que o incidente interrompe.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+            <li>Sem on-call, SLA, status page ou escalonamento formal: operador decide e registra.</li>
+            <li>Reaper desligado por padrão; sweep e purga ligadas mas sem paging automático.</li>
+            <li>HEALTHCHECK ausente no load-balance e no mypanel; base sem digest em 4 de 6 apps (AGENTS.md:214).</li>
+            <li>429 usa cooldown + Retry-After e backoff, mas sem runbook automático além do failover do LB (motor/backend/docs/contrato-load-balancer.md:59).</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5769,6 +5811,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+            <li><b>Liveness / readiness</b> — /healthz diz se o processo está de pé; /readyz exige Postgres+Redis.</li>
+            <li><b>LOG_LEVEL</b> — verbosidade de logs no motor, LB, render, agent-package e conta-central.</li>
+            <li><b>Cooldown / auto-disable</b> — 429 esfria a chave por 60s; erro não-429 desabilita com guarda e reativação manual.</li>
+            <li><b>Pause / resume / cancel / abort</b> — conter run pelo painel e thread por POST /abort com AbortError.</li>
+            <li><b>Prova</b> — events do run e da thread, deliveries de webhook, provisioning e /metrics antes de declarar verde.</li>
+            <li><b>Reaper / sweeper</b> — varredura de órfãos e purga de eventos antigos; reaper conta como desligado por padrão.</li>
         </ul>
       </div>
 

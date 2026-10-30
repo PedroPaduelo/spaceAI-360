@@ -5860,6 +5860,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo de leitura</h3>
+        </div>
+        <ul>
+            <li><b>1. Fontes: chat humano, uploads e conta OIDC;</b> login JIT espelha org e usuário.</li>
+            <li><b>2. turn-runner processa com Mailbox e Turn persistidos;</b> LLM entra via proxy load-balance, voz via /api/transcribe.</li>
+            <li><b>3. Anexos viram Attachment com bytesPath (s3:// ou disco);</b> o Event guarda só o id.</li>
+            <li><b>4. Cofres: PG motor, PG conta-central, PG load-balance e SQLite mypanel;</b> cada app tem o seu banco (AGENTS.md:17).</li>
+            <li><b>5. Rollup batch gera RequestMetricsHourly e OrgUsageDaily a partir de requests.</b></li>
+            <li><b>6. Coleta mypanel grava stats_history e roda scheduled_tasks por cron.</b></li>
+            <li><b>7. Consumo: workbench, API /metrics com METRICS_TOKEN e dashboards de custo, tokens e latência.</b></li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+            <li><a href="360-df-streams.html">360-df-streams.html</a> — o transporte até cada cofre deste mapa.</li>
+            <li><a href="spaceai-workspace.html">spaceai-workspace.html</a> — o caminho quente chat → turn-runner → PG motor → workbench.</li>
+            <li><a href="casa-geral.html">casa-geral.html</a> — os donos de cada banco: um por app, sem escrita cruzada.</li>
+            <li><a href="360-wf-incident.html">360-wf-incident.html</a> — as provas que esta linhagem deixa: events, deliveries e /metrics.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+            <li>Variant security marca sessão, JIT, PII e bytes; nenhum consentimento ou governança além do evidenciado.</li>
+            <li>PGs de conteúdo (agent-package, render) estão fora do foco deste mapa; não complete com eles.</li>
+            <li>Refresh cifrado, hashes e segredo de webhook nunca expostos; erro com segredo sai redigido.</li>
+            <li>Blobs em S3/disco sem prazo de retenção declarado no recorte; não assuma expiração.</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5878,6 +5920,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+            <li><b>Provisionamento JIT</b> — cria org e usuário no primeiro login OIDC a partir do sub e org_id.</li>
+            <li><b>bytesPath / Attachment</b> — anexo com caminho s3:// ou disco; Event referencia só o id.</li>
+            <li><b>RequestMetricsHourly / OrgUsageDaily</b> — rollups batch de requests para custo e uso por org.</li>
+            <li><b>METRICS_TOKEN</b> — bearer da API /metrics do motor; sem ele não há scrape (motor/compose.prod.yml:50).</li>
+            <li><b>Blobs</b> — bytes de anexo fora do banco, em S3 ou volume local.</li>
+            <li><b>scheduled_tasks</b> — tarefas por cron da coleta mypanel gravadas em SQLite.</li>
         </ul>
       </div>
 

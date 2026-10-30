@@ -5689,6 +5689,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo de leitura</h3>
+        </div>
+        <ol>
+          <li>Localize os 7 nós de estado (todo, in_progress, awaiting_human_decision, awaiting_more_information, blocked, done, cancelled) e confira com o card Caminho feliz.</li>
+          <li>Siga o caminho feliz: todo → em execução → concluída, com completedAt carimbado ao concluir (card Caminho feliz).</li>
+          <li>Siga o portão humano: decisão obrigatória leva para aguardando decisão; responder, cancelar ou substituir libera para a fazer (card Portão humano).</li>
+          <li>Confira os valores reais no código: TaskStatus com 7 valores em (agent-package/backend/prisma/schema.prisma:650).</li>
+          <li>Distinga os portões: awaiting_human_decision usa TaskDecisionStatus em (agent-package/backend/prisma/schema.prisma:660); awaiting_more_information é complemento de contexto.</li>
+          <li>Feche com finais explícitos: done e cancelled exigem reabertura; blocked retoma para em execução por atualização (card Finais explícitos).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li>O HTML atual não declara links relativos internos; as correlações abaixo são arquivos irmãos existentes em /workspace (abrir manualmente).</li>
+          <li><a href="./360-erd-agentpack.html">360-erd-agentpack.html</a> — tabelas tasks (agent-package/backend/prisma/schema.prisma:732), task_decisions (:843), task_events (:921) e todos (:1042) que persistem este ciclo.</li>
+          <li><a href="./360-lc-deploy.html">360-lc-deploy.html</a> — outro ciclo de vida (deploy do mypanel) para contraste: lá o final é running, aqui é done/cancelled.</li>
+          <li><a href="./360-df-lineage.html">360-df-lineage.html</a> — situar tasks no fluxo de processamento e consumo, sem presumir linhagem direta.</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Mostra só o status da task; não mostra TaskDependency em (agent-package/backend/prisma/schema.prisma:797) nem ordem de execução entre tasks.</li>
+          <li>Não mostra o payload de TaskEventType em (agent-package/backend/prisma/schema.prisma:669); o histórico existe, mas o conteúdo de cada evento está fora do mapa.</li>
+          <li>Não mostra opções e respostas de decisão (TaskDecisionOption :880, TaskDecisionResponse :898); o portão é resumido a entrar e sair.</li>
+          <li>Não mostra prioridades, vínculos (skills, memórias, anexos) nem todos; concluir a task não significa concluir os vinculados.</li>
+          <li>Não mostra quem pode transicionar (ator e permissão); ActorType em (agent-package/backend/prisma/schema.prisma:827) e regras de serviço estão fora do diagrama.</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5707,6 +5749,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Todo / in_progress / done</b> — caminho feliz da Task em (agent-package/backend/prisma/schema.prisma:650); done carimba completedAt.</li>
+          <li><b>Awaiting_human_decision</b> — portão de decisão obrigatória; usa TaskDecisionStatus em (agent-package/backend/prisma/schema.prisma:660).</li>
+          <li><b>Awaiting_more_information</b> — portão de complemento: humano pede contexto e executor devolve à fila.</li>
+          <li><b>Blocked</b> — pausa que retoma para em execução por atualização de status.</li>
+          <li><b>Cancelled</b> — final alternativo a done; ambos exigem reabertura para sair do estado final.</li>
         </ul>
       </div>
 

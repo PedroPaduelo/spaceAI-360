@@ -6558,6 +6558,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo de leitura</h3>
+        </div>
+        <ol>
+          <li>Confirme o recorte: 10 tabelas neste mapa (users, organizations, memberships, sessions, agents, threads, turns, events, mailbox_items, attachments) ante 21 models do schema.</li>
+          <li>Comece pela identidade (2x2): users em (motor/backend/prisma/schema.prisma:1077) e organizations em (:1098), com memberships em (:1116) e sessions em (:1137) abaixo.</li>
+          <li>Siga para conversas: agents em (motor/backend/prisma/schema.prisma:94) no topo, threads em (:160) como hub central, com turns (:278), events (:335) e mailbox_items (:371) filhos.</li>
+          <li>Confira as chaves no card Chaves e unicidades e as unicidades compostas (agents org_id+slug, turns thread_id+turn_number, events thread_id+seq).</li>
+          <li>Leia as opcionalidades: lado muitos zero-ou-muitos; lado um só opcional onde a FK é anulável (threads.agent_id, events.turn_id).</li>
+          <li>Feche com escopo: org_id e user_id são tenant sem FK por desenho; attachments guarda só metadados e bytes_path, com 110 colunas físicas no total.</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li>O HTML atual não declara links relativos internos; as correlações abaixo são arquivos irmãos existentes em /workspace (abrir manualmente).</li>
+          <li><a href="./360-erd-motor-full.html">360-erd-motor-full.html</a> — versão completa com 21 tabelas (motor/backend/prisma/schema.prisma:94 a :1160); este mapa é o recorte de 10.</li>
+          <li><a href="./360-df-lineage.html">360-df-lineage.html</a> — PG motor (Thread, Turn, Event, Attachment) como cofre e turn-runner como processamento.</li>
+          <li><a href="./360-erd-conta.html">360-erd-conta.html</a> — identidade IdP que espelha ContaEvent em (motor/backend/prisma/schema.prisma:1160); bancos separados, sem FK cruzada.</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Recorte de 10 de 21 tabelas: não mostra workflows (WorkflowDefinition :692 a WorkflowEvent :1035), webhooks (:576, :607) nem plataforma (:473, :489).</li>
+          <li>Não mostra threads.parent_thread_id como aresta nem root_thread_id como FK; a auto-referência existe em (motor/backend/prisma/schema.prisma:160) sem linha no diagrama.</li>
+          <li>Não mostra conteúdo de payloads JSONB nem bytes de anexo; attachments aponta bytes_path para S3/disco, com GC por retention_until.</li>
+          <li>Não mostra migrations, índices parciais nem triggers; enums ThreadStatus (:50), TurnStatus (:58) e MailboxKind (:72) viram tipos, sem valores exibidos no nó.</li>
+          <li>Não presuma FK onde há só escopo: org_id, user_id e installation_id são colunas lógicas sem references, por desenho para linhas antigas sem espelho.</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -6576,6 +6618,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Thread</b> — conversa em (motor/backend/prisma/schema.prisma:160); hub com turns, events e mailbox; parent_thread_id é auto-FK sem aresta.</li>
+          <li><b>Turn</b> — rodada da conversa em (motor/backend/prisma/schema.prisma:278); TurnStatus em (:58) vira tipo.</li>
+          <li><b>Event</b> — fato append-only em (motor/backend/prisma/schema.prisma:335); turn_id anulável para eventos sem rodada.</li>
+          <li><b>Mailbox</b> — caixa de entrada em (motor/backend/prisma/schema.prisma:371); MailboxKind em (:72) classifica o item.</li>
+          <li><b>Attachment</b> — metadados e pointer em (motor/backend/prisma/schema.prisma:525); bytes ficam em S3/disco, dedup por org_id+sha256.</li>
         </ul>
       </div>
 

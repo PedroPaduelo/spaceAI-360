@@ -5747,6 +5747,49 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo de leitura</h3>
+        </div>
+        <ul>
+            <li><b>1. Comece pelo Operador no navegador:</b> todo fluxo parte do uso do workbench do motor; localize Motor, Load-balance e Providers LLM no centro do diagrama.</li>
+            <li><b>2. Siga Motor → Load-balance → Providers:</b> o motor emite Anthropic Messages canônico e nunca sabe modelo, provider ou credencial; o LB resolve a rota e transpila (motor/backend/docs/contrato-load-balancer.md:5,29).</li>
+            <li><b>3. Volte para Conta-central :4100 (IdP OIDC):</b> autenticação da casa; backends validam sessão contra ela (AGENTS.md:32,169).</li>
+            <li><b>4. Abra Agent-package :4000 + shot e Render :4000:</b> apps irmãs; render é fork do agent-package, costura mais solta da casa (AGENTS.md:55,171).</li>
+            <li><b>5. Desça para Postgres ×5 e Redis:</b> cada app tem banco, schema e migrations próprios; nenhum escreve na tabela de outro (AGENTS.md:17).</li>
+            <li><b>6. Feche com MyPanel :3001 + Caddy:</b> painel publica domínios pelo targetPort e gerencia sandboxes gVisor runsc (mypanel/docker-compose.yml:71,137-138).</li>
+            <li><b>7. Confira a legenda:</b> Backend, Database, Cloud, Security e External distinguem processo, dado e fronteira de rede.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+            <li><a href="spaceai-workspace.html">spaceai-workspace.html</a> — zoom do caminho quente: playground, turno no motor e volta do LB até a thread.</li>
+            <li><a href="360-deploy-arch.html">360-deploy-arch.html</a> — como cada bloco deste mapa sobe: Caddy, BACKEND_UPSTREAM e redes/volumes.</li>
+            <li><a href="360-seq-api.html">360-seq-api.html</a> — detalhe da seta Motor→LB→Provider: bootstrap, stream SSE e usage.</li>
+            <li><a href="360-df-lineage.html">360-df-lineage.html</a> — onde cada dado deste mapa mora: PG por app, blobs e rollups de métricas.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+            <li>O diagrama mostra 6 apps; o pin lista 8 no inventário (AGENTS.md:63-74) — documentation-portal e web-browser ficaram fora deste recorte.</li>
+            <li>Não mostra tetos: TURN_MAX_STEPS/TOKENS vazios valem 100 steps e 5M billable (motor/compose.prod.yml:58-60); subagentes 3/8/24 (motor/compose.prod.yml:63-66).</li>
+            <li>Não mostra CI porque não existe: nenhum app cria .github/workflows por decisão do dono (AGENTS.md:218; motor/CLAUDE.md:263-271).</li>
+            <li>Não mostra dívida de container: load-balance e mypanel sem USER/HEALTHCHECK; digest só em agent-package e render (AGENTS.md:214).</li>
+            <li>Portas, tempos e provedor exato são do recorte do diagrama; a tabela real de portas dev/prod está em AGENTS.md:97-113.</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5765,6 +5808,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+            <li><b>Stack geral</b> — o compose.yml da raiz que inclui o fragmento de cada app; a unidade de deploy é a stack, não o app (AGENTS.md:10-12,191).</li>
+            <li><b>Include / fragmento</b> — cada app declara seus serviços no próprio compose.yml; a raiz só dá include, sem declarar serviço (AGENTS.md:191).</li>
+            <li><b>targetPort</b> — campo do domínio no painel que escolhe o container; manda no roteamento, não o EXPOSE (AGENTS.md:212).</li>
+            <li><b>Fork</b> — render nasceu do agent-package com seed que espelha dados; herança de histórico, não contrato (AGENTS.md:171).</li>
+            <li><b>Sandbox gVisor (runsc)</b> — container isolado de agente criado pelo painel a partir da sandbox-image (mypanel/docker-compose.yml:115-126).</li>
         </ul>
       </div>
 

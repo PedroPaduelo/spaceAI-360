@@ -5687,6 +5687,49 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo de leitura</h3>
+        </div>
+        <ol>
+          <li>Localize os 7 nós de estado no diagrama (Pendente, Construindo, Puxando imagem, Publicando, No ar, Falhou, Parado) e confira com o card Caminho principal.</li>
+          <li>Siga o caminho GitHub: pending → building (clone) → deploying (cria+inicia) → running, conforme o card Caminho principal.</li>
+          <li>Siga o caminho imagem: pending → pulling (docker pull) → deploying → running; compose do repo vai de building direto para running.</li>
+          <li>Confira os valores reais no código: deployments.status com 7 valores em (mypanel/packages/server/src/db/schema.ts:58) e services.status com 5 valores em (mypanel/packages/server/src/db/schema.ts:46).</li>
+          <li>Siga a falha: qualquer erro grava ERROR no log e marca deployment failed e serviço error; rollback é um deployment novo do gitSha, sem apagar histórico (card Falha e rollback).</li>
+          <li>Feche com operação: stop marca stopped e start reaproveita a imagem; domínio no Caddy só responde com container no ar (card Parado e operação).</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li>O HTML atual não declara links relativos internos; as correlações abaixo são arquivos irmãos existentes em /workspace (abrir manualmente).</li>
+          <li><a href="./360-erd-mypanel.html">360-erd-mypanel.html</a> — tabelas services (mypanel/packages/server/src/db/schema.ts:40) e deployments (mypanel/packages/server/src/db/schema.ts:55) que guardam os estados deste ciclo.</li>
+          <li><a href="./360-df-lineage.html">360-df-lineage.html</a> — coleta mypanel (stats + scheduled_tasks) e consumo via dashboards e /metrics.</li>
+          <li><a href="./360-deploy-arch.html">360-deploy-arch.html</a> — arquitetura do deploy para situar este ciclo no sistema.</li>
+          <li><a href="./360-lc-object.html">360-lc-object.html</a> — outro ciclo de vida (tasks do agent-package) para contraste de portões humanos e finais.</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Não mostra tempos, retries nem timeouts entre building, pulling e deploying; só a ordem dos estados.</li>
+          <li>cancelled existe no enum em (mypanel/packages/server/src/db/schema.ts:58), mas o card Falha e rollback registra sem escrita observada no pipeline — não assuma transição automática.</li>
+          <li>Não mostra o conteúdo do log ERROR nem onde o log é armazenado; só que a falha marca deployment failed e serviço error.</li>
+          <li>Não mostra detalhes do Caddy além de responder só com container no ar; regras de proxy e TLS estão fora deste mapa.</li>
+          <li>Regra da casa (USER, HEALTHCHECK, base pinada) é convenção citada no card Parado e operação, não constraint do schema em (mypanel/packages/server/src/db/schema.ts:40).</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5705,6 +5748,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Deployment</b> — registro em deployments (mypanel/packages/server/src/db/schema.ts:55); status em (mypanel/packages/server/src/db/schema.ts:58) com pending, building, pulling, deploying, running, failed e cancelled.</li>
+          <li><b>Building / pulling</b> — fases de construção: building é clone + docker build; pulling é docker pull da imagem, antes de deploying.</li>
+          <li><b>Rollback</b> — deployment novo a partir do gitSha alvo, sem apagar o histórico; volta para pending via retry/rollback.</li>
+          <li><b>Service</b> — container gerenciado em services (mypanel/packages/server/src/db/schema.ts:40); status em (mypanel/packages/server/src/db/schema.ts:46).</li>
+          <li><b>Caddy</b> — proxy que publica o domínio; só responde com o container no ar (card Parado e operação).</li>
         </ul>
       </div>
 

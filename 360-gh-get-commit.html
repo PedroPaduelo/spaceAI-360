@@ -5771,6 +5771,45 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>A tool recebe owner, repo e ref, onde ref é SHA do commit ou nome de branch/tag (backend/src/tools/github/repos.ts:86-90).</li>
+          <li>O handler delega ao wrapper gh com GET /repos/{owner}/{repo}/commits/{ref} (backend/src/tools/github/repos.ts:92-95).</li>
+          <li>O wrapper resolve o id do McpServer GitHub; sem cadastro ou sem token, devolve GITHUB_NOT_CONFIGURED (backend/src/tools/github/shared.ts:39-48; backend/src/services/github-tools.service.ts:54-66).</li>
+          <li>O callGitHubApi confere escopo read, higieniza o path por segmento, monta a URL e chama fetch com o PAT em até 15 s (backend/src/services/github-tools.service.ts:132-135; backend/src/services/github-tools.service.ts:117-130; backend/src/services/github-tools.service.ts:232-249).</li>
+          <li>Sucesso volta como jsonContent; falha prevista vira errorContent com isError e code (backend/src/tools/github/shared.ts:49-53).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li>list_commits lista com filtros sha/path/author/since/until; get_commit lê um ref com diff completo e stats (backend/src/tools/github/repos.ts:50-79; backend/src/tools/github/repos.ts:81-96).</li>
+          <li>get_file_contents lê arquivo ou pasta no mesmo estilo GET com ref opcional (backend/src/tools/github/repos.ts:442-465).</li>
+          <li>get_me usa o mesmo gh e callGitHubApi, mas com path fixo /user e input vazio (backend/src/tools/github/users.ts:7-15).</li>
+          <li>Cada uso do token é auditado com tool, actor e método, sem query nem corpo; resposta não-JSON vira { status, location, text } (backend/src/services/github-tools.service.ts:229-231; backend/src/services/github-tools.service.ts:264-275).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>ref aceita SHA, branch ou tag; ref inexistente vira GITHUB_API_ERROR 502 com os primeiros 500 chars (backend/src/tools/github/repos.ts:89; backend/src/services/github-tools.service.ts:259-262).</li>
+          <li>Segmento com ., .., %2e, barra invertida, ?/# ou controle é recusado com 422 antes de tocar no token (backend/src/services/github-tools.service.ts:117-130).</li>
+          <li>GET exige escopo read: sem ele o catálogo esconde a tool e o call recusa com FORBIDDEN (backend/src/tools/github/shared.ts:96-101; backend/src/services/github-tools.service.ts:141-153).</li>
+          <li>Timeout de 15 s vira GITHUB_TIMEOUT; banco fora ou bug sobe ao gateway como INTERNAL_ERROR com errorId (backend/src/services/github-tools.service.ts:248-256; backend/src/tools/github/shared.ts:49-53).</li>
+        </ul>
+      </div>
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5789,6 +5828,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>ref</b> — SHA, branch ou tag do commit lido (backend/src/tools/github/repos.ts:89).</li>
+          <li><b>GITHUB_NOT_CONFIGURED</b> — McpServer GitHub ausente ou sem token legível (backend/src/tools/github/shared.ts:42-46; backend/src/services/github-tools.service.ts:78-80).</li>
+          <li><b>safeGitHubApiPath</b> — higieniza cada segmento e bloqueia path traversal com o PAT (backend/src/services/github-tools.service.ts:117-130).</li>
+          <li><b>GH.read</b> — anotação de leitura que pede só escopo read (backend/src/tools/github/shared.ts:20-21).</li>
+          <li><b>callGitHubApi</b> — helper único que monta URL, usa o token e trata resposta (backend/src/services/github-tools.service.ts:170-176).</li>
         </ul>
       </div>
 

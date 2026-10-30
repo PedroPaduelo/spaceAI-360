@@ -5708,6 +5708,31 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Como usar este índice</h3>
+        </div>
+        <ol>
+          <li>Comece pelo Caminho principal: descreva no chat e acompanhe o agente executando via tools MCP.</li>
+          <li>Confira a subida do sandbox com o repo clonado e valide o conteúdo em /workspace antes do preview.</li>
+          <li>Abra o preview pela URL pública no navegador; se travar, use 0 para enquadrar e F para tela cheia.</li>
+          <li>Se o sandbox caiu, lembre a Persistência e o Isolamento abaixo antes de recriar.</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Limites conhecidos</h3>
+        </div>
+        <ul>
+          <li>Só /workspace sobrevive a um restart; o resto fora do volume é perdido.</li>
+          <li>168 h sem uso a sandbox hiberna em quarentena: é preciso restaurar, não criar outra.</li>
+          <li>Cada sandbox tem kernel gVisor, rede própria e limites de CPU e memória.</li>
+          <li>Este é o diagrama antigo do fluxo MyPanel: confira o índice atual antes de assumir o caminho vigente.</li>
+        </ul>
+      </div>
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>

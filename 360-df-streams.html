@@ -5724,6 +5724,49 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Passo a passo de leitura</h3>
+        </div>
+        <ul>
+            <li><b>1. App cliente faz POST SSE com prompt;</b> todo job BullMQ carrega só identidade runId, stepId e attempt.</li>
+            <li><b>2. Filas com prefixo motorq isolam o keyspace;</b> nomes com hífen em queue/queues.ts (motor/CLAUDE.md:50).</li>
+            <li><b>3. Postgres é a verdade do grafo;</b> Redis guarda transporte efêmero e cache best-effort (motor/CLAUDE.md:56).</li>
+            <li><b>4. Workers fazem claim no banco e reconciliador dá tick com runId + orgId.</b></li>
+            <li><b>5. RunBus Pub/Sub entrega parcial no canal Run WS com filtro de org a 2 Hz.</b></li>
+            <li><b>6. Proxy + SSE faz parse e transform;</b> SseParser filtra bytes válidos e o transform mapeia eventos Anthropic.</li>
+            <li><b>7. Navegador faz replay só no handshake run_connected e na re-hidratação; fila não tem replay.</b></li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+            <li><a href="360-seq-async.html">360-seq-async.html</a> — o fluxo que produz e consome cada fila deste mapa.</li>
+            <li><a href="360-df-lineage.html">360-df-lineage.html</a> — o destino durável de cada evento: tabelas, blobs e rollups.</li>
+            <li><a href="360-wf-agent-loop.html">360-wf-agent-loop.html</a> — o produtor interno: steps do turno virando jobs.</li>
+            <li><a href="360-seq-api.html">360-seq-api.html</a> — o SSE síncrono que usa o mesmo contrato Anthropic.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+            <li>Sem DLQ ou dead-letter no código: retry por fila, jobId determinístico e retenção curta no Redis.</li>
+            <li>Canal de thread usa rooms em memória no broadcaster; só o canal de run atravessa processos via Redis.</li>
+            <li>Fila usa REDIS_QUEUE_URL com queda para REDIS_URL e exige maxRetriesPerRequest null; cache usa REDIS_URL fail-open (motor/compose.prod.yml:32-33).</li>
+            <li>Cache do LB usa pool por org com TTL curto; cooldown é espelhado no Redis e filtrado no snapshot.</li>
+            <li>Manutenção repeatable varre órfãos e purga eventos/outputs antigos em lotes pequenos; não é tempo real.</li>
+        </ul>
+      </div>
+
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5742,6 +5785,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+            <li><b>Prefixo motorq</b> — isola o keyspace das filas no Redis compartilhado.</li>
+            <li><b>Redis duplo</b> — fila em REDIS_QUEUE_URL (cai para REDIS_URL) e cache em REDIS_URL fail-open (motor/compose.prod.yml:32-33).</li>
+            <li><b>SseParser</b> — filtra bytes válidos do SSE do provedor antes do transform para Anthropic.</li>
+            <li><b>Replay / handshake</b> — só em run_connected com replay:true e na re-hidratação; fila não tem replay.</li>
+            <li><b>Sem DLQ</b> — sem dead-letter; contenção é por retry, jobId determinístico e retenção curta.</li>
+            <li><b>Retenção / órfãos</b> — varredura repeatable que purga eventos e outputs de runs terminados.</li>
         </ul>
       </div>
 

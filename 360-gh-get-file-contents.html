@@ -5703,6 +5703,45 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Passo a passo do fluxo</h3>
+        </div>
+        <ol>
+          <li>A tool recebe owner, repo, path do arquivo ou pasta, mais ref opcional de branch, tag ou SHA (backend/src/tools/github/repos.ts:448-453).</li>
+          <li>O handler delega ao wrapper gh com GET /repos/{owner}/{repo}/contents/{path} e query ref (backend/src/tools/github/repos.ts:455-464).</li>
+          <li>O wrapper resolve o id do McpServer GitHub; sem cadastro ou sem token, devolve GITHUB_NOT_CONFIGURED (backend/src/tools/github/shared.ts:39-48; backend/src/services/github-tools.service.ts:54-66).</li>
+          <li>O callGitHubApi confere escopo read, higieniza cada segmento do path, monta a URL e chama fetch com o PAT em até 15 s (backend/src/services/github-tools.service.ts:132-135; backend/src/services/github-tools.service.ts:117-130; backend/src/services/github-tools.service.ts:232-249).</li>
+          <li>Arquivo volta como objeto com content em base64; diretório volta como lista; falha prevista vira errorContent isError (backend/src/tools/github/repos.ts:446-447; backend/src/tools/github/shared.ts:49-53).</li>
+        </ol>
+      </div>
+
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li>get_commit e list_commits leem commits no mesmo estilo GET com owner e repo (backend/src/tools/github/repos.ts:50-96).</li>
+          <li>search_code busca código em todo o GitHub; get_file_contents lê o conteúdo exato de um path (backend/src/tools/github/repos.ts:467-483; backend/src/tools/github/repos.ts:442-465).</li>
+          <li>O sufixo de query ref aceita branch, tag ou SHA, igual ao ref de get_commit (backend/src/tools/github/repos.ts:453; backend/src/tools/github/repos.ts:89).</li>
+          <li>Cada uso do token é auditado com tool, actor e método, sem query nem corpo (backend/src/services/github-tools.service.ts:229-231).</li>
+        </ul>
+      </div>
+
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Path com ., .., %2e, barra invertida, ?/# ou controle é recusado com 422 antes de tocar no token (backend/src/services/github-tools.service.ts:117-130).</li>
+          <li>Arquivo grande volta em base64 e pode estourar o contexto; prefira search_code para localizar antes de ler (backend/src/tools/github/repos.ts:446-447).</li>
+          <li>GET exige escopo read: sem ele o catálogo esconde a tool e o call recusa com FORBIDDEN (backend/src/tools/github/shared.ts:96-101; backend/src/services/github-tools.service.ts:141-153).</li>
+          <li>Timeout de 15 s vira GITHUB_TIMEOUT; erro HTTP vira GITHUB_API_ERROR com 500 chars; resto sobe como INTERNAL_ERROR (backend/src/services/github-tools.service.ts:248-262).</li>
+        </ul>
+      </div>
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -5721,6 +5760,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>contents path</b> — arquivo ou pasta lido em /repos/{owner}/{repo}/contents/{path} (backend/src/tools/github/repos.ts:449-460).</li>
+          <li><b>ref opcional</b> — branch, tag ou SHA; omitido lê o default da repo (backend/src/tools/github/repos.ts:453).</li>
+          <li><b>base64</b> — arquivo volta com content codificado; diretório volta como lista (backend/src/tools/github/repos.ts:446-447).</li>
+          <li><b>safeGitHubApiPath</b> — higieniza cada segmento e bloqueia traversal com o PAT (backend/src/services/github-tools.service.ts:117-130).</li>
+          <li><b>GH.read</b> — anotação de leitura que pede só escopo read (backend/src/tools/github/shared.ts:20-21).</li>
         </ul>
       </div>
 

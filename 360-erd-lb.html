@@ -7491,6 +7491,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </ul>
       </div>
     
+      <div class="card" id="card-passo-a-passo">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Passo a passo de leitura</h3>
+        </div>
+        <ol>
+          <li>Confirme o escopo: 19 tabelas e 209 colunas físicas, tipos fiéis ao schema, sem colunas inventadas.</li>
+          <li>Leia as chaves: api_key_groups em (load-balance/backend/prisma/schema.prisma:317) no topo, api_keys em (:16) abaixo, shared_key_groups (:668) e vínculos (:685).</li>
+          <li>Siga o roteamento: request_config_groups (:333), request_configs (:238) com 5 FKs e assignments (:302) com 3 FKs.</li>
+          <li>Leia a identidade: retired_org_slugs (:536), organizations (:452), memberships (:576) entre os pais e users (:546).</li>
+          <li>Siga o acesso: client_api_keys (:372), client_api_key_configs (:395) e user_api_keys (:411).</li>
+          <li>Feche com observabilidade: requests (:101), request_payloads 1:1 (:176), request_metrics_hourly (:204), org_usage_daily (:635) e audit_logs (:605); retenção curta em requests.</li>
+        </ol>
+      </div>
+    
+      <div class="card" id="card-correlacoes">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Correlações</h3>
+        </div>
+        <ul>
+          <li>O HTML atual não declara links relativos internos; as correlações abaixo são arquivos irmãos existentes em /workspace (abrir manualmente).</li>
+          <li><a href="./360-df-lineage.html">360-df-lineage.html</a> — proxy load-balance como processamento e PG load-balance (Request, Payload, Metrics) como cofre.</li>
+          <li><a href="./360-erd-motor.html">360-erd-motor.html</a> — motor que consome os providers via este proxy; bancos separados, sem FK cruzada.</li>
+          <li><a href="./360-erd-conta.html">360-erd-conta.html</a> — identidade IdP separada; compare organizations e memberships sem presumir sincronia.</li>
+        </ul>
+      </div>
+    
+      <div class="card" id="card-armadilhas">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Armadilhas e limites</h3>
+        </div>
+        <ul>
+          <li>Não mostra o algoritmo de roteamento; request_configs guarda as 5 FKs, mas a escolha de provider está no código.</li>
+          <li>Sem FK de propósito (requests.userId, userApiKeyId, metrics.organizationId e demais no card de escopo) significa log que sobrevive à remoção; não complete a aresta.</li>
+          <li>Retenção curta: requests e request_payloads têm expiresAt; o histórico está nos rollups, não nas linhas quentes.</li>
+          <li>Não mostra valores de ConfigVisibility em (:294) nem SharedScope em (:660) além do tipo; a semântica de visibilidade está fora do nó.</li>
+          <li>Não mostra rate-limit, custo nem latência por request; audit_logs e métricas guardam fatos, não o orçamento.</li>
+        </ul>
+      </div>
+    
       <div class="card" id="card-glossario">
         <div class="card-header">
           <div class="card-dot slate"></div>
@@ -7509,6 +7551,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li><b>OIDC / JWT / RBAC</b> — login federado / token de sessao / permissao por papel.</li>
           <li><b>SSE / WebSocket</b> — a resposta do modelo desce em eventos de texto ao vivo.</li>
           <li><b>FTS / trigram / RRF</b> — busca textual: indice de texto, similaridade de trigramas e fusao de rankings.</li>
+          <li><b>Api_key / key group</b> — chave em (load-balance/backend/prisma/schema.prisma:16) com groupId anulável; grupos em (:317) e compartilhados em (:668).</li>
+          <li><b>Request_config</b> — roteamento em (:238) com 5 FKs; assignments em (:302) ligam config a grupo.</li>
+          <li><b>Rollup</b> — agregado batch: request_metrics_hourly em (:204) e org_usage_daily em (:635) guardam o histórico.</li>
+          <li><b>Shared_key_group</b> — compartilhamento em (:668) com vínculo org em (:685); SharedScope em (:660) vira tipo.</li>
+          <li><b>Client_api_key</b> — acesso de cliente em (:372) com configs em (:395); user_api_keys em (:411) para uso pessoal.</li>
         </ul>
       </div>
 
